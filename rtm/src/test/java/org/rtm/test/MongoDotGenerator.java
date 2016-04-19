@@ -1,5 +1,6 @@
 package org.rtm.test;
 
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -13,7 +14,14 @@ import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.rtm.commons.Measurement;
 import org.rtm.rest.SimpleResponse;
+import org.w3c.dom.Document;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.util.JSON;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -25,13 +33,25 @@ public class MongoDotGenerator extends Thread{
 
 	public static void main (String[] args){
 			
-			for (int i = 0; i < 10; i++)
-			{
+		dropCollection();
+		
+		int nb_threads = 5;
+		
+			for (int i = 0; i < nb_threads; i++)
+			{/**/
+				//For presentation purposes
+				try {
+					Thread.sleep(i * 30000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				/**/
 				new MongoDotGenerator().start();
 			}
 			
 		}
-		
+
 	public void run(){
 		try{
 			
@@ -59,8 +79,8 @@ public class MongoDotGenerator extends Thread{
 			
 			int txRootFactor = 5;
 
-			String userId = "stepUser_X";
-			String clientIp = "10.100.1.0";
+			String[] userId = {"Peter", "Michael", "Lisa", "Ted"};
+			String clientIp = "10.100.1.";
 			String dataSetName = "DEV_NTX" + Integer.toString(txRootFactor);
 			String transactionName = "MyMeasurement_Y";
 			dur = 50;
@@ -70,9 +90,9 @@ public class MongoDotGenerator extends Thread{
 				Date dateObj = new Date();
 				
 				Map<String,String> optional = new TreeMap<String,String>();
-				optional.put("client", clientIp);
-				optional.put("userId", userId);
-				
+				optional.put("client", clientIp + (int)Math.round(Math.random()*100 % 10));
+				optional.put("userId", userId[(int)Math.round(Math.random()*100 % (userId.length-1))]);
+				optional.put("threadId", String.valueOf(Thread.currentThread().getId()));
 
 				Random randomGenerator = new Random();
 				dur = randomGenerator.nextInt(100);
@@ -89,11 +109,13 @@ public class MongoDotGenerator extends Thread{
 				t.setTextAttribute("eId", dataSetName);
 				t.setTextAttribute("name", transactionName);
 				t.setNumericalAttribute("begin", dateObj.getTime());
-				t.setNumericalAttribute("value", new Long(dur));
+				t.setNumericalAttribute("value", new Long(dur) > 0 ? new Long(dur) : 1);
 				t.setTextAttributes(optional);
 				/*
 				WriteResult wr = MeasurementAccessor.getInstance().saveMeasurement(t);
 				*/
+				
+				System.out.println("Posting measurement: " + t);
 				
 				ClientResponse response = webResource.type("application/json")
 						.post(ClientResponse.class, t);
@@ -108,8 +130,24 @@ public class MongoDotGenerator extends Thread{
 				
 				//String body = "{\"_id\": \"perfdoc_"+dataSetName+"_"+i+"\",\"dataSet\": \""+ dataSetName+"\",\"transactionName\": \""+transactionName+"\",\"userId\": \""+userId+"\",\"client\": \""+clientIp+"\",\"date\": "+dateObj.getTime()+",\"duration\": "+dur+",\"year\": "+y+",\"month\": "+m+",\"day\": "+d+",\"hour\": "+h+",\"minute\": "+min+",\"second\": "+s+",\"ms\": "+ms+"}";
 				
-				Thread.sleep(dur);
+				Thread.sleep(1000);
 			}
 		}catch(Exception e){e.printStackTrace();}
 	}
+	
+	
+private static void dropCollection() {
+	MongoClient c = null;
+	try {
+		c = new MongoClient("localhost");
+	} catch (UnknownHostException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	DB db = c.getDB("rtm");
+	DBCollection coll = db.getCollection("measurements");
+	coll.remove(new BasicDBObject());
+	c.close();
+}
+
 }
