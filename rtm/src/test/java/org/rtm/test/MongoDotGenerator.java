@@ -146,7 +146,7 @@ private static void dropCollection() {
 	}
 	DB db = c.getDB("rtm");
 	DBCollection coll = db.getCollection("measurements");
-	coll.remove(new BasicDBObject("t.eId", "PERF_TEST"));
+	coll.remove(new BasicDBObject("t.eId", "PERF_TEST1"));
 	c.close();
 }
 
