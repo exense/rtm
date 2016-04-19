@@ -41,7 +41,7 @@ public class MongoDotGenerator extends Thread{
 			{/**/
 				//For presentation purposes
 				try {
-					Thread.sleep(i * 30000);
+					Thread.sleep(i * 60000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -81,7 +81,7 @@ public class MongoDotGenerator extends Thread{
 
 			String[] userId = {"Peter", "Michael", "Lisa", "Ted"};
 			String clientIp = "10.100.1.";
-			String dataSetName = "DEV_NTX" + Integer.toString(txRootFactor);
+			String dataSetName = "PERF_TEST";
 			String transactionName = "MyMeasurement_Y";
 			dur = 50;
 			
@@ -146,7 +146,7 @@ private static void dropCollection() {
 	}
 	DB db = c.getDB("rtm");
 	DBCollection coll = db.getCollection("measurements");
-	coll.remove(new BasicDBObject());
+	coll.remove(new BasicDBObject("t.eId", "PERF_TEST"));
 	c.close();
 }
 
