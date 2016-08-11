@@ -10,6 +10,7 @@ import org.jongo.marshall.jackson.oid.ObjectId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 @XmlRootElement
 public class Measurement {
 	
@@ -27,13 +28,15 @@ public class Measurement {
 	
 	@ObjectId
 	private String _id;
-		
-	private Map<String,String> textAttributes;
-	private Map<String,Long> numericalAttributes;
+	
+	@JsonProperty(Configuration.TEXT_PREFIX)
+	private Map<String,String> t;
+	@JsonProperty(Configuration.NUM_PREFIX)
+	private Map<String,Long> n;
 	
 	public Measurement() {
-		this.textAttributes = new TreeMap<String, String>();
-		this.numericalAttributes = new TreeMap<String, Long>();
+		this.t = new TreeMap<String, String>();
+		this.n = new TreeMap<String, Long>();
 	}
 	
 	public String getId() {
@@ -44,44 +47,42 @@ public class Measurement {
 	public void setId(String id) {
 		this._id = id;
 	}
-
 	@JsonProperty(Configuration.TEXT_PREFIX)
-	public Map<String,String> getTextAttributes(){
-		return this.textAttributes;
+	public Map<String,String> gett(){
+		return this.t;
 	}
-	
 	@JsonProperty(Configuration.NUM_PREFIX)
-	public Map<String,Long> getNumericalAttributes(){
-		return this.numericalAttributes;
+	public Map<String,Long> getn(){
+		return this.n;
 	}
 	
 	@JsonIgnore
 	public String getTextAttribute(String key){
-		return this.textAttributes.get(key);
+		return this.t.get(key);
 	}
 	@JsonIgnore
 	public Long getNumericalAttribute(String key){
-		return this.numericalAttributes.get(key);
+		return this.n.get(key);
 	}
 	@JsonIgnore
 	public void setTextAttribute(String key, String value){
-		this.textAttributes.put(key,value);
+		this.t.put(key,value);
 	}
 	@JsonIgnore
 	public void setTextAttributes(Map<String,String> values){
-		this.textAttributes.putAll(values);
+		this.t.putAll(values);
 	}
 	@JsonIgnore
 	public void setNumericalAttribute(String key, Long value){
-		this.numericalAttributes.put(key,value);
+		this.n.put(key,value);
 	}
 	@JsonIgnore
 	public void setNumericalAttributes(Map<String,Long> values){
-		this.numericalAttributes.putAll(values);
+		this.n.putAll(values);
 	}
 	@JsonIgnore
 	public String toString(){
-		return "{ "+Configuration.TEXT_PREFIX+" : " + this.textAttributes + ", "+Configuration.NUM_PREFIX+" : " + this.numericalAttributes + "}";
+		return "{ "+Configuration.TEXT_PREFIX+" : " + this.t + ", "+Configuration.NUM_PREFIX+" : " + this.n + "}";
 	}
 
 }
