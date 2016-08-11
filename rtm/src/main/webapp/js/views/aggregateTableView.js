@@ -98,7 +98,7 @@ var AggregateTableView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].numericalAttributes){
+			for ( var key in firstModel.attributes.payload[0].data[0].n){
 				if($.inArray(key, excludes) < 0){
 					metricsList.push(key);
 				}
@@ -111,7 +111,7 @@ var AggregateTableView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].numericalAttributes){
+			for ( var key in firstModel.attributes.payload[0].data[0].n){
 				metricsList.push(key);
 			}
 		}

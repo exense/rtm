@@ -93,10 +93,10 @@ var MeasurementListView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.textAttributes){
+			for ( var key in firstModel.attributes.t){
 				metricsList.push(key);
 			}
-			for ( var key in firstModel.attributes.numericalAttributes){
+			for ( var key in firstModel.attributes.n){
 				metricsList.push(key);
 			}
 		}

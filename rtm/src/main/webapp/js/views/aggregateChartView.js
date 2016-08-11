@@ -84,7 +84,7 @@ var AggregateChartView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].numericalAttributes){
+			for ( var key in firstModel.attributes.payload[0].data[0].n){
 				if($.inArray(key, excludes) < 0){
 					metricsList.push(key);
 				}
@@ -97,7 +97,7 @@ var AggregateChartView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].numericalAttributes){
+			for ( var key in firstModel.attributes.payload[0].data[0].n){
 				metricsList.push(key);
 			}
 		}
@@ -147,11 +147,11 @@ var AggregateChartView = Backbone.View.extend({
 					isChartMaxDotsPerSeriesReached = true;
 					break;
 				}
-				rowArray.push(new Date(new Number(pAggregates[0].data[i].numericalAttributes[pChartParams.chartBeginKey])));
+				rowArray.push(new Date(new Number(pAggregates[0].data[i].n[pChartParams.chartBeginKey])));
 				var limit = 0;
 				_.each(pAggregates, function(aggregate) {
 					if(limit < pChartParams.chartMaxSeries){
-						rowArray.push(aggregate.data[i].numericalAttributes[metric]);
+						rowArray.push(aggregate.data[i].n[metric]);
 						limit = limit + 1;
 					}else{
 						isChartMaxSeriesReached = true;
