@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 public class RTMMongoClient{
 
@@ -35,8 +37,6 @@ public class RTMMongoClient{
 	private RTMMongoClient(){
 		super();
 
-		String hostname = Configuration.getInstance().getProperty(Configuration.DSHOST_KEY);
-		String dbname = Configuration.getInstance().getProperty(Configuration.DSNAME_KEY);
 		String measurementsColl = Configuration.getInstance().getProperty(Configuration.MEASUREMENTSCOLL_KEY);
 		
 		/* Currently not needed - until we manipulate and save aggregates again*/
@@ -45,16 +45,31 @@ public class RTMMongoClient{
 		if(Configuration.getInstance().getProperty(Configuration.DEBUG_KEY) != null)
 			this.isDebug = Configuration.getInstance().getProperty(Configuration.DEBUG_KEY).equals("true");
 
+		String host = Configuration.getInstance().getProperty("db.host");
+		Integer port = Configuration.getInstance().getPropertyAsInteger("db.port");
+		port = port==null?27017:port;
+		String user = Configuration.getInstance().getProperty("db.username");
+		String pwd = Configuration.getInstance().getProperty("db.password");
+		String database = Configuration.getInstance().getProperty("db.database");
+		database = database==null?"rtm":database;
+		
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient(hostname);
+			ServerAddress address = new ServerAddress(host, port);
+			List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+			if(user!=null) {
+				MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
+				credentials.add(credential);
+			}
+			
+			mongoClient = new MongoClient(address, credentials);
 		} catch (UnknownHostException e) {
 			logger.error("An error occurred while initializing the mongo client", e);
 			throw new RuntimeException(e);
 		}
-		DB db = mongoClient.getDB(dbname);
+		DB db = mongoClient.getDB(database);
 		if(db != null)
-			System.out.println("Connected to: " + hostname + "/" + dbname);
+			System.out.println("Connected to: " + mongoClient.getAddress().getHost());
 		else
 			System.out.println("DB is null");
 		Jongo jongo = new Jongo(db);

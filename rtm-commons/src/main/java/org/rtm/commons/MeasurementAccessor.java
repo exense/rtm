@@ -1,5 +1,6 @@
 package org.rtm.commons;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jongo.Jongo;
@@ -9,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.WriteResult;
 
 public class MeasurementAccessor {
@@ -19,9 +22,24 @@ public class MeasurementAccessor {
 	MongoCollection measurements;
 	
 	private MeasurementAccessor(){
-		try {
-			MongoClient mongoClient = new MongoClient(Configuration.getInstance().getProperty("ds.host"));
-			DB db = mongoClient.getDB(Configuration.getInstance().getProperty("ds.dbname"));
+		try {			
+			String host = Configuration.getInstance().getProperty("db.host");
+			Integer port = Configuration.getInstance().getPropertyAsInteger("db.port");
+			port = port==null?27017:port;
+			String user = Configuration.getInstance().getProperty("db.username");
+			String pwd = Configuration.getInstance().getProperty("db.password");
+			String database = Configuration.getInstance().getProperty("db.database");
+			database = database==null?"rtm":database;
+			
+			ServerAddress address = new ServerAddress(host, port);
+			List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+			if(user!=null) {
+				MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
+				credentials.add(credential);
+			}
+			
+			MongoClient mongoClient = new MongoClient(address, credentials);
+			DB db = mongoClient.getDB(database);
 	
 			Jongo jongo = new Jongo(db);
 			this.measurements = jongo.getCollection(Configuration.getInstance().getProperty("ds.measurements.collectionName"));
