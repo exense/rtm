@@ -69,7 +69,7 @@ public class RTMMongoClient{
 		}
 		DB db = mongoClient.getDB(database);
 		if(db != null)
-			System.out.println("Connected to: " + mongoClient.getAddress().getHost());
+			System.out.println("Connected to: " + mongoClient.getAddress().getHost() + "; db=" + database);
 		else
 			System.out.println("DB is null");
 		Jongo jongo = new Jongo(db);
