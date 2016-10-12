@@ -54,19 +54,14 @@ public class RTMMongoClient{
 		database = database==null?"rtm":database;
 		
 		MongoClient mongoClient;
-		try {
-			ServerAddress address = new ServerAddress(host, port);
-			List<MongoCredential> credentials = new ArrayList<MongoCredential>();
-			if(user!=null) {
-				MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
-				credentials.add(credential);
-			}
-			
-			mongoClient = new MongoClient(address, credentials);
-		} catch (UnknownHostException e) {
-			logger.error("An error occurred while initializing the mongo client", e);
-			throw new RuntimeException(e);
+		ServerAddress address = new ServerAddress(host, port);
+		List<MongoCredential> credentials = new ArrayList<MongoCredential>();
+		if(user!=null) {
+			MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
+			credentials.add(credential);
 		}
+		
+		mongoClient = new MongoClient(address, credentials);
 		DB db = mongoClient.getDB(database);
 		if(db != null)
 			System.out.println("Connected to: " + mongoClient.getAddress().getHost() + "; db=" + database);

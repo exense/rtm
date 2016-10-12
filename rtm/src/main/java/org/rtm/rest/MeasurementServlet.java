@@ -57,15 +57,15 @@ public class MeasurementServlet {
 			ObjectMapper om = new ObjectMapper();
 			Measurement t = om.readValue(json.getBytes(Charset.forName("UTF-8")), Measurement.class);
 						
-			String error = MeasurementAccessor.getInstance().saveMeasurement(t).getError();
-			if(error == null || error.isEmpty())
-			{
-				resp.setStatus(STATUS.SUCCESS);
-			}else
-			{
-				resp.setStatus(STATUS.FAILED);
-				resp.setMessage(error);
-			}
+			MeasurementAccessor.getInstance().saveMeasurement(t);
+			resp.setStatus(STATUS.SUCCESS);
+//			if(acknowledged)
+//			{
+//			}else
+//			{
+//				resp.setStatus(STATUS.FAILED);
+//				resp.setMessage(error);
+//			}
 		}catch(Exception e){
 			e.printStackTrace();
 			resp.setStatus(STATUS.FAILED);
@@ -81,15 +81,19 @@ public class MeasurementServlet {
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			String error = MeasurementAccessor.getInstance().saveMeasurement(t).getError();
-			if(error == null || error.isEmpty())
-			{
-				resp.setStatus(STATUS.SUCCESS);
-			}else
-			{
-				resp.setStatus(STATUS.FAILED);
-				resp.setMessage(error);
-			}
+			MeasurementAccessor.getInstance().saveMeasurement(t);
+			resp.setStatus(STATUS.SUCCESS);
+			
+			// The method getError disappeared from the API...
+//			String error = MeasurementAccessor.getInstance().saveMeasurement(t).getError();
+//			if(error == null || error.isEmpty())
+//			{
+//				resp.setStatus(STATUS.SUCCESS);
+//			}else
+//			{
+//				resp.setStatus(STATUS.FAILED);
+//				resp.setMessage(error);
+//			}
 		}catch(Exception e){
 			e.printStackTrace();
 			resp.setStatus(STATUS.FAILED);

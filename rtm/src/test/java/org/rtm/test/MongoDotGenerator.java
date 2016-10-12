@@ -137,13 +137,7 @@ public class MongoDotGenerator extends Thread{
 	
 	
 private static void dropCollection() {
-	MongoClient c = null;
-	try {
-		c = new MongoClient("localhost");
-	} catch (UnknownHostException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	MongoClient c = new MongoClient("localhost");
 	DB db = c.getDB("rtm");
 	DBCollection coll = db.getCollection("measurements");
 	coll.remove(new BasicDBObject("t.eId", "PERF_TEST1"));
