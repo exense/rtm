@@ -197,6 +197,7 @@ public class MeasurementAggregator {
 		result.put("pcl50", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
 		result.put("pcl80", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
 		result.put("pcl90", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
+		result.put("pcl99", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
 
 		return result;
 	}
