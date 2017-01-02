@@ -20,7 +20,7 @@
 	<% } %>
   </ul>
 </div> <!-- /dropdown-menu -->
-<div id="gviz"></div>
+  <svg width="800" height="600"></svg>
 </div> <!-- /panel-body -->
 </div> <!-- /panel-collapse -->
 </div> <!-- /panel -->
