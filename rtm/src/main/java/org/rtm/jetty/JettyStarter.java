@@ -18,18 +18,135 @@
  *******************************************************************************/
 package org.rtm.jetty;
 
+import java.io.File;
+
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.rtm.commons.Configuration;
+import org.rtm.rest.ConfigurationServlet;
+import org.rtm.rest.ServiceServlet;
+
 /**
  * @author dcransac
  *
  */
 public class JettyStarter {
 	
+	private Server server;
+	private ContextHandlerCollection handlers;
 	
-	public static void main(String[] args) throws Exception {
+	
+	public static void main(String[] args){
+		ArgumentParser arguments = new ArgumentParser(args);
 		
+		String agentConfStr = arguments.getOption("config");
+		
+		if(agentConfStr == null){
+			Exception e = new Exception("Missing -config option. Please set path to config file.");
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
+		Configuration.initSingleton(new File(agentConfStr));
+		
+		try {
+			new JettyStarter().start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
 	}
 
 	public void start() throws Exception {
 		
+		handlers = new ContextHandlerCollection();
+		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));
+		server = new Server(rtmPort);
+		
+		ContextHandlerCollection hcoll = new ContextHandlerCollection();
+		/*
+		ServletContextHandler restHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		restHandler.setContextPath("/rtm/rest");
+		
+		ServletHolder serviceServlet = restHandler.addServlet(
+				org.glassfish.jersey.servlet.ServletContainer.class, "/service");
+		serviceServlet.setInitOrder(0);
+		serviceServlet.setInitParameter(
+				"jersey.config.server.provider.classnames",
+				ServiceServlet.class.getCanonicalName());
+			
+		ServletHolder configServlet = context.addServlet(
+				org.glassfish.jersey.servlet.ServletContainer.class, "/configuration");
+		configServlet.setInitOrder(0);
+		configServlet.setInitParameter(
+				"jersey.config.server.provider.classnames",
+				ConfigurationServlet.class.getCanonicalName());
+		 */
+		
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.packages(ServiceServlet.class.getPackage().getName());
+		resourceConfig.registerClasses(ServiceServlet.class);
+		resourceConfig.registerClasses(ConfigurationServlet.class);
+
+		ServletContainer servletContainer = new ServletContainer(resourceConfig);
+		ServletHolder sh = new ServletHolder(servletContainer);
+
+		ServletContextHandler serviceHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		serviceHandler.setContextPath("/rtm/rest");
+		serviceHandler.addServlet(sh, "/*");
+
+		ContextHandler webAppHandler = new ContextHandler("/rtm");
+		ResourceHandler bb = new ResourceHandler();
+		bb.setResourceBase(Resource.newClassPathResource("webapp").getURI().toString());
+		webAppHandler.setHandler(bb);
+		
+		hcoll.addHandler(serviceHandler);
+		hcoll.addHandler(webAppHandler);
+		
+		server.setHandler(hcoll);
+				
+		server.start();
+		
+//		setupConnectors(rtmPort);
+		
+	}
+	
+	private void initWebapp() throws Exception {
+		ResourceHandler bb = new ResourceHandler();
+		bb.setResourceBase(Resource.newClassPathResource("webapp").getURI().toString());
+		
+		ContextHandler ctx = new ContextHandler("/rtm"); /* the server uri path */
+		ctx.setHandler(bb);
+		
+		addHandler(ctx);
+	}
+	
+	private synchronized void addHandler(Handler handler) {
+		handlers.addHandler(handler);
+	}
+	
+	private void setupConnectors(int port) {
+		Configuration conf = Configuration.getInstance();
+
+		HttpConfiguration http = new HttpConfiguration();
+		http.addCustomizer(new SecureRequestCustomizer());
+		http.setSecureScheme("https");
+
+		ServerConnector connector = new ServerConnector(server);
+		connector.addConnectionFactory(new HttpConnectionFactory(http));
+		connector.setPort(port);
+		server.addConnector(connector);
 	}
 }

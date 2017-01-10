@@ -21,6 +21,7 @@ package org.rtm.rest;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -38,6 +39,7 @@ import org.rtm.dao.RTMMongoClient;
 import org.rtm.exception.NoDataException;
 import org.rtm.exception.ValidationException;
 
+@Singleton
 @Path("/service")
 public class ServiceServlet {
 
@@ -46,6 +48,7 @@ public class ServiceServlet {
 	public static final String AGGREGATE_DOMAIN = Configuration.getInstance().getProperty("aggregateService.domain");
 	public static final String MEASUREMENT_DOMAIN = Configuration.getInstance().getProperty("measurementService.domain");
 	public static final String dSep = Configuration.getInstance().getProperty("domainSeparator");
+	
 	@POST
 	@Path("/aggregate")
 	@Produces(MediaType.APPLICATION_JSON)

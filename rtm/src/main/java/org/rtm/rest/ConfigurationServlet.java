@@ -111,7 +111,7 @@ public class ConfigurationServlet {
 				return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
 			}
 		}
-		
+
 		ConfigurationOutput response;
 		try{
 			response = new ConfigurationOutput();
@@ -182,14 +182,18 @@ public class ConfigurationServlet {
 				return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
 			}
 		}
-		
+
 		return Response.ok(version).build();
 	}
-	
+
 	public synchronized void initVersion(InputStream is) throws IOException {
-				//Manifest mf = new Manifest(new FileInputStream(sc.getRealPath("/META-INF/MANIFEST.MF")));
-				Manifest mf = new Manifest(is);
-				Attributes ats = mf.getMainAttributes();
-				version = ats.getValue("Implementation-Version");
+		/* No more war file, so this broke...
+		//Manifest mf = new Manifest(new FileInputStream(sc.getRealPath("/META-INF/MANIFEST.MF")));
+		Manifest mf = new Manifest(is);
+		Attributes ats = mf.getMainAttributes();
+		version = ats.getValue("Implementation-Version"); */
+
+		// we need to go look into the pom instead of manifest since there's no more war file.
+		version = "0.3.0.4";
 	}
 }
