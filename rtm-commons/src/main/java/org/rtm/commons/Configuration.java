@@ -1,5 +1,7 @@
 package org.rtm.commons;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -27,16 +29,18 @@ public class Configuration{
 
 	private static final String CONFIG_FILENAME = "rtm.properties";
 
-	private static Configuration INSTANCE = new Configuration();
+	private static Configuration INSTANCE;
+	
+	// use to be initialized to new Configuration()
 	private static Configuration NEW_INSTANCE;
-
 	private static Boolean chooseMeForReferenceUpdate = true;
 	private static Boolean chooseMeForReloadTrigger = true;
-
 	private static boolean reloadTriggered = false;
-
 	private Properties properties = new Properties();
-
+	private static boolean initialized = false;
+	
+	// Deprecated : moving to jetty we're initializing the config explicitely
+	@Deprecated
 	private Configuration() {
 		super();
 
@@ -44,11 +48,35 @@ public class Configuration{
 		try {
 			InputStream instream = this.getClass().getClassLoader().getResourceAsStream(configFile);
 			properties.load(instream);
+			INSTANCE = this;
+			initialized = true;
 		} catch (Exception e) {
 			String msg = "Could not read configuration file from the classpath: " + configFile;
 			logger.error(msg, e);
 			throw new IllegalStateException(msg, e);
 		}
+	}
+
+	// Now initializing explicitly with the properties file
+	private Configuration(File f) {
+		super();
+
+		String configFile = CONFIG_FILENAME;
+		try {
+			InputStream instream = new FileInputStream(f);
+			properties.load(instream);
+			INSTANCE = this;
+			initialized = true;
+		} catch (Exception e) {
+			String msg = "Could not read configuration file from the classpath: " + configFile;
+			logger.error(msg, e);
+			throw new IllegalStateException(msg, e);
+		}
+	}
+
+	// To be called explicitly prior to using getInstance()
+	public static void initSingleton(File f){
+		INSTANCE = new Configuration(f);
 	}
 
 	public static void triggerReload() throws ConfigurationException {
@@ -99,6 +127,9 @@ public class Configuration{
 				}
 			}
 		}
+		
+		if(initialized == false || INSTANCE == null)
+			new Exception("Configuration was not initialized correctly. Please use initSingleton() prior to invoking getInstance().");
 		return INSTANCE;
 	}
 

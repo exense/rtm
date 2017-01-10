@@ -16,13 +16,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.exception;
+package org.rtm.jetty;
 
-
-public class NoDataException extends RTMException {
+/**
+ * @author dcransac
+ *
+ */
+public class JettyStarter {
 	
-	public NoDataException(String msg){
-		super(msg);
+	
+	public static void main(String[] args) throws Exception {
+		
 	}
 
+	public void start() throws Exception {
+		
+	}
 }
