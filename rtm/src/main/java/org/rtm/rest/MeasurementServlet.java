@@ -20,6 +20,7 @@ package org.rtm.rest;
 
 import java.nio.charset.Charset;
 
+import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -52,14 +53,21 @@ public class MeasurementServlet {
 	public Response saveMeasurementPost(@FormParam("measurement") String json) {
 		return saveMeasurement(json);
 	}
-	
+/*
+ * Produces the following error (?!) - only when using the distro
+ * GRAVE: Following issues have been detected:
+ * WARNING: No injection source found for a parameter of type public javax.ws.rs.core.Response org.rtm.rest.MeasurementServlet.saveMeasurementGet(org.rtm.commons.Measurement) at index 0.
+ * javax.servlet.ServletException: org.glassfish.jersey.servlet.ServletContainer-33e5ccce@c4272020==org.glassfish.jersey.servlet.ServletContainer,-1,false
+ * 
+ */
+/*
 	@GET
 	@Path("/save/default")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveMeasurementGet(@QueryParam("measurement") Measurement json) {
 		return saveMeasurement(json);
 	}
-	
+*/
 	@POST
 	@Path("/save/default")
 	@Produces(MediaType.APPLICATION_JSON)

@@ -63,6 +63,7 @@ public class DotGenerator extends Thread{
 	public void run(){
 		try{
 			
+			//http://localhost:8099/rtm/rest/measurement/save/queryparam/string?measurement={%22t%22:{%22client%22:%2210.100.1.7%22,%22eId%22:%22PERF_TEST%22,%22name%22:%22MyMeasurement_1%22,%22threadId%22:%2213%22,%22userId%22:%22Lisa%22},%22n%22:{%22begin%22:1484127847377,%22value%22:37}}
 			String serviceUrl = "http://localhost:8099/rtm/rest/measurement/save/queryparam/string";
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy,M,d,H,m,s,S");

@@ -38,6 +38,8 @@ import org.rtm.commons.Configuration;
 import org.rtm.rest.ConfigurationServlet;
 import org.rtm.rest.ServiceServlet;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
 /**
  * @author dcransac
  *
@@ -79,6 +81,7 @@ public class JettyStarter {
 		
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.packages(ServiceServlet.class.getPackage().getName());
+		resourceConfig.register(JacksonJaxbJsonProvider.class);
 		resourceConfig.registerClasses(ServiceServlet.class);
 		resourceConfig.registerClasses(ConfigurationServlet.class);
 
