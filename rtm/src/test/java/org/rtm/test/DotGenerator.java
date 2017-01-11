@@ -18,42 +18,32 @@
  *******************************************************************************/
 package org.rtm.test;
 
-import java.net.UnknownHostException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.httpclient.HttpClient;
-import org.codehaus.jackson.jaxrs.JacksonJaxbJsonProvider;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.rtm.commons.Measurement;
-import org.rtm.rest.SimpleResponse;
-import org.w3c.dom.Document;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.util.JSON;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 
-public class MongoDotGenerator extends Thread{
+public class DotGenerator extends Thread{
 
 	public static void main (String[] args){
 			
 		dropCollection();
 		
-		int nb_threads = 5;
+		int nb_threads = 1;
 		
 			for (int i = 0; i < nb_threads; i++)
 			{/**/
@@ -65,7 +55,7 @@ public class MongoDotGenerator extends Thread{
 					e.printStackTrace();
 				}
 				/**/
-				new MongoDotGenerator().start();
+				new DotGenerator().start();
 			}
 			
 		}
@@ -73,25 +63,12 @@ public class MongoDotGenerator extends Thread{
 	public void run(){
 		try{
 			
-//			DB db = new MongoClient().getDB("perftest");
-//			Jongo jongo = new Jongo(db);
-//			MongoCollection transactions = jongo.getCollection("transactions");
-//			
-			
-			ClientConfig clientConfig = new DefaultClientConfig();
-			 ObjectMapper mapper = new ObjectMapper();
-			 JacksonJaxbJsonProvider jacksonProvider = new JacksonJaxbJsonProvider();
-			 jacksonProvider.setMapper(mapper);
-			 clientConfig.getSingletons().add(jacksonProvider); 
-			 Client client = Client.create(clientConfig); 
-
-			WebResource webResource = client.resource("http://localhost:8080/rtm/rest/measurement/save/default");
-			webResource.accept(MediaType.APPLICATION_JSON);
-			webResource.type(MediaType.APPLICATION_JSON);
+			String serviceUrl = "http://localhost:8099/rtm/rest/measurement/save/queryparam/string";
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy,M,d,H,m,s,S");
 
 			HttpClient httpclient = new HttpClient();
+			ObjectMapper mapper = new ObjectMapper();
 
 			int dur;
 			
@@ -133,17 +110,16 @@ public class MongoDotGenerator extends Thread{
 				WriteResult wr = MeasurementAccessor.getInstance().saveMeasurement(t);
 				*/
 				
-				System.out.println("Posting measurement: " + t);
+				String serialized = mapper.writeValueAsString(t);
+				System.out.println("Posting measurement: " + serialized);
 				
-				ClientResponse response = webResource.type("application/json")
-						.post(ClientResponse.class, t);
-
-				SimpleResponse output = response.getEntity(SimpleResponse.class);
-				System.out.println(output);
+				GetMethod method = new GetMethod(serviceUrl + "?measurement="+ URLEncoder.encode(serialized));
+				//GetMethod method = new GetMethod(serviceUrl + "?measurement="+ serialized);
 				
-				
-				
-				//System.out.println(wr);
+				httpclient.executeMethod(method);
+				byte[] responseBody = method.getResponseBody();
+			
+				 System.out.println(new String(responseBody,Charset.forName("UTF-8")));
 				
 				
 				//String body = "{\"_id\": \"perfdoc_"+dataSetName+"_"+i+"\",\"dataSet\": \""+ dataSetName+"\",\"transactionName\": \""+transactionName+"\",\"userId\": \""+userId+"\",\"client\": \""+clientIp+"\",\"date\": "+dateObj.getTime()+",\"duration\": "+dur+",\"year\": "+y+",\"month\": "+m+",\"day\": "+d+",\"hour\": "+h+",\"minute\": "+min+",\"second\": "+s+",\"ms\": "+ms+"}";

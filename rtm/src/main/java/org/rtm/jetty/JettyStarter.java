@@ -76,24 +76,6 @@ public class JettyStarter {
 		server = new Server(rtmPort);
 		
 		ContextHandlerCollection hcoll = new ContextHandlerCollection();
-		/*
-		ServletContextHandler restHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		restHandler.setContextPath("/rtm/rest");
-		
-		ServletHolder serviceServlet = restHandler.addServlet(
-				org.glassfish.jersey.servlet.ServletContainer.class, "/service");
-		serviceServlet.setInitOrder(0);
-		serviceServlet.setInitParameter(
-				"jersey.config.server.provider.classnames",
-				ServiceServlet.class.getCanonicalName());
-			
-		ServletHolder configServlet = context.addServlet(
-				org.glassfish.jersey.servlet.ServletContainer.class, "/configuration");
-		configServlet.setInitOrder(0);
-		configServlet.setInitParameter(
-				"jersey.config.server.provider.classnames",
-				ConfigurationServlet.class.getCanonicalName());
-		 */
 		
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.packages(ServiceServlet.class.getPackage().getName());
@@ -116,37 +98,9 @@ public class JettyStarter {
 		hcoll.addHandler(webAppHandler);
 		
 		server.setHandler(hcoll);
-				
 		server.start();
-		
-//		setupConnectors(rtmPort);
+		server.join();
 		
 	}
-	
-	private void initWebapp() throws Exception {
-		ResourceHandler bb = new ResourceHandler();
-		bb.setResourceBase(Resource.newClassPathResource("webapp").getURI().toString());
-		
-		ContextHandler ctx = new ContextHandler("/rtm"); /* the server uri path */
-		ctx.setHandler(bb);
-		
-		addHandler(ctx);
-	}
-	
-	private synchronized void addHandler(Handler handler) {
-		handlers.addHandler(handler);
-	}
-	
-	private void setupConnectors(int port) {
-		Configuration conf = Configuration.getInstance();
 
-		HttpConfiguration http = new HttpConfiguration();
-		http.addCustomizer(new SecureRequestCustomizer());
-		http.setSecureScheme("https");
-
-		ServerConnector connector = new ServerConnector(server);
-		connector.addConnectionFactory(new HttpConnectionFactory(http));
-		connector.setPort(port);
-		server.addConnector(connector);
-	}
 }
