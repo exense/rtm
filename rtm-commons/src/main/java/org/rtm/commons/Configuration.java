@@ -16,7 +16,7 @@ public class Configuration{
 	public static final String DSNAME_KEY = "ds.dbname";
 	public static final String MEASUREMENTSCOLL_KEY = "ds.measurements.collectionName";
 	public static final String DEBUG_KEY = "server.debug";
-	
+
 	/*Serialization prefixes*/
 	public static final String NUM_PREFIX = "n";
 	public static final String TEXT_PREFIX = "t";
@@ -30,7 +30,7 @@ public class Configuration{
 	private static final String CONFIG_FILENAME = "rtm.properties";
 
 	private static Configuration INSTANCE;
-	
+
 	// use to be initialized to new Configuration()
 	private static Configuration NEW_INSTANCE;
 	private static Boolean chooseMeForReferenceUpdate = true;
@@ -38,7 +38,7 @@ public class Configuration{
 	private static boolean reloadTriggered = false;
 	private Properties properties = new Properties();
 	private static boolean initialized = false;
-	
+
 	// Deprecated : moving to jetty we're initializing the config explicitely
 	@Deprecated
 	private Configuration() {
@@ -94,7 +94,7 @@ public class Configuration{
 			//System.out.println("I'm triggering a reload !");
 			NEW_INSTANCE = new Configuration();
 			reloadTriggered = true;
-			
+
 			synchronized(chooseMeForReloadTrigger){	
 				chooseMeForReloadTrigger = true;
 			}
@@ -127,9 +127,14 @@ public class Configuration{
 				}
 			}
 		}
-		
-		if(initialized == false || INSTANCE == null)
-			new Exception("Configuration was not initialized correctly. Please use initSingleton() prior to invoking getInstance().");
+
+		// For compatibility with war (no explicit properties linkage)
+		if(initialized == false || INSTANCE == null){
+			synchronized(Configuration.class){
+				INSTANCE = new Configuration();
+			}
+		}
+
 		return INSTANCE;
 	}
 
