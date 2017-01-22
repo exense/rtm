@@ -1,21 +1,3 @@
-/*******************************************************************************
- * (C) Copyright 2016 Dorian Cransac and Jerome Comte
- *  
- * This file is part of rtm
- *  
- * rtm is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *  
- * rtm is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *  
- * You should have received a copy of the GNU Affero General Public License
- * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
- *******************************************************************************/
 package org.rtm.core;
 
 import java.util.Calendar;
@@ -26,7 +8,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.math.stat.descriptive.rank.Percentile;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.rtm.commons.Measurement;
 import org.rtm.exception.ShouldntHappenException;
 
@@ -38,7 +21,8 @@ public class MeasurementAggregator {
 		MAX,
 		SUM,
 		AVG,
-		PCL
+		PCL,
+		STD
 	}
 
 	public static AggregationType getAggTypeFromMetricName(String metricType) throws Exception {
@@ -55,6 +39,8 @@ public class MeasurementAggregator {
 			return AggregationType.SUM;
 		if(metricType.toLowerCase().contains("pcl"))
 			return AggregationType.PCL;
+		if(metricType.toLowerCase().equals("std"))
+			return AggregationType.STD;
 
 		throw new Exception("Unknown AggregationType");
 	}
@@ -90,7 +76,7 @@ public class MeasurementAggregator {
 
 	}
 
-	public static boolean isMeasurementMatchAgainstMultipleStringPatterns(Map<String,Matcher> valuedFilters, Measurement t) throws Exception{
+	static boolean isMeasurementMatchAgainstMultipleStringPatterns(Map<String,Matcher> valuedFilters, Measurement t) throws Exception{
 
 		for(Entry<String,Matcher> e : valuedFilters.entrySet())
 		{
@@ -102,14 +88,14 @@ public class MeasurementAggregator {
 
 	}
 
-	private static void filterMeasurementListAgainstStringPatternFilter(List<Measurement> toBeFiltered, String attribute, Matcher curMatcher) throws Exception {
+	static void filterMeasurementListAgainstStringPatternFilter(List<Measurement> toBeFiltered, String attribute, Matcher curMatcher) throws Exception {
 		for(Measurement t : toBeFiltered){
 			if(!isMatchMeasurementAgainstStringPatternFilter(t, curMatcher, attribute))
 				toBeFiltered.remove(t);
 		}
 	}
 
-	private static boolean isMatchMeasurementAgainstStringPatternFilter(Measurement t, Matcher curMatcher, String atb) throws Exception {
+	static boolean isMatchMeasurementAgainstStringPatternFilter(Measurement t, Matcher curMatcher, String atb) throws Exception {
 
 		if((atb == null) || (t == null) || (curMatcher == null))
 			return false;
@@ -122,12 +108,12 @@ public class MeasurementAggregator {
 		return false;
 	}
 	
-	private static boolean isMatchMeasurementAgainstStringPatternFilter(Matcher curMatcher, String value) {
+	static boolean isMatchMeasurementAgainstStringPatternFilter(Matcher curMatcher, String value) {
 		curMatcher.reset(value);
 		return curMatcher.matches();
 	}
 
-	private static long aggregateAverageByNumericVal(List<Long> toAgg){
+	static long aggregateAverageByNumericVal(List<Long> toAgg){
 		if (toAgg == null || toAgg.size() < 1)
 			return 0;
 		long returned = (long) 0;
@@ -135,7 +121,7 @@ public class MeasurementAggregator {
 			returned += it;
 		return returned / toAgg.size();
 	}
-	private static long aggregateMinByNumericVal(List<Long> toAgg){
+	static long aggregateMinByNumericVal(List<Long> toAgg){
 		if (toAgg == null || toAgg.size() < 1)
 			return 0;
 
@@ -145,7 +131,7 @@ public class MeasurementAggregator {
 				returned = it;
 		return returned;
 	}
-	private static long aggregateMaxByNumericVal(List<Long> toAgg){
+	static long aggregateMaxByNumericVal(List<Long> toAgg){
 		if (toAgg == null || toAgg.size() < 1)
 			return 0;
 		long returned = toAgg.get(0);
@@ -154,7 +140,7 @@ public class MeasurementAggregator {
 				returned = it;
 		return returned;
 	}
-	private static long aggregateSumByNumericVal(List<Long> toAgg){
+	static long aggregateSumByNumericVal(List<Long> toAgg){
 		if (toAgg == null || toAgg.size() < 1)
 			return 0;
 		long returned = 0;
@@ -162,13 +148,13 @@ public class MeasurementAggregator {
 			returned += it;
 		return returned;
 	}
-	private static long aggregateCountByNumericVal(List<Long> toAgg){
+	static long aggregateCountByNumericVal(List<Long> toAgg){
 		if (toAgg == null || toAgg.size() < 1)
 			return 0;
 		return toAgg.size();
 	}
 
-	private static Long aggregatePercentileByNumericVal(List<Long> toAgg, Double optional) {
+	static long aggregatePercentileByNumericVal(List<Long> toAgg, Double optional) {
 
 		Percentile p = new Percentile();
 		if (toAgg == null || toAgg.size() < 1)
@@ -176,8 +162,26 @@ public class MeasurementAggregator {
 
 		return new Double(p.evaluate(getDoubleArrayFromLongList(toAgg), optional)).longValue();
 	}
+	
+	static long aggregateStandardDevByNumericVal(List<Long> toAgg) {
 
-	private static double[] getDoubleArrayFromLongList(List<Long> value) {
+		StandardDeviation std = new StandardDeviation(false);
+		if (toAgg == null || toAgg.size() < 1)
+			return (long)0;
+
+		return new Double(std.evaluate(getDoubleArrayFromLongList(toAgg))).longValue();
+	}
+	
+	static long aggregateStandardDevNoBiasByNumericVal(List<Long> toAgg) {
+
+		StandardDeviation std = new StandardDeviation(true);
+		if (toAgg == null || toAgg.size() < 1)
+			return (long)0;
+
+		return new Double(std.evaluate(getDoubleArrayFromLongList(toAgg))).longValue();
+	}
+
+	static double[] getDoubleArrayFromLongList(List<Long> value) {
 
 		int sizeOfArray = value.size();
 		double[] doubleArray = new double[sizeOfArray];
@@ -212,6 +216,7 @@ public class MeasurementAggregator {
 		result.put("sum", MeasurementAggregator.aggregateSumByNumericVal(durationList));
 		result.put("min", MeasurementAggregator.aggregateMinByNumericVal(durationList));
 		result.put("max", MeasurementAggregator.aggregateMaxByNumericVal(durationList));
+		result.put("std", MeasurementAggregator.aggregateStandardDevByNumericVal(durationList));
 		result.put("pcl50", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
 		result.put("pcl80", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
 		result.put("pcl90", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
