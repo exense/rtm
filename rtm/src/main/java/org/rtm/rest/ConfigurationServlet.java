@@ -194,6 +194,6 @@ public class ConfigurationServlet {
 		version = ats.getValue("Implementation-Version"); */
 
 		// we need to go look into the pom instead of manifest since there's no more war file.
-		version = "0.3.0.4";
+		version = "0.4.0";
 	}
 }

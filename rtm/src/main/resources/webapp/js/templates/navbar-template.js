@@ -7,7 +7,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">RTM v<%= rtmVersion %></a>
+            <span class="navbar-brand"> <h3 class="nav-inline">RTM </h3><h6 class="nav-inline xtra-small">v<%= rtmVersion %></h6> </span>
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
