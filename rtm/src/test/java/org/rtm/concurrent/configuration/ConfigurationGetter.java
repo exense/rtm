@@ -16,29 +16,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.test.configuration;
+package org.rtm.concurrent.configuration;
 
-public class ConfigurationTest {
+import org.rtm.commons.Configuration;
 
-	public static final int nbChangers = 2;
-	public static final int nbGetters = 5;
+public class ConfigurationGetter extends Thread{
+
+	public final static int itNumber = 10000;
 	
-	public static void main(String... args){
+	public void run(){
+		System.out.println("Hi I'm Getter Thread " + Thread.currentThread().getId());
 		
-		for (int i = 0; i < nbGetters; i++)
-			new ConfigurationGetter().start();
-
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		for (int i = 0; i < nbChangers; i++)
-			new ConfigurationChanger().start();
-
-}
-	
+		for(int i = 0; i < itNumber; i++){
+			Configuration.getInstance();
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if((i % 100) == 0)
+				System.out.println(Configuration.getInstance().getProperty("test1"));
+		}
+		
+		System.out.println(Thread.currentThread().getId() + ": Getter is done.");
+		
+	}
 	
 }

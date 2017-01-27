@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class AggregationMathTests {
+public class MeasurementAggregatorTest {
 
 	List<Long> valueList;
 	boolean init = false;

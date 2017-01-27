@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.test;
+package org.rtm.e2e;
 
 import java.io.DataInputStream;
 
