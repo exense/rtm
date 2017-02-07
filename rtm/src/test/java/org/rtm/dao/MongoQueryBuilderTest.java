@@ -35,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RTMMongoClientTest{
+public class MongoQueryBuilderTest{
 
 	List<Selector> selList = new ArrayList<Selector>();
 	List<Object> bindValues = new ArrayList<Object>();

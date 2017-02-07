@@ -36,7 +36,7 @@ import com.mongodb.ServerAddress;
 
 public class RTMMongoClient{
 
-	private static final Logger logger = LoggerFactory.getLogger(RTMMongoClientTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(MongoQueryBuilderTest.class);
 
 	MongoCollection measurements;
 	MongoCollection aggregates;
