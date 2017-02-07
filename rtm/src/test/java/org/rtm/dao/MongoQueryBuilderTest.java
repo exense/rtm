@@ -96,9 +96,7 @@ public class MongoQueryBuilderTest{
 	@Test
 	public void validateConsistentBinds() throws Exception{
 		
-		int countOcc = this.query.length() - this.query.replace("#", "").length();
-
-		Assert.assertEquals(this.bindValues.size(), countOcc);
+		Assert.assertEquals(this.bindValues.size(), countPatternOccurences(this.query,"#"));
 	}
 	
 	@Test
