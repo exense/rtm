@@ -16,29 +16,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.ingestion;
 
-import java.util.List;
-import java.util.Map;
-
-import org.rtm.dao.Selector;
-
-public class ServiceInput {
+public class SimpleResponse {
 	
-	private List<Selector> selectors; 
-	private Map<String, String> serviceParams;
+	public static enum STATUS{
+		FAILED,
+		SUCCESS
+	}
 	
-	public List<Selector> getSelectors() {
-		return selectors;
+	private STATUS status;
+	private String message;
+	public STATUS getStatus() {
+		return status;
 	}
-	public void setSelectors(List<Selector> selectors) {
-		this.selectors = selectors;
+	public void setStatus(STATUS status) {
+		this.status = status;
 	}
-	public Map<String, String> getServiceParams() {
-		return serviceParams;
+	public String getMessage() {
+		return message;
 	}
-	public void setServiceParams(Map<String, String> serviceParams) {
-		this.serviceParams = serviceParams;
+	public void setMessage(String message) {
+		this.message = message;
 	}
-
+	
+	public String toString(){
+		return "[Response]status="+status+";message="+message;
+	}
 }

@@ -16,11 +16,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.ingestion;
 
-import java.nio.charset.Charset;
+import java.util.Map;
 
-import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,68 +29,44 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.rtm.commons.Measurement;
 import org.rtm.commons.MeasurementAccessor;
-import org.rtm.rest.SimpleResponse.STATUS;
+import org.rtm.rest.ingestion.SimpleResponse.STATUS;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@Path("/measurement")
-public class MeasurementServlet {
+@Path("/ingest")
+public class IngestionServlet {
 
 	@GET
-	@Path("/save/queryparam/string")
+	@Path("/generic")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveMeasurementGet(@QueryParam("measurement") String json) {
-		System.out.println(json);
 		return saveMeasurement(json);
 	}
-	
+
 	@POST
-	@Path("/save/formparam/string")
+	@Path("/generic")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveMeasurementPost(@FormParam("measurement") String json) {
 		return saveMeasurement(json);
 	}
-/*
- * Produces the following error (?!) - only when using the distro
- * GRAVE: Following issues have been detected:
- * WARNING: No injection source found for a parameter of type public javax.ws.rs.core.Response org.rtm.rest.MeasurementServlet.saveMeasurementGet(org.rtm.commons.Measurement) at index 0.
- * javax.servlet.ServletException: org.glassfish.jersey.servlet.ServletContainer-33e5ccce@c4272020==org.glassfish.jersey.servlet.ServletContainer,-1,false
- * 
- */
-/*
-	@GET
-	@Path("/save/default")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveMeasurementGet(@QueryParam("measurement") Measurement json) {
-		return saveMeasurement(json);
-	}
-*/
+
+	// Does it make sense to build a map object and
+	// bson-serialize it again to save in mongo?
+	// Might as well just use the string API, right?
+
 	@POST
 	@Path("/save/default")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveMeasurementPost(Measurement json) {
+	public Response saveMeasurementPost(Map<String,Object> json) {
 		return saveMeasurement(json);
 	}
-	
+
 	private Response saveMeasurement(String json) {
 
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			ObjectMapper om = new ObjectMapper();
-			Measurement t = om.readValue(json.getBytes(Charset.forName("UTF-8")), Measurement.class);
-						
-			MeasurementAccessor.getInstance().saveMeasurement(t);
+			MeasurementAccessor.getInstance().saveMeasurement(json);			
 			resp.setStatus(STATUS.SUCCESS);
-//			if(acknowledged)
-//			{
-//			}else
-//			{
-//				resp.setStatus(STATUS.FAILED);
-//				resp.setMessage(error);
-//			}
 		}catch(Exception e){
 			e.printStackTrace();
 			resp.setStatus(STATUS.FAILED);
@@ -100,26 +75,14 @@ public class MeasurementServlet {
 
 		return Response.ok().entity(resp).build();
 	}
-	
-	
-	private Response saveMeasurement(Measurement t) {
+
+	private Response saveMeasurement(Map<String,Object> m) {
 
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			MeasurementAccessor.getInstance().saveMeasurement(t);
+			MeasurementAccessor.getInstance().saveMeasurement(m);
 			resp.setStatus(STATUS.SUCCESS);
-			
-			// The method getError disappeared from the API...
-//			String error = MeasurementAccessor.getInstance().saveMeasurement(t).getError();
-//			if(error == null || error.isEmpty())
-//			{
-//				resp.setStatus(STATUS.SUCCESS);
-//			}else
-//			{
-//				resp.setStatus(STATUS.FAILED);
-//				resp.setMessage(error);
-//			}
 		}catch(Exception e){
 			e.printStackTrace();
 			resp.setStatus(STATUS.FAILED);

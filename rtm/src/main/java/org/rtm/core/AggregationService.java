@@ -20,6 +20,7 @@ package org.rtm.core;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +30,13 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import org.rtm.commons.Configuration;
-import org.rtm.commons.Measurement;
-import org.rtm.commons.MeasurementHelper;
 import org.rtm.core.ComplexServiceResponse.Status;
 import org.rtm.exception.NoDataException;
 import org.rtm.exception.ShouldntHappenException;
-import org.rtm.rest.ServiceOutput;
+import org.rtm.rest.aggregation.AggOutput;
+import org.rtm.rest.aggregation.AggregationHelper;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AggregationService{
 
 	private static final int maxCapacityForInterval = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxCapacityForInterval"));
@@ -49,7 +50,7 @@ public class AggregationService{
 			this.isDebug  = Configuration.getInstance().getProperty("rtm.debug").equals("true");
 	}
 
-	public ComplexServiceResponse buildAggregatesForTimeInconsistent(String sessionId, Iterable<Measurement> ble,long granularity,
+	public ComplexServiceResponse buildAggregatesForTimeInconsistent(String sessionId, Iterable<Map> ble,long granularity,
 			String differenciatorKey, String beginKey,  String endKey, String valueKey, String sessionKey
 			) throws Exception{
 		return buildAggregatesForTimeInconsistent(
@@ -59,7 +60,7 @@ public class AggregationService{
 	}
 
 	public ComplexServiceResponse buildAggregatesForTimeInconsistent(
-			String sessionId, Iterable<Measurement> ble, Date pStart, Date pEnd, long granularity,
+			String sessionId, Iterable<Map> ble, Date pStart, Date pEnd, long granularity,
 			String differenciatorKey, String beginKey, String endKey, String valueKey, String sessionKey
 			) throws Exception{
 		// ASSUMING THE INCOMING DATA IS SORTED BY DATE
@@ -69,18 +70,18 @@ public class AggregationService{
 		boolean reachedSeriesWarningThreshold = false;
 		boolean capacityWarningReached = false;
 
-		Map<String,List<Measurement>> res = new TreeMap<String,List<Measurement>>();
-		Map<String,List<Measurement>> subChunk = new TreeMap<String,List<Measurement>>();
+		Map<String,List<Map<String, Object>>> res = new TreeMap<String,List<Map<String, Object>>>();
+		Map<String,List<Map<String, Object>>> subChunk = new TreeMap<String,List<Map<String, Object>>>();
 
-		Iterator<Measurement> it = ble.iterator();
-		Measurement t = null;
+		Iterator<Map> it = ble.iterator();
+		Map<String, Object> m = null;
 		Long firstBegin = null;
 		if(it.hasNext())
-			t = it.next();
-		if(t == null)
+			m = it.next();
+		if(m == null)
 			throw new NoDataException("No data to work with.");
 
-		firstBegin = t.getNumericalAttribute(beginKey);
+		firstBegin = (Long)m.get(beginKey);
 		totalProcessedTransactions++;
 		Long start;
 
@@ -90,7 +91,7 @@ public class AggregationService{
 			noDiffMode = true;
 		}
 		if(pStart == null)
-			start = t.getNumericalAttribute(beginKey);
+			start = (Long)m.get(beginKey);
 		else
 			start = pStart.getTime();
 
@@ -105,30 +106,30 @@ public class AggregationService{
 		while(true)
 		{
 			if(pEnd != null){
-				if(t.getNumericalAttribute(beginKey) + t.getNumericalAttribute(valueKey) > pEnd.getTime())
+				if((Long) m.get(beginKey) + (Long) m.get(valueKey) > pEnd.getTime())
 					break;
 			}
 
 			if(isDebug)
-				System.out.println("for=>["+t+"]");
+				System.out.println("for=>["+m+"]");
 
-			// The currently evaluated Measurement belongs to current interval
-			if(curr.belongs(t.getNumericalAttribute(beginKey))){
+			// The currently evaluated Map<String, Object> belongs to current interval
+			if(curr.belongs((Long) m.get(beginKey))){
 				/* 211014 */
-				if(noDiffMode || t.getTextAttribute(differenciatorKey) == null)
-					t.setTextAttribute(differenciatorKey, "[DefaultGroupBy]");
+				if(noDiffMode || m.get(differenciatorKey) == null)
+					m.put(differenciatorKey, "[DefaultGroupBy]");
 				/* /211014 */
-				if(subChunk.get(t.getTextAttribute(differenciatorKey)) == null){
+				if(subChunk.get(m.get(differenciatorKey)) == null){
 
 					if((maxSeries > 0) && ((subChunk.keySet().size() >= maxSeries) || (res.keySet().size() >= maxSeries))){
 						reachedSeriesWarningThreshold = true;
 					}else{
-						subChunk.put(t.getTextAttribute(differenciatorKey), new ArrayList<Measurement>());
+						subChunk.put((String)m.get(differenciatorKey), new ArrayList<Map<String, Object>>());
 
 						// Limit space taken by a single call (i.e request)
 						if((maxCapacityForInterval < 1) || (totalChunkSize < maxCapacityForInterval))
 						{						
-							subChunk.get(t.getTextAttribute(differenciatorKey)).add(t);
+							subChunk.get(m.get(differenciatorKey)).add(m);
 							totalChunkSize++;
 						}else{
 							if(maxCapacityForInterval > 0)
@@ -139,43 +140,43 @@ public class AggregationService{
 					// Limit space taken by a single call (i.e request)
 					if((maxCapacityForInterval < 1) || (totalChunkSize < maxCapacityForInterval))
 					{						
-						subChunk.get(t.getTextAttribute(differenciatorKey)).add(t);
+						subChunk.get(m.get(differenciatorKey)).add(m);
 						totalChunkSize++;
 					}else{
 						if(maxCapacityForInterval > 0)
 							capacityWarningReached = true;
 					}
 				}
-				// The currently evaluated Measurement does not belong to current interval
+				// The currently evaluated Map<String, Object> does not belong to current interval
 			}else{
 				// Should not be possible 
-				if(t.getNumericalAttribute(beginKey) < curr.getBegin())
+				if((Long) m.get(beginKey) < curr.getBegin())
 					throw new ShouldntHappenException("We somehow ended up with a transaction that belongs to an old, already processed interval");
 
 				/* 211014 */
-				if(noDiffMode || t.getTextAttribute(differenciatorKey) == null)
-					t.setTextAttribute(differenciatorKey, "[DefaultGroupBy]");
+				if(noDiffMode || m.get(differenciatorKey) == null)
+					m.put(differenciatorKey, "[DefaultGroupBy]");
 
 				/* /211014 */
 
 				// If needed, initialize result list for the currently evaluated transaction
-				if(res.get(t.getTextAttribute(differenciatorKey)) == null)
-					res.put(t.getTextAttribute(differenciatorKey), new ArrayList<Measurement>());
+				if(res.get(m.get(differenciatorKey)) == null)
+					res.put((String)m.get(differenciatorKey), new ArrayList<Map<String, Object>>());
 
 				// Process results and flush buffer for all known transactions in buffer
-				for(Entry<String,List<Measurement>> e : subChunk.entrySet())
+				for(Entry<String,List<Map<String, Object>>> e : subChunk.entrySet())
 				{
-					List<Measurement> dataList = e.getValue();
+					List<Map<String, Object>> dataList = e.getValue();
 					String tn = e.getKey();
 					if(dataList.size() > 0){
 						if(res.get(tn) == null)
-							res.put(tn, new ArrayList<Measurement>());
-						Measurement agg = new Measurement();
-						agg.setTextAttribute(differenciatorKey, tn);
-						agg.setTextAttribute(sessionKey, sessionId);
-						agg.setNumericalAttribute(beginKey, curr.getBegin());
-						agg.setNumericalAttribute(endKey, curr.getEnd());
-						agg.setNumericalAttributes(MeasurementAggregator.reduceAll(MeasurementHelper.getDurationsList(dataList, valueKey)));
+							res.put(tn, new ArrayList<Map<String, Object>>());
+						Map<String, Object> agg = new HashMap<String, Object>();
+						agg.put(differenciatorKey, tn);
+						agg.put(sessionKey, sessionId);
+						agg.put(beginKey, curr.getBegin());
+						agg.put(endKey, curr.getEnd());
+						agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
 						res.get(tn).add(agg);
 
 						subChunk.get(tn).clear();
@@ -184,7 +185,7 @@ public class AggregationService{
 				}
 
 				// Shift interval to relevant, current transaction's
-				while(!curr.belongs(t.getNumericalAttribute(beginKey))){
+				while(!curr.belongs((Long) m.get(beginKey))){
 					curr = curr.getNext(granularity);
 					nbProcessedIntervals++;
 					if((maxAggregatesForSeries > 0) && (nbProcessedIntervals >= maxAggregatesForSeries))
@@ -195,16 +196,16 @@ public class AggregationService{
 					break;
 
 				// Add current transaction to proper interval
-				if(subChunk.get(t.getTextAttribute(differenciatorKey)) == null){
+				if(subChunk.get(m.get(differenciatorKey)) == null){
 
 					if((maxSeries > 0) && ((subChunk.keySet().size() >= maxSeries) || (res.keySet().size() >= maxSeries))){
 						reachedSeriesWarningThreshold = true;
 					}else{
-						subChunk.put(t.getTextAttribute(differenciatorKey), new ArrayList<Measurement>());
+						subChunk.put((String)m.get(differenciatorKey), new ArrayList<Map<String, Object>>());
 						// Limit space taken by a single call (i.e request)
 						if((maxCapacityForInterval < 1) || (totalChunkSize < maxCapacityForInterval))
 						{						
-							subChunk.get(t.getTextAttribute(differenciatorKey)).add(t);
+							subChunk.get(m.get(differenciatorKey)).add(m);
 							totalChunkSize++;
 						}else{
 							if(maxCapacityForInterval > 0)
@@ -215,7 +216,7 @@ public class AggregationService{
 					// Limit space taken by a single call (i.e request)
 					if((maxCapacityForInterval < 1) || (totalChunkSize < maxCapacityForInterval))
 					{						
-						subChunk.get(t.getTextAttribute(differenciatorKey)).add(t);
+						subChunk.get(m.get(differenciatorKey)).add(m);
 						totalChunkSize++;
 					}else{
 						if(maxCapacityForInterval > 0)
@@ -226,25 +227,25 @@ public class AggregationService{
 			}
 
 			try{
-				t = it.next();
+				m = it.next();
 				totalProcessedTransactions++;
 			}catch(NoSuchElementException e){break;}
 		}
 
 		// Take care of crumbs for the various ways of exiting the loop when some data remains in the buffer
-		for(Entry<String,List<Measurement>> e : subChunk.entrySet())
+		for(Entry<String,List<Map<String, Object>>> e : subChunk.entrySet())
 		{
-			List<Measurement> dataList = e.getValue();
+			List<Map<String, Object>> dataList = e.getValue();
 			String tn = e.getKey();
 			if(dataList.size() > 0){
 				if(res.get(tn) == null)
-					res.put(tn, new ArrayList<Measurement>());
-				Measurement agg = new Measurement();
-				agg.setTextAttribute(differenciatorKey, tn);
-				agg.setTextAttribute(sessionKey, sessionId);
-				agg.setNumericalAttribute(beginKey, curr.getBegin());
-				agg.setNumericalAttribute(endKey, curr.getEnd());
-				agg.setNumericalAttributes(MeasurementAggregator.reduceAll(MeasurementHelper.getDurationsList(dataList, valueKey)));
+					res.put(tn, new ArrayList<Map<String, Object>>());
+				Map<String, Object> agg = new HashMap<String, Object>();
+				agg.put(differenciatorKey, tn);
+				agg.put(sessionKey, sessionId);
+				agg.put(beginKey, curr.getBegin());
+				agg.put(endKey, curr.getEnd());
+				agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
 				res.get(tn).add(agg);
 				subChunk.get(tn).clear();
 			}
@@ -261,12 +262,12 @@ public class AggregationService{
 
 		if(maxMeasurements > 0 && totalProcessedTransactions == maxMeasurements){
 			resp.setReturnStatus(Status.WARNING);
-			resp.setMessage(resp.getMessage() + "The maximum number of Measurements to be processed (" +maxMeasurements+ ") has been reached. Certain Measurements were not processed.; ");
+			resp.setMessage(resp.getMessage() + "The maximum number of Map<String, Object>s to be processed (" +maxMeasurements+ ") has been reached. Certain Map<String, Object>s were not processed.; ");
 		}
 
 		if((maxCapacityForInterval > 0) && capacityWarningReached){
 			resp.setReturnStatus(Status.WARNING);
-			resp.setMessage(resp.getMessage() + "The maximum number of Measurements per interval (" + maxCapacityForInterval + ") has been reached. Certain Measurements were ignored in the aggregated results. Try decreasing the value of field \"granularity\" or select a smaller interval.; ");
+			resp.setMessage(resp.getMessage() + "The maximum number of Map<String, Object>s per interval (" + maxCapacityForInterval + ") has been reached. Certain Map<String, Object>s were ignored in the aggregated results. Try decreasing the value of field \"granularity\" or select a smaller interval.; ");
 		}
 		if((maxAggregatesForSeries > 0) && (nbProcessedIntervals >= maxAggregatesForSeries)){
 			resp.setReturnStatus(Status.WARNING);
@@ -275,35 +276,34 @@ public class AggregationService{
 		return resp;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static ComplexServiceResponse makeDataConsistent(ComplexServiceResponse input, 
 			String sessionKey, String beginKey, String endKey, String nameKey	) throws Exception{
 
-		Map<String,List<Measurement>> inconsistent = input.getPayload();
+		Map<String,List<Map<String, Object>>> inconsistent = input.getPayload();
 
 		if(inconsistent == null || inconsistent.size() <1)
 			throw new NoDataException("No data to work with.");
 
-		List<Measurement> firstList = (List<Measurement>) ((Entry<String, List<Measurement>>) inconsistent.entrySet().toArray()[0]).getValue();
+		List<Map<String, Object>> firstList = (List<Map<String, Object>>) ((Entry<String, List<Map<String, Object>>>) inconsistent.entrySet().toArray()[0]).getValue();
 
 		if(firstList == null || firstList.size() < 1 || firstList.get(0) == null)
 			throw new ShouldntHappenException("Can't access a proper first element :" + firstList);
 
-		Measurement first = firstList.get(0);
+		Map<String, Object> first = firstList.get(0);
 
-		long granularity = first.getNumericalAttribute(endKey) - first.getNumericalAttribute(beginKey);
+		long granularity = (Long)first.get(endKey) - (Long)first.get(beginKey);
 
 		Long[] minmax = findMinMax(inconsistent, beginKey);
 		Long min = minmax[0]; 
 		Long max = minmax[1];
 
-		Map<String,List<Measurement>> consistent = new TreeMap<String,List<Measurement>>();
+		Map<String,List<Map<String, Object>>> consistent = new TreeMap<String,List<Map<String, Object>>>();
 
-		for(Entry<String,List<Measurement>> e : inconsistent.entrySet())
+		for(Entry<String,List<Map<String, Object>>> e : inconsistent.entrySet())
 		{
 			String t = e.getKey();
-			List<Measurement> lt = e.getValue();
-			List<Measurement> filledGaps = fillInTheGaps(lt, min, max, granularity, beginKey, endKey, sessionKey, nameKey);
+			List<Map<String, Object>> lt = e.getValue();
+			List<Map<String, Object>> filledGaps = fillInTheGaps(lt, min, max, granularity, beginKey, endKey, sessionKey, nameKey);
 			// check for maxAggregates?
 			consistent.put(t, filledGaps);
 		}
@@ -314,7 +314,7 @@ public class AggregationService{
 	}
 
 
-	private static List<Measurement> fillInTheGaps(List<Measurement> lr, Long min, Long max, long granularity,
+	private static List<Map<String, Object>> fillInTheGaps(List<Map<String, Object>> lr, Long min, Long max, long granularity,
 			String beginKey, String endKey, String sessionKey, String nameKey) throws Exception {
 
 		if(lr == null || lr.size() < 1)
@@ -323,34 +323,34 @@ public class AggregationService{
 		if ( Math.round((max - min) / granularity) > 100000)
 			throw new Exception("The input dates and granularity result in too many datapoints (filled blanks)");
 
-		Measurement first = lr.get(0);
+		Map<String, Object> first = lr.get(0);
 
-		List<Measurement> lf = new ArrayList<Measurement>();
+		List<Map<String, Object>> lf = new ArrayList<Map<String, Object>>();
 
 		long initialGap = min;
-		long curTime = first.getNumericalAttribute(beginKey);
+		long curTime = (Long) first.get(beginKey);
 		while(curTime > initialGap){
 
 			BlankAggregate b = new BlankAggregate();
-			b.setTextAttribute(sessionKey, first.getTextAttribute(sessionKey));
-			b.setTextAttribute(nameKey,first.getTextAttribute(nameKey));
-			b.setNumericalAttribute(beginKey, initialGap);
-			b.setNumericalAttribute(endKey, initialGap + granularity);
+			b.put(sessionKey, first.get(sessionKey));
+			b.put(nameKey,first.get(nameKey));
+			b.put(beginKey, initialGap);
+			b.put(endKey, initialGap + granularity);
 			lf.add(b);
 			initialGap+=granularity;
 		}
 
-		Measurement last = first;
-		for(Measurement a : lr){
+		Map<String, Object> last = first;
+		for(Map<String, Object> a : lr){
 
-			long cursor = last.getNumericalAttribute(beginKey);
-			while(a.getNumericalAttribute(beginKey) - cursor > granularity){
+			long cursor = (Long) last.get(beginKey);
+			while(((Long)a.get(beginKey)) - cursor > granularity){
 				cursor+=granularity;				
 				BlankAggregate b = new BlankAggregate();
-				b.setTextAttribute(sessionKey, first.getTextAttribute(sessionKey));
-				b.setTextAttribute(nameKey,first.getTextAttribute(nameKey));
-				b.setNumericalAttribute(beginKey, cursor);
-				b.setNumericalAttribute(endKey, cursor + granularity);
+				b.put(sessionKey, first.get(sessionKey));
+				b.put(nameKey,first.get(nameKey));
+				b.put(beginKey, cursor);
+				b.put(endKey, cursor + granularity);
 				lf.add(b);
 			}
 
@@ -358,16 +358,16 @@ public class AggregationService{
 			last = a;
 		}
 
-		Date lastDate = new Date(last.getNumericalAttribute(beginKey) + granularity);
+		Date lastDate = new Date((Long)last.get(beginKey) + granularity);
 
 		long finalGap = max;
 		curTime = lastDate.getTime();
 		while(curTime <= finalGap){
 			BlankAggregate b = new BlankAggregate();
-			b.setTextAttribute(sessionKey, first.getTextAttribute(sessionKey));
-			b.setTextAttribute(nameKey,first.getTextAttribute(nameKey));
-			b.setNumericalAttribute(beginKey, curTime);
-			b.setNumericalAttribute(endKey, curTime + granularity);
+			b.put(sessionKey, first.get(sessionKey));
+			b.put(nameKey,(String)first.get(nameKey));
+			b.put(beginKey, curTime);
+			b.put(endKey, curTime + granularity);
 			lf.add(b);
 			curTime+=granularity;
 		}
@@ -375,9 +375,7 @@ public class AggregationService{
 		return lf;
 	}
 
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Long[] findMinMax(Map<String, List<Measurement>> inconsistent,
+	private static Long[] findMinMax(Map<String, List<Map<String, Object>>> inconsistent,
 			String beginKey) throws Exception {
 		Long min;
 		Long max;
@@ -385,24 +383,24 @@ public class AggregationService{
 		if(inconsistent == null || inconsistent.size() < 1)
 			throw new NoDataException("No data to work with");
 
-		Entry<String, List<Measurement>> first = (Entry<String, List<Measurement>>) inconsistent.entrySet().toArray()[0];
-		List<Measurement> fl = (List<Measurement>) first.getValue();
+		Entry<String, List<Map<String, Object>>> first = (Entry<String, List<Map<String, Object>>>) inconsistent.entrySet().toArray()[0];
+		List<Map<String, Object>> fl = (List<Map<String, Object>>) first.getValue();
 
 		if(fl == null || fl.size() < 1)
 			throw new NoDataException("No data in Series");
 
-		min = fl.get(0).getNumericalAttribute(beginKey);
+		min = (Long) fl.get(0).get(beginKey);
 		max = min;
 
 		for(Entry e : inconsistent.entrySet())
 		{
-			List<Measurement> lt = (List<Measurement>)e.getValue();
+			List<Map<String, Object>> lt = (List<Map<String, Object>>)e.getValue();
 
 			if(lt == null || lt.size() < 1)
 				throw new NoDataException("No data in Series");
 
-			Long thisMin =lt.get(0).getNumericalAttribute(beginKey); 
-			Long thisMax = lt.get(lt.size()-1).getNumericalAttribute(beginKey);
+			Long thisMin = (Long) lt.get(0).get(beginKey); 
+			Long thisMax = (Long) lt.get(lt.size()-1).get(beginKey);
 
 			if(min > thisMin)
 				min = thisMin;
@@ -416,12 +414,12 @@ public class AggregationService{
 		return minmax;
 	}
 
-	public static ServiceOutput convertForJson(Map<String, List<Measurement>> data){
+	public static AggOutput convertForJson(Map<String, List<Map<String, Object>>> data){
 
-		ServiceOutput so = new ServiceOutput();
+		AggOutput so = new AggOutput();
 		List<AggregateResult> res = new ArrayList<AggregateResult>();
 
-		for(Entry<String, List<Measurement>> e : data.entrySet())
+		for(Entry<String, List<Map<String, Object>>> e : data.entrySet())
 		{
 			AggregateResult ar = new AggregateResult();
 			ar.setGroupby(e.getKey());

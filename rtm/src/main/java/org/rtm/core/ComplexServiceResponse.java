@@ -21,8 +21,6 @@ package org.rtm.core;
 import java.util.List;
 import java.util.Map;
 
-import org.rtm.commons.Measurement;
-
 public class ComplexServiceResponse {
 
 	public static enum Status{
@@ -30,14 +28,14 @@ public class ComplexServiceResponse {
 		WARNING
 	}
 	
-	private Map<String,List<Measurement>> payload;
+	private Map<String,List<Map<String,Object>>> payload;
 	private Status returnStatus;
 	private String message = ";";
 	
-	public Map<String,List<Measurement>> getPayload() {
+	public Map<String,List<Map<String,Object>>> getPayload() {
 		return payload;
 	}
-	public void setPayload(Map<String,List<Measurement>> payload) {
+	public void setPayload(Map<String,List<Map<String, Object>>> payload) {
 		this.payload = payload;
 	}
 	public Status getReturnStatus() {

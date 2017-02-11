@@ -16,14 +16,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.aggregation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.rtm.core.AggregateResult;
 
-public class ServiceOutput {
+public class AggOutput {
 	
 	private List<AggregateResult> payload;
 	private String warning;

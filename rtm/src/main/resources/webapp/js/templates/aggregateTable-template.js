@@ -59,11 +59,11 @@ Table
             <% for (i = 0; i < tlength; i++) { %>
               <% curMetric = checkedAggTableMetrics[i]; %>
                 <%if($.inArray(curMetric, dateMetric) >= 0){%>
-                  <%var curDate = new Date(itemZ.n[curMetric]);%>
+                  <%var curDate = new Date(itemZ[curMetric]);%>
                   <%var printableDate = getPrintableDate(curDate)%>
-                    <td><%=printableDate%>(<%=itemZ.n[curMetric]%>)</td>
+                    <td><%=printableDate%>(<%=itemZ[curMetric]%>)</td>
                 <%}else{%>
-                    <td><%= itemZ.n[curMetric] %></td>
+                    <td><%= itemZ[curMetric] %></td>
                 <%}%>
               <% } %>
               </tr>

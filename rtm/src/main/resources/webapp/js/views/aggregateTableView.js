@@ -93,31 +93,45 @@ var AggregateTableView = Backbone.View.extend({
 			displayError('response=' + JSON.stringify(response));
 		});
 	},
-	getChartableMetricsList: function(){
-		var metricsList = [];
-		var firstModel = this.collection.models[0];
-		var excludes = this.getExcludeList();
-		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].n){
-				if($.inArray(key, excludes) < 0){
-					metricsList.push(key);
-				}
-			}
+	
+	
+isNumeric: function(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+},
+	
+	
+getChartableMetricsList: function(){
+	var metricsList = [];
+	var firstModel = this.collection.models[0];
+	var excludes = this.getExcludeList();
+	if(firstModel){
+		for ( var prop in firstModel.attributes.payload[0].data[0]){
+				if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
+        		if(this.isNumeric(firstModel.attributes.payload[0].data[0][prop])){
+					metricsList.push(prop);
+    			}
+    		}
 		}
-		return metricsList;
-	},
-	getMetricsList: function(){
-		var metricsList = [];
-		var firstModel = this.collection.models[0];
-		var excludes = this.getExcludeList();
-		if(firstModel){
-			for ( var key in firstModel.attributes.payload[0].data[0].n){
-				metricsList.push(key);
-			}
+	}
+	
+	return metricsList;
+},
+
+getMetricsList: function(){
+	var metricsList = [];
+	var firstModel = this.collection.models[0];
+	var excludes = this.getExcludeList();
+	if(firstModel){
+		for ( var prop in firstModel.attributes.payload[0].data[0]){
+			if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
+				metricsList.push(prop);
+    		}
 		}
-		return metricsList;
-	},
-	getExcludeList: function(){ // CONFIGURATIVE
+	}
+	return metricsList;
+},
+
+getExcludeList: function(){ // CONFIGURATIVE
 		return this.excludeList;
 	},
 	clearAll: function () {

@@ -16,27 +16,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.aggregation;
 
-import org.rtm.commons.Configuration;
-import org.rtm.commons.Measurement;
-import org.rtm.exception.ValidationException;
+import java.util.List;
+import java.util.Map;
 
-public class AggregateValidator extends InputValidator{
+import org.rtm.dao.Selector;
 
-	public static final String serviceDomain = Configuration.getInstance().getProperty("aggregateService.domain");
+public class AggInput {
 	
-	@Override
-	public void validateCustom(ServiceInput input) throws ValidationException {		
-		if(testVal(Measurement.SESSION_KEY))
-			throw new ValidationException("No session value was found");
-		
-		if(testVal(serviceDomain + "." + Configuration.GROUPBY_KEY))
-			throw new ValidationException("No groupby value was found");
-		
-		if(testVal(serviceDomain + "." + Configuration.GRANULARITY_KEY))
-			throw new ValidationException("No granularity value was found");
-
-		
+	private List<Selector> selectors; 
+	private Map<String, String> serviceParams;
+	
+	public List<Selector> getSelectors() {
+		return selectors;
 	}
+	public void setSelectors(List<Selector> selectors) {
+		this.selectors = selectors;
+	}
+	public Map<String, String> getServiceParams() {
+		return serviceParams;
+	}
+	public void setServiceParams(Map<String, String> serviceParams) {
+		this.serviceParams = serviceParams;
+	}
+
 }

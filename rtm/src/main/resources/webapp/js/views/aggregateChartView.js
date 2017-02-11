@@ -56,6 +56,8 @@ var AggregateChartView = Backbone.View.extend({
 	},
 
 	renderChart: function () {
+	
+	
 		var that = this;
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice});
@@ -66,41 +68,31 @@ var AggregateChartView = Backbone.View.extend({
 		})
 		.success(function(){
 
-			that.drawD3Chart(that.collection.models[0].get('payload'),
-			{
-			metric : that.currentChartMetricChoice,
-			chartBeginKey : that.chartBeginKey,
-			chartGroupbyKey : that.chartGroupbyKey,
-			chartMaxSeries : that.chartMaxSeries,
-			chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
+			if(that.collection.models.length > 0){
+				that.drawD3Chart(that.collection.models[0].get('payload'),
+				{
+					metric : that.currentChartMetricChoice,
+					chartBeginKey : that.chartBeginKey,
+					chartGroupbyKey : that.chartGroupbyKey,
+					chartMaxSeries : that.chartMaxSeries,
+					chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
+				});
+	
+				/* // D3 */
+				that.drawD3Chart(that.collection.models[0].get('payload'),
+				{
+					metric : that.currentChartMetricChoice,
+					chartBeginKey : that.chartBeginKey,
+					chartGroupbyKey : that.chartGroupbyKey,
+					chartMaxSeries : that.chartMaxSeries,
+					chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
+				});
+			}
 		});
+},
 
-			/* // Google */
-			/*if(that.collection.models.length > 0){
-			google.load('visualization', '1.0',  {'callback': function(){that.drawChart(that.collection.models[0].get('payload'),
-			{
-			metric : that.currentChartMetricChoice,
-			chartBeginKey : that.chartBeginKey,
-			chartGroupbyKey : that.chartGroupbyKey,
-			chartMaxSeries : that.chartMaxSeries,
-			chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-		}
-	);}, 'packages':['corechart', 'table']});
-} */
-
-/* // D3 */
-if(that.collection.models.length > 0){
-	that.drawD3Chart(that.collection.models[0].get('payload'),
-	{
-		metric : that.currentChartMetricChoice,
-		chartBeginKey : that.chartBeginKey,
-		chartGroupbyKey : that.chartGroupbyKey,
-		chartMaxSeries : that.chartMaxSeries,
-		chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-	}
-);
-}
-});
+isNumeric: function(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
 },
 
 getChartableMetricsList: function(){
@@ -108,21 +100,27 @@ getChartableMetricsList: function(){
 	var firstModel = this.collection.models[0];
 	var excludes = this.getExcludeList();
 	if(firstModel){
-		for ( var key in firstModel.attributes.payload[0].data[0].n){
-			if($.inArray(key, excludes) < 0){
-				metricsList.push(key);
-			}
+		for ( var prop in firstModel.attributes.payload[0].data[0]){
+				if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
+        		if(this.isNumeric(firstModel.attributes.payload[0].data[0][prop])){
+					metricsList.push(prop);
+    			}
+    		}
 		}
 	}
+	
 	return metricsList;
 },
+
 getMetricsList: function(){
 	var metricsList = [];
 	var firstModel = this.collection.models[0];
 	var excludes = this.getExcludeList();
 	if(firstModel){
-		for ( var key in firstModel.attributes.payload[0].data[0].n){
-			metricsList.push(key);
+		for ( var prop in firstModel.attributes.payload[0].data[0]){
+			if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
+				metricsList.push(prop);
+    		}
 		}
 	}
 	return metricsList;
@@ -234,9 +232,9 @@ convertToTable: function (payload, pChartParams){
 	  /**/
 
 	  for (var i = 0; i < payloadLen; i++) {
-	    curRow.date = new Date(payload[0].data[i].n.begin);
+	    curRow.date = new Date(payload[0].data[i].begin);
 	    _.each(headers, function(h){
-	        curRow[h] = +payload[headers.indexOf(h)].data[i].n[pChartParams.metric];
+	        curRow[h] = +payload[headers.indexOf(h)].data[i][pChartParams.metric];
 	    });
 	    result.push(curRow);
 	    curRow = {};
@@ -259,7 +257,7 @@ convertToSeries: function (payload, pChartParams){
 	  //console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
 	  _.each(payload, function(series){
 	      for (var i = 0; i < payloadLen; i++) {
-	        curSeries.push({ 'date' : new Date(series.data[i].n.begin), 'metricVal' : +series.data[i].n[pChartParams.metric] });
+	        curSeries.push({ 'date' : new Date(series.data[i].begin), 'metricVal' : +series.data[i][pChartParams.metric] });
 	      }
 
 	      result.push({ 'id' : series.groupby, 'values' : curSeries})
@@ -310,11 +308,11 @@ drawChart: function(pAggregates, pChartParams){
 				isChartMaxDotsPerSeriesReached = true;
 				break;
 			}
-			rowArray.push(new Date(new Number(pAggregates[0].data[i].n[pChartParams.chartBeginKey])));
+			rowArray.push(new Date(new Number(pAggregates[0].data[i][pChartParams.chartBeginKey])));
 			var limit = 0;
 			_.each(pAggregates, function(aggregate) {
 				if(limit < pChartParams.chartMaxSeries){
-					rowArray.push(aggregate.data[i].n[metric]);
+					rowArray.push(aggregate.data[i][metric]);
 					limit = limit + 1;
 				}else{
 					isChartMaxSeriesReached = true;

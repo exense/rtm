@@ -21,6 +21,8 @@ package org.rtm.exception;
 
 public class NoDataException extends RTMException {
 	
+	private static final long serialVersionUID = 6955409266608016100L;
+
 	public NoDataException(String msg){
 		super(msg);
 	}

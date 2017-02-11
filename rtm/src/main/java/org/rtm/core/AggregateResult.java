@@ -19,13 +19,12 @@
 package org.rtm.core;
 
 import java.util.List;
-
-import org.rtm.commons.Measurement;
+import java.util.Map;
 
 public class AggregateResult {
 
 	private String groupby;
-	private List<Measurement> aggregates;
+	private List<Map<String,Object>> aggregates;
 	
 	public String getGroupby() {
 		return groupby;
@@ -33,10 +32,10 @@ public class AggregateResult {
 	public void setGroupby(String groupby) {
 		this.groupby = groupby;
 	}
-	public List<Measurement> getData() {
+	public List<Map<String, Object>> getData() {
 		return aggregates;
 	}
-	public void setData(List<Measurement> data) {
+	public void setData(List<Map<String, Object>> data) {
 		this.aggregates = data;
 	}
 	

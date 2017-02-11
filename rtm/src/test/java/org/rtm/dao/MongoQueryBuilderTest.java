@@ -37,14 +37,15 @@ import org.junit.Test;
 
 public class MongoQueryBuilderTest{
 
-	List<Selector> selList = new ArrayList<Selector>();
-	List<Object> bindValues = new ArrayList<Object>();
-	String query;
-	
+	List<Selector> selList = new ArrayList<>();
+	List<Object> bindValues = new ArrayList<>();
+	String jongoQuery;
+	String mongoQuery;
+
 	boolean init = false;
 
 	@Before
-	public void buildValueListAndInitMA() throws Exception{
+	public void buildJongoValueListAndInitMA() throws Exception{
 		if(!init){
 
 			NumericalFilter nf = new NumericalFilter();
@@ -73,48 +74,70 @@ public class MongoQueryBuilderTest{
 
 			this.selList.add(sel);
 			this.selList.add(selBis);
-			
-			this.query = MongoQueryBuilder.buildQuery(this.selList, this.bindValues);
+
+			this.jongoQuery = MongoQueryBuilder.buildJongoQuery(this.selList, this.bindValues);
+			this.mongoQuery = MongoQueryBuilder.buildMongoQuery(this.selList);
+			//System.out.println("mongo :" + replaceOperatorsAndBinds(mongoQuery, false, true));
+			//System.out.println("jongo :" + replaceOperatorsAndBinds(jongoQuery, true, false));
 		}
 	}
 
-
 	@Test
-	public void validateJsonSyntax() throws Exception{
-
-		String mongoToJson = this.query.replace("#", "\"val\"")
-		  						  .replace("$gte", "\"gte\"")
-								  .replace("$lte", "\"lte\"")
-								  .replace("$or", "\"or\"")
-								  .replace("$lt", "\"lt\"")
-								  .replace("$gt", "\"gt\"")
-								  .replace("$regex", "\"regex\"");
-								  		
-		Assert.assertEquals(isJsonValid(mongoToJson), true);
+	public void validateJsonSyntaxForMongo() throws Exception{
+		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true)));
 	}
-	
+
 	@Test
-	public void validateConsistentBinds() throws Exception{
+	public void validateJsonSyntaxForJongo() throws Exception{
+		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(jongoQuery, true, false)));
+	}
+
+	@Test
+	public void validateConsistentJongoBinds() throws Exception{
+		Assert.assertEquals(this.bindValues.size(), countPatternOccurences(this.jongoQuery,"#"));
+	}
+
+	@Test
+	public void validateNumberOfOpsForJongo() throws Exception{
+		testOccurences(jongoQuery);
+	}
+
+	@Test
+	public void validateNumberOfOpsForMongo() throws Exception{
+		testOccurences(mongoQuery);
+	}
+
+	private void testOccurences(String query){
+		Assert.assertEquals(1, countPatternOccurences(query,"\\$or"));
+		Assert.assertEquals(2, countPatternOccurences(query,"\\$regex"));
+		Assert.assertEquals(2, countPatternOccurences(query,"\\$lt"));
+		Assert.assertEquals(2, countPatternOccurences(query,"\\$gt"));
+	}
+
+	private String replaceOperatorsAndBinds(String query, boolean replaceHashasBindCharacter, boolean surroundRegexPatterns ){
+		String replacedQuery = query
+				.replace("$gte", "\"gte\"")
+				.replace("$lte", "\"lte\"")
+				.replace("$or", "\"or\"")
+				.replace("$lt", "\"lt\"")
+				.replace("$gt", "\"gt\"")
+				.replace("$regex", "\"regex\"");
+
+		if(replaceHashasBindCharacter)
+			replacedQuery = replacedQuery.replace("#", "\"val\"");
 		
-		Assert.assertEquals(this.bindValues.size(), countPatternOccurences(this.query,"#"));
-	}
-	
-	@Test
-	public void validateNumberOfOps() throws Exception{
+		if(surroundRegexPatterns)
+			replacedQuery = replacedQuery.replace(".*", "\"val\"");
 
-		System.out.println(this.query);
-		
-		Assert.assertEquals(1, countPatternOccurences(this.query,"\\$or"));
-		Assert.assertEquals(2, countPatternOccurences(this.query,"\\$regex"));
-		Assert.assertEquals(2, countPatternOccurences(this.query,"\\$lt"));
-		Assert.assertEquals(2, countPatternOccurences(this.query,"\\$gt"));
+		return replacedQuery;
 	}
 
-	public static boolean isJsonValid(String json) {
+	private static boolean isJsonValid(String json) {
 		boolean is = true;
 
 		JsonReader jr = Json.createReader(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 		try{
+			@SuppressWarnings("unused")
 			JsonObject jsonObj = jr.readObject();
 		}catch(JsonParsingException e){
 			e.printStackTrace();
@@ -123,15 +146,15 @@ public class MongoQueryBuilderTest{
 
 		return is;
 	}
-	
-	public static int countPatternOccurences(String str, String pat){
+
+	private static int countPatternOccurences(String str, String pat){
 		Pattern p = Pattern.compile(pat);
 		Matcher m = p.matcher(str);
 		int count = 0;
-		
+
 		while (m.find())
-		    count++;
-		
+			count++;
+
 		return count;
 	}
 

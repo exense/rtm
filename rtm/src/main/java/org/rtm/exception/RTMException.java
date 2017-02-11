@@ -20,6 +20,8 @@ package org.rtm.exception;
 
 public class RTMException extends Exception {
 
+	private static final long serialVersionUID = -3125876204616344823L;
+
 	public RTMException(String msg){
 		super(msg);
 	}

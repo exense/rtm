@@ -19,17 +19,15 @@
 package org.rtm.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.commons.Measurement;
+import org.rtm.commons.MeasurementConstants;
 
-
-/**
- * @author doriancransac
- *
- */
+@SuppressWarnings("rawtypes")
 public class AggregationServiceTest {
 
 	@Test
@@ -39,28 +37,28 @@ public class AggregationServiceTest {
 		String sessionName = "junit";
 
 		long gran = 30000L;
-		List<Measurement> lm = new ArrayList<Measurement>();
+		List<Map> lm = new ArrayList<>();
 		AggregationService as = new AggregationService();
 
 		long begin = 1485548400L;
 		for(int i=0; i<100; i++){
 			//debug, remove afterwards
-			Measurement m = new Measurement();
-			m.setTextAttribute(Measurement.NAME_KEY, seriesName);
-			m.setNumericalAttribute(Measurement.BEGIN_KEY, begin);
-			m.setNumericalAttribute(Measurement.VALUE_KEY, 1L);
+			Map<String, Object> m = new HashMap<>();
+			m.put(MeasurementConstants.NAME_KEY, seriesName);
+			m.put(MeasurementConstants.BEGIN_KEY, begin);
+			m.put(MeasurementConstants.VALUE_KEY, 1L);
 			lm.add(m);
 			begin += gran;
 		}
 		ComplexServiceResponse inconsistent = as.buildAggregatesForTimeInconsistent(
-				sessionName, lm, gran, Measurement.NAME_KEY,
-				Measurement.BEGIN_KEY, Measurement.END_KEY, Measurement.VALUE_KEY, Measurement.SESSION_KEY);
+				sessionName, lm, gran, MeasurementConstants.NAME_KEY,
+				MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.VALUE_KEY, MeasurementConstants.SESSION_KEY);
 		//System.out.println(inconsistent.getPayload());
 
 		ComplexServiceResponse consistent =
 				AggregationService.makeDataConsistent(
 						inconsistent,
-						Measurement.SESSION_KEY, Measurement.BEGIN_KEY, Measurement.END_KEY, Measurement.NAME_KEY);
+						MeasurementConstants.SESSION_KEY, MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.NAME_KEY);
 		//System.out.println(consistent.getPayload());
 		Assert.assertEquals(consistent.getPayload().get(seriesName).size(), 100);
 	}
@@ -73,31 +71,31 @@ public class AggregationServiceTest {
 		String sessionName = "junit";
 
 		long gran = 30000L;
-		List<Measurement> lm = new ArrayList<Measurement>();
+		List<Map> lm = new ArrayList<>();
 		AggregationService as = new AggregationService();
 
 		long begin = 1485548400L;
 		for(int i=0; i<100; i++){
 			//debug, remove afterwards
-			Measurement m = new Measurement();
-			m.setTextAttribute(Measurement.NAME_KEY, seriesName);
-			m.setNumericalAttribute(Measurement.BEGIN_KEY, begin);
-			m.setNumericalAttribute(Measurement.VALUE_KEY, 1L);
+			Map<String, Object> m = new HashMap<>();
+			m.put(MeasurementConstants.NAME_KEY, seriesName);
+			m.put(MeasurementConstants.BEGIN_KEY, begin);
+			m.put(MeasurementConstants.VALUE_KEY, 1L);
 			lm.add(m);
 			//begin += gran;
 		}
 		ComplexServiceResponse inconsistent = as.buildAggregatesForTimeInconsistent(
-				sessionName, lm, gran, Measurement.NAME_KEY,
-				Measurement.BEGIN_KEY, Measurement.END_KEY, Measurement.VALUE_KEY, Measurement.SESSION_KEY);
+				sessionName, lm, gran, MeasurementConstants.NAME_KEY,
+				MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.VALUE_KEY, MeasurementConstants.SESSION_KEY);
 		//System.out.println(inconsistent.getPayload());
 
 		ComplexServiceResponse consistent =
 				AggregationService.makeDataConsistent(
 						inconsistent,
-						Measurement.SESSION_KEY, Measurement.BEGIN_KEY, Measurement.END_KEY, Measurement.NAME_KEY);
+						MeasurementConstants.SESSION_KEY, MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.NAME_KEY);
 		//System.out.println(consistent.getPayload());
 		Assert.assertEquals(consistent.getPayload().get(seriesName).size(), 1);
-		Assert.assertEquals(consistent.getPayload().get(seriesName).get(0).getNumericalAttribute("cnt"), new Long(100L));
+		Assert.assertEquals((Long) consistent.getPayload().get(seriesName).get(0).get("cnt"), new Long(100L));
 	}
 
 	

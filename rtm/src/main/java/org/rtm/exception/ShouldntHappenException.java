@@ -21,6 +21,8 @@ package org.rtm.exception;
 
 public class ShouldntHappenException extends RTMException {
 
+	private static final long serialVersionUID = -394717704898205291L;
+
 	public ShouldntHappenException(String msg){
 		super(msg);
 	}

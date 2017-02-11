@@ -21,6 +21,8 @@ package org.rtm.exception;
 
 public class CapacityException extends RTMException {
 
+	private static final long serialVersionUID = 1055639268485528085L;
+
 	public CapacityException(String msg){
 		super(msg);
 	}

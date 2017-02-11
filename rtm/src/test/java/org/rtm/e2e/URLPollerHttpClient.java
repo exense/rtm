@@ -19,6 +19,8 @@
 package org.rtm.e2e;
 
 import java.io.DataInputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -28,10 +30,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.rtm.commons.Measurement;
 import org.rtm.commons.MeasurementAccessor;
 
-
+@SuppressWarnings("deprecation")
 public class URLPollerHttpClient {
 
 	public static boolean debug = false;
@@ -51,13 +52,6 @@ public class URLPollerHttpClient {
 		String name = arg[2];
 		String groupId = arg[3];
 
-
-		long start = 0;
-		long end = 0;
-
-		//		System.out.println("Initializing HttpClient.");
-		//		WebserviceClient wc = new WebserviceClient();
-		//		wc.initClient();
 		MeasurementAccessor rtmAccessor = MeasurementAccessor.getInstance();
 
 		System.out.println("Starting endless loop with the following arguments :");
@@ -77,15 +71,15 @@ public class URLPollerHttpClient {
 			call=values[0];
 			response=values[1];
 
-			Measurement m = new Measurement();
-			m.setTextAttribute("url", url);
-			m.setTextAttribute("name", name);
-			m.setTextAttribute("eId", groupId);
-			m.setNumericalAttribute("value", call+response);
-			m.setNumericalAttribute("begin", begin);
-			m.setNumericalAttribute("call", call);
-			m.setNumericalAttribute("response", response);
-			m.setNumericalAttribute("sleepTime", sleepTime);
+			Map<String,Object> m = new HashMap<String,Object>();
+			m.put("url", url);
+			m.put("name", name);
+			m.put("eId", groupId);
+			m.put("value", call+response);
+			m.put("begin", begin);
+			m.put("call", call);
+			m.put("response", response);
+			m.put("sleepTime", sleepTime);
 			rtmAccessor.saveMeasurement(m);
 
 			try {
@@ -95,9 +89,6 @@ public class URLPollerHttpClient {
 			}
 		}
 
-	}
-
-	private void initClient(){
 	}
 
 	private static long[] makeHttpCall(String url) {
@@ -166,7 +157,7 @@ public class URLPollerHttpClient {
 		end = System.currentTimeMillis();
 
 		httpclient.getConnectionManager().shutdown(); //shut down the connection
-
+		httpclient.close();
 		values[1] = (end-start);
 		return values;
 	}

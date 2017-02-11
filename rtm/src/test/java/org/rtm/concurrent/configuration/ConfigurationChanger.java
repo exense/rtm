@@ -19,7 +19,6 @@
 package org.rtm.concurrent.configuration;
 
 import org.rtm.commons.Configuration;
-import org.rtm.exception.ConfigurationException;
 
 public class ConfigurationChanger extends Thread{
 	
@@ -37,11 +36,7 @@ public class ConfigurationChanger extends Thread{
 		
 		
 		for(int i = 0; i < itNumber; i++){
-			try {
-				Configuration.triggerReload();
-			} catch (ConfigurationException e) {
-				e.printStackTrace();
-			}
+			Configuration.triggerReload();
 			
 			try {
 				Thread.sleep(50);

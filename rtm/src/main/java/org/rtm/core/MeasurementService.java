@@ -20,27 +20,29 @@ package org.rtm.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.rtm.commons.Configuration;
-import org.rtm.commons.Measurement;
 import org.rtm.dao.RTMMongoClient;
 import org.rtm.dao.Selector;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MeasurementService{
 
 	public MeasurementService(){}
 	
-	public List<Measurement> listAllMeasurements() throws Exception{
-		List<Measurement> res = new ArrayList<Measurement>();
-		for(Measurement m : RTMMongoClient.getInstance().selectMeasurements(null, 0, 0, "n.begin"))
+	public List<Map<String, Object>> listAllMeasurements() throws Exception{
+		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		for(Map<String, Object> m : RTMMongoClient.getInstance().selectMeasurements(null, 0, 0, "n.begin"))
 			res.add(m);
 		
 		return res;
 	}
 	
-	public List<Measurement> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
-		List<Measurement> res = new ArrayList<Measurement>();
-		Iterable<Measurement> it = RTMMongoClient.getInstance().selectMeasurements(slt, skip, limit, orderBy);
+	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
+		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		RTMMongoClient myclient = RTMMongoClient.getInstance();
+		Iterable it = myclient.selectMeasurements(slt, skip, limit, orderBy);
 		
 		boolean debug = Boolean.parseBoolean(Configuration.getInstance().getProperty("rtm.debug"));
 		if(debug)
@@ -49,7 +51,8 @@ public class MeasurementService{
 		long start = System.currentTimeMillis();
 		int itcount = 0;
 		StringBuilder sb = new StringBuilder();
-		for(Measurement m : it){
+		for(Object o : it){
+			Map<String, Object> m = (Map) o;
 			itcount++;
 			 if(debug){
 				 long now = System.currentTimeMillis();

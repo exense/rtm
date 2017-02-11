@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.rtm.exception.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +15,6 @@ public class Configuration{
 	public static final String DSNAME_KEY = "ds.dbname";
 	public static final String MEASUREMENTSCOLL_KEY = "ds.measurements.collectionName";
 	public static final String DEBUG_KEY = "server.debug";
-
-	/*Serialization prefixes*/
-	public static final String NUM_PREFIX = "n";
-	public static final String TEXT_PREFIX = "t";
-	public static final String SPLITTER = ".";
 
 	public static final String GRANULARITY_KEY = "granularity";
 	public static final String GROUPBY_KEY = "groupby";
@@ -33,8 +27,6 @@ public class Configuration{
 
 	// use to be initialized to new Configuration()
 	private static Configuration NEW_INSTANCE;
-	private static Boolean chooseMeForReferenceUpdate = true;
-	private static Boolean chooseMeForReloadTrigger = true;
 	private static boolean reloadTriggered = false;
 	private Properties properties = new Properties();
 	private static boolean initialized = false;
@@ -74,58 +66,26 @@ public class Configuration{
 		}
 	}
 
-	// To be called explicitly prior to using getInstance()
+	// To be called explicitly prior to using getInstance() - jetty compat
 	public static void initSingleton(File f){
 		INSTANCE = new Configuration(f);
 	}
 
-	public static void triggerReload() throws ConfigurationException {
-
-		boolean wasIChosen = false;
-
-		synchronized(chooseMeForReloadTrigger){
-			//System.out.println(Thread.currentThread().getId() + ": I was chosen for reload trigger !");
-			if(chooseMeForReloadTrigger == true){
-				chooseMeForReloadTrigger = false;
-				wasIChosen = true;
-			}
-		}
-		if(wasIChosen){
-			//System.out.println("I'm triggering a reload !");
-			NEW_INSTANCE = new Configuration();
-			reloadTriggered = true;
-
-			synchronized(chooseMeForReloadTrigger){	
-				chooseMeForReloadTrigger = true;
-			}
-		}else{
-			throw new ConfigurationException("Reload failed : the configuration is already currently being reloaded.");
-		}
+	public static synchronized void triggerReload(){
+		NEW_INSTANCE = new Configuration();
+		reloadTriggered = true;
 	}
 
 	public static Configuration getInstance() {
 		if(reloadTriggered)
 		{
-			boolean wasIChosen = false;
-
-			synchronized(chooseMeForReferenceUpdate){
-				//System.out.println(Thread.currentThread().getId() + ": I was chosen for reference update !");
-				if(chooseMeForReferenceUpdate == true){
-					chooseMeForReferenceUpdate = false;
-					wasIChosen = true;
-				}
+			synchronized(Configuration.class)
+			{
+				INSTANCE = NEW_INSTANCE;
+				NEW_INSTANCE = null;
+				reloadTriggered = false;
 			}
 
-			if(wasIChosen){
-				synchronized(Thread.currentThread().getClass())
-				{
-					//System.out.println(Thread.currentThread().getId() + ": I'm updating the reference of INSTANCE !");
-					INSTANCE = NEW_INSTANCE;
-					NEW_INSTANCE = null;
-					reloadTriggered = false;
-					chooseMeForReferenceUpdate = true;
-				}
-			}
 		}
 
 		// For compatibility with war (no explicit properties linkage)

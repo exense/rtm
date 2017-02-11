@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
-import org.rtm.commons.Measurement;
 import org.rtm.exception.ShouldntHappenException;
 
 public class MeasurementAggregator {
@@ -63,44 +62,44 @@ public class MeasurementAggregator {
 		return fmm;
 	}
 
-	public static void filterOptional(Map<String,Matcher> valuedFilters, List<Measurement> toBeFiltered) throws Exception{
+	public static void filterOptional(Map<String,Matcher> valuedFilters, List<Map<String, Object>> toBeFiltered) throws Exception{
 
 		for(Entry<String,Matcher> e : valuedFilters.entrySet())
 		{
 			Matcher curMatcher = e.getValue();
-			for(Measurement t : toBeFiltered){
-				String attribute = t.getTextAttribute(e.getKey());
+			for(Map<String, Object> m : toBeFiltered){
+				String attribute = (String)m.get(e.getKey());
 				filterMeasurementListAgainstStringPatternFilter(toBeFiltered, attribute, curMatcher);
 			}
 		}
 
 	}
 
-	static boolean isMeasurementMatchAgainstMultipleStringPatterns(Map<String,Matcher> valuedFilters, Measurement t) throws Exception{
+	static boolean isMeasurementMatchAgainstMultipleStringPatterns(Map<String,Matcher> valuedFilters, Map<String, Object> m) throws Exception{
 
 		for(Entry<String,Matcher> e : valuedFilters.entrySet())
 		{
 			Matcher curMatcher = e.getValue();
-			if(!isMatchMeasurementAgainstStringPatternFilter(t, curMatcher, e.getKey()))
+			if(!isMatchMeasurementAgainstStringPatternFilter(m, curMatcher, e.getKey()))
 				return false;
 		}
 		return true;
 
 	}
 
-	static void filterMeasurementListAgainstStringPatternFilter(List<Measurement> toBeFiltered, String attribute, Matcher curMatcher) throws Exception {
-		for(Measurement t : toBeFiltered){
-			if(!isMatchMeasurementAgainstStringPatternFilter(t, curMatcher, attribute))
-				toBeFiltered.remove(t);
+	static void filterMeasurementListAgainstStringPatternFilter(List<Map<String, Object>> toBeFiltered, String attribute, Matcher curMatcher) throws Exception {
+		for(Map<String, Object> m : toBeFiltered){
+			if(!isMatchMeasurementAgainstStringPatternFilter(m, curMatcher, attribute))
+				toBeFiltered.remove(m);
 		}
 	}
 
-	static boolean isMatchMeasurementAgainstStringPatternFilter(Measurement t, Matcher curMatcher, String atb) throws Exception {
+	static boolean isMatchMeasurementAgainstStringPatternFilter(Map<String, Object> m, Matcher curMatcher, String atb) throws Exception {
 
-		if((atb == null) || (t == null) || (curMatcher == null))
+		if((atb == null) || (m == null) || (curMatcher == null))
 			return false;
 		else{
-			String value = t.getTextAttribute(atb);
+			String value = (String)m.get(atb);
 			if(value != null){
 				return isMatchMeasurementAgainstStringPatternFilter(curMatcher, value);
 			}

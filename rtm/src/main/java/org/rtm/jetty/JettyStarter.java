@@ -20,12 +20,7 @@ package org.rtm.jetty;
 
 import java.io.File;
 
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -35,8 +30,10 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.rtm.commons.Configuration;
-import org.rtm.rest.ConfigurationServlet;
-import org.rtm.rest.ServiceServlet;
+import org.rtm.rest.aggregation.AggregationServlet;
+import org.rtm.rest.conf.ConfigurationServlet;
+import org.rtm.rest.ingestion.IngestionServlet;
+import org.rtm.rest.measurement.MeasurementServlet;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
@@ -47,7 +44,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 public class JettyStarter {
 	
 	private Server server;
-	private ContextHandlerCollection handlers;
+	//private ContextHandlerCollection handlers;
 	
 	
 	public static void main(String[] args){
@@ -73,24 +70,28 @@ public class JettyStarter {
 
 	public void start() throws Exception {
 		
-		handlers = new ContextHandlerCollection();
+		//handlers = new ContextHandlerCollection();
 		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));
 		server = new Server(rtmPort);
 		
 		ContextHandlerCollection hcoll = new ContextHandlerCollection();
 		
 		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.packages(ServiceServlet.class.getPackage().getName());
+		resourceConfig.packages(AggregationServlet.class.getPackage().getName());
 		resourceConfig.register(JacksonJaxbJsonProvider.class);
-		resourceConfig.registerClasses(ServiceServlet.class);
+		resourceConfig.registerClasses(AggregationServlet.class);
+		resourceConfig.registerClasses(MeasurementServlet.class);
 		resourceConfig.registerClasses(ConfigurationServlet.class);
+		resourceConfig.registerClasses(IngestionServlet.class);
 
 		ServletContainer servletContainer = new ServletContainer(resourceConfig);
 		ServletHolder sh = new ServletHolder(servletContainer);
+		sh.setInitParameter("cacheControl","max-age=0,public"); 
 
 		ServletContextHandler serviceHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		serviceHandler.setContextPath("/rtm/rest");
 		serviceHandler.addServlet(sh, "/*");
+		serviceHandler.setInitParameter("cacheControl","max-age=0,public"); 
 
 		ContextHandler webAppHandler = new ContextHandler("/rtm");
 		ResourceHandler bb = new ResourceHandler();

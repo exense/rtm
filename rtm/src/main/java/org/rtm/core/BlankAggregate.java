@@ -19,43 +19,42 @@
 package org.rtm.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.jongo.marshall.jackson.oid.ObjectId;
-import org.rtm.commons.Measurement;
-
-public class BlankAggregate extends Measurement {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class BlankAggregate extends HashMap {
 	
-	@ObjectId
-	private String _id;
+	private static final long serialVersionUID = -2882386371717674686L;
 	
 	public BlankAggregate() throws Exception{
 		super();
 		
-		setNumericalAttribute("avg", 0L);
-		setNumericalAttribute("cnt", 0L);
-		setNumericalAttribute("sum", 0L);
-		setNumericalAttribute("min", 0L);
-		setNumericalAttribute("max", 0L);
-		setNumericalAttribute("pcl1", 0L);
-		setNumericalAttribute("pcl10", 0L);
-		setNumericalAttribute("pcl20", 0L);
-		setNumericalAttribute("pcl30", 0L);
-		setNumericalAttribute("pcl40", 0L);
-		setNumericalAttribute("pcl50", 0L);
-		setNumericalAttribute("pcl60", 0L);
-		setNumericalAttribute("pcl70", 0L);
-		setNumericalAttribute("pcl80", 0L);
-		setNumericalAttribute("pcl90", 0L);
-		setNumericalAttribute("pcl99", 0L);
+		put("avg", 0L);
+		put("cnt", 0L);
+		put("sum", 0L);
+		put("min", 0L);
+		put("max", 0L);
+		put("pcl1", 0L);
+		put("pcl10", 0L);
+		put("pcl20", 0L);
+		put("pcl30", 0L);
+		put("pcl40", 0L);
+		put("pcl50", 0L);
+		put("pcl60", 0L);
+		put("pcl70", 0L);
+		put("pcl80", 0L);
+		put("pcl90", 0L);
+		put("pcl99", 0L);
 		
 	}
 
-	public static List<Measurement> trimBlanks(List<Measurement> value) {
+	public static List<Map> trimBlanks(List<Map> value) {
 
-		List<Measurement> result = new ArrayList<Measurement>();
+		List<Map> result = new ArrayList<Map>();
 		
-		for(Measurement a : value)
+		for(Map a : value)
 			if(!(a instanceof BlankAggregate))
 				result.add(a);
 		

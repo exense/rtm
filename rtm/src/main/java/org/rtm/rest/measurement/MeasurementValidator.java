@@ -16,31 +16,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.measurement;
 
-public class SimpleResponse {
+import org.rtm.commons.Configuration;
+import org.rtm.rest.InputValidator;
+import org.rtm.rest.aggregation.AggInput;
+
+public class MeasurementValidator extends InputValidator{
+
+	public static final String serviceDomain = Configuration.getInstance().getProperty("measurementService.domain");
 	
-	public static enum STATUS{
-		FAILED,
-		SUCCESS
-	}
-	
-	private STATUS status;
-	private String message;
-	public STATUS getStatus() {
-		return status;
-	}
-	public void setStatus(STATUS status) {
-		this.status = status;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	
-	public String toString(){
-		return "[Response]status="+status+";message="+message;
+	@Override
+	public void validateCustom(AggInput input) {
+		
+
 	}
 }

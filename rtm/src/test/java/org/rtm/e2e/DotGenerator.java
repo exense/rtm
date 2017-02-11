@@ -20,28 +20,27 @@ package org.rtm.e2e;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.rtm.commons.Measurement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 
 public class DotGenerator extends Thread{
 
 	public static void main (String[] args){
 			
-		dropCollection();
+		removeTestData();
 		
 		int nb_threads = 1;
 		
@@ -51,7 +50,6 @@ public class DotGenerator extends Thread{
 				try {
 					Thread.sleep(i * 60000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				/**/
@@ -60,14 +58,13 @@ public class DotGenerator extends Thread{
 			
 		}
 
+	@SuppressWarnings("deprecation")
 	public void run(){
 		try{
 			
 			//http://localhost:8099/rtm/rest/measurement/save/queryparam/string?measurement={%22t%22:{%22client%22:%2210.100.1.7%22,%22eId%22:%22PERF_TEST%22,%22name%22:%22MyMeasurement_1%22,%22threadId%22:%2213%22,%22userId%22:%22Lisa%22},%22n%22:{%22begin%22:1484127847377,%22value%22:37}}
-			String serviceUrl = "http://localhost:8099/rtm/rest/measurement/save/queryparam/string";
-			
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy,M,d,H,m,s,S");
-
+			String serviceUrl = "http://localhost:8099/rtm/rest/ingest/generic";
+	
 			HttpClient httpclient = new HttpClient();
 			ObjectMapper mapper = new ObjectMapper();
 
@@ -101,17 +98,17 @@ public class DotGenerator extends Thread{
 				dur *= transactionFactor;
 				//System.out.println(dur);
 				
-				Measurement t = new Measurement();
-				t.setTextAttribute("eId", dataSetName);
-				t.setTextAttribute("name", transactionName);
-				t.setNumericalAttribute("begin", dateObj.getTime());
-				t.setNumericalAttribute("value", new Long(dur) > 0 ? new Long(dur) : 1);
-				t.setTextAttributes(optional);
+				Map<String,Object> m = new HashMap<String,Object>();
+				m.put("eId", dataSetName);
+				m.put("name", transactionName);
+				m.put("begin", dateObj.getTime());
+				m.put("value", new Long(dur) > 0 ? new Long(dur) : 1);
+				m.putAll(optional);
 				/*
 				WriteResult wr = MeasurementAccessor.getInstance().saveMeasurement(t);
 				*/
 				
-				String serialized = mapper.writeValueAsString(t);
+				String serialized = mapper.writeValueAsString(m);
 				System.out.println("Posting measurement: " + serialized);
 				
 				GetMethod method = new GetMethod(serviceUrl + "?measurement="+ URLEncoder.encode(serialized));
@@ -131,12 +128,13 @@ public class DotGenerator extends Thread{
 	}
 	
 	
-private static void dropCollection() {
-	MongoClient c = new MongoClient("localhost");
-	DB db = c.getDB("rtm");
-	DBCollection coll = db.getCollection("measurements");
-	coll.remove(new BasicDBObject("t.eId", "PERF_TEST1"));
-	c.close();
+@SuppressWarnings("rawtypes")
+private static void removeTestData() {
+	MongoClient mongoClient = new MongoClient("localhost");
+	MongoDatabase db = mongoClient.getDatabase("rtm");
+	MongoCollection<Map> coll = db.getCollection("measurements", Map.class);
+	coll.deleteOne(new BasicDBObject("eId", "PERF_TEST1"));
+	mongoClient.close();
 }
 
 }

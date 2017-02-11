@@ -21,161 +21,109 @@ package org.rtm.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
+import org.bson.Document;
 import org.rtm.commons.Configuration;
-import org.rtm.commons.Measurement;
-import org.rtm.exception.RTMException;
+import org.rtm.commons.MeasurementConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 public class RTMMongoClient{
 
-	private static final Logger logger = LoggerFactory.getLogger(MongoQueryBuilderTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(RTMMongoClient.class);
 
-	MongoCollection measurements;
-	MongoCollection aggregates;
+	private final MongoClient mongoClient;
+	private final MongoDatabase db;
+	final MongoCollection<Document> coll;
 
 	private static RTMMongoClient INSTANCE = new RTMMongoClient();
 	private static RTMMongoClient NEW_INSTANCE;
 
-	private static Boolean chooseMeForReferenceUpdate = true;
-	private static Boolean chooseMeForReloadTrigger = true;
-
 	private static boolean reloadTriggered = false;
-	
-	private boolean isDebug = false;
+
+	final private String host;
+	final private Integer port;
+	final private String user;
+	final private String pwd;
+	final private String database;
 
 	private RTMMongoClient(){
 		super();
 
-		String measurementsColl = Configuration.getInstance().getProperty(Configuration.MEASUREMENTSCOLL_KEY);
-		
-		/* Currently not needed - until we manipulate and save aggregates again*/
-		//String aggregatesColl = Configuration.getInstance().getProperty("ds.aggregates.collectionName");
+		Configuration conf = Configuration.getInstance();
 
-		if(Configuration.getInstance().getProperty(Configuration.DEBUG_KEY) != null)
-			this.isDebug = Configuration.getInstance().getProperty(Configuration.DEBUG_KEY).equals("true");
+		host = conf.getProperty("db.host");
+		Integer confPort = conf.getPropertyAsInteger("db.port");
+		port = (confPort==null)?27017:confPort;
+		user = conf.getProperty("db.username");
+		pwd = conf.getProperty("db.password");
+		String confDb = conf.getProperty("db.database");
+		database = (confDb==null)?"rtm":confDb;
 
-		String host = Configuration.getInstance().getProperty("db.host");
-		Integer port = Configuration.getInstance().getPropertyAsInteger("db.port");
-		port = port==null?27017:port;
-		String user = Configuration.getInstance().getProperty("db.username");
-		String pwd = Configuration.getInstance().getProperty("db.password");
-		String database = Configuration.getInstance().getProperty("db.database");
-		database = database==null?"rtm":database;
-		
-		MongoClient mongoClient;
 		ServerAddress address = new ServerAddress(host, port);
 		List<MongoCredential> credentials = new ArrayList<MongoCredential>();
 		if(user!=null) {
 			MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
 			credentials.add(credential);
 		}
-		
+
 		mongoClient = new MongoClient(address, credentials);
-		DB db = mongoClient.getDB(database);
-		if(db != null)
-			System.out.println("Connected to: " + mongoClient.getAddress().getHost() + "; db=" + database);
-		else
-			System.out.println("DB is null");
-		Jongo jongo = new Jongo(db);
+		db = mongoClient.getDatabase(database);
+		coll = db.getCollection(conf.getProperty("ds.measurements.collectionName"));
 
-		this.measurements = jongo.getCollection(measurementsColl);
-		if(this.measurements != null)
-			System.out.println("Got handle on collection: " + measurementsColl);
-		else
-			System.out.println("measurements is null");
-
-		/*
-		this.aggregates = jongo.getCollection(aggregatesColl);
-		if(this.aggregates != null)
-			System.out.println("Got handle on collection: " + aggregatesColl);
-		else
-			System.out.println("aggregates is null");
-		 */
 	}
 
 	public static RTMMongoClient getInstance() {
 		if(reloadTriggered)
 		{
-			boolean wasIChosen = false;
-
-			synchronized(chooseMeForReferenceUpdate){
-				if(chooseMeForReferenceUpdate == true){
-					chooseMeForReferenceUpdate = false;
-					wasIChosen = true;
-				}
-			}
-
-			if(wasIChosen){
-				synchronized(Thread.currentThread().getClass())
-				{
-					INSTANCE = NEW_INSTANCE;
-					NEW_INSTANCE = null;
-					reloadTriggered = false;
-					chooseMeForReferenceUpdate = true;
-				}
+			synchronized(RTMMongoClient.class)
+			{
+				INSTANCE = NEW_INSTANCE;
+				NEW_INSTANCE = null;
+				reloadTriggered = false;
 			}
 		}
 		return INSTANCE;
 	}
 
-	public Iterable<Measurement> selectMeasurements(List<Selector> selectors, int skip, int limit, String sortAttribute) throws Exception {
+	public Iterable<Document> selectMeasurements(List<Selector> selectors, int skip, int limit, String sortAttribute) throws Exception {
 
-		List<Object> paramArray = new ArrayList<Object>();
 		String genQuery;
 
 		if(selectors != null && selectors.size() > 0)
-			genQuery = MongoQueryBuilder.buildQuery(selectors, paramArray);
+			genQuery = MongoQueryBuilder.buildMongoQuery(selectors);
 		else
 			genQuery = "{}";
 
 		String sort = "{"+sortAttribute+": 1}";
-		if(isDebug)
-			System.out.println("selectMeasurements: [sort]"+sort+"[find]" + genQuery + "[paramArray]" + paramArray);
+		logger.debug("selectMeasurements: [sort]"+sort+"[find]" + genQuery);
+		
 		if(skip > 0){
 			if(limit > 0){
-				return measurements.find(genQuery, paramArray.toArray()).skip(skip).limit(limit).sort(sort).as(Measurement.class);
+				return coll.find(MeasurementConverter.convertToMongo(genQuery)).skip(skip).limit(limit).sort(MeasurementConverter.convertToMongo(sort));
 			}else{
-				return measurements.find(genQuery, paramArray.toArray()).skip(skip).sort(sort).as(Measurement.class);
+				return coll.find(MeasurementConverter.convertToMongo(genQuery)).skip(skip).sort(MeasurementConverter.convertToMongo(sort));
 			}
 		}else{
 			if(limit > 0){
-				return measurements.find(genQuery, paramArray.toArray()).limit(limit).sort(sort).as(Measurement.class);
+				return coll.find(MeasurementConverter.convertToMongo(genQuery)).limit(limit).sort(MeasurementConverter.convertToMongo(sort));
 			}else{
-				return measurements.find(genQuery, paramArray.toArray()).sort(sort).as(Measurement.class);				
+				return coll.find(MeasurementConverter.convertToMongo(genQuery)).sort(MeasurementConverter.convertToMongo(sort));				
 			}
 		}
 	}
 
-	public void triggerReload() throws RTMException {
-		
-		boolean wasIChosen = false;
+	public static synchronized void triggerReload(){
+		NEW_INSTANCE = new RTMMongoClient();
+		reloadTriggered = true;
+	}
 
-		synchronized(chooseMeForReloadTrigger){
-			//System.out.println(Thread.currentThread().getId() + ": I was chosen for reload trigger !");
-			if(chooseMeForReloadTrigger == true){
-				chooseMeForReloadTrigger = false;
-				wasIChosen = true;
-			}
-		}
-		if(wasIChosen){
-			//System.out.println("I'm triggering a reload !");
-			NEW_INSTANCE = new RTMMongoClient();
-			reloadTriggered = true;
-			
-			synchronized(chooseMeForReloadTrigger){	
-				chooseMeForReloadTrigger = true;
-			}
-		}else{
-			throw new RTMException("Reload failed : the configuration is already currently being reloaded.");
-		}
-		
+	public void close(){
+		mongoClient.close();
 	}
 }

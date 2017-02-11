@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest;
+package org.rtm.rest.conf;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -37,10 +35,10 @@ import javax.ws.rs.core.Response;
 
 import org.rtm.commons.Configuration;
 import org.rtm.dao.RTMMongoClient;
-import org.rtm.exception.ConfigurationException;
 import org.rtm.exception.RTMException;
 
 @Path("/configuration")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationServlet {
 
 	private static String version = null;
@@ -55,6 +53,7 @@ public class ConfigurationServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response reloadGet(@Context ServletContext sc) {return reload(sc);}
 
+	@SuppressWarnings("static-access")
 	public Response reload(ServletContext sc) {
 
 		try {
@@ -68,9 +67,10 @@ public class ConfigurationServlet {
 			if(Configuration.getInstance() == null)
 				throw new RTMException("Configuration reload failed somehow.");
 			else{
-				String newHostname = Configuration.getInstance().getProperty(Configuration.DSHOST_KEY);
-				String newDbname = Configuration.getInstance().getProperty(Configuration.DSNAME_KEY);
-				String newMeasurementsColl = Configuration.getInstance().getProperty(Configuration.MEASUREMENTSCOLL_KEY);
+				Configuration conf = Configuration.getInstance();
+				String newHostname = conf.getProperty(Configuration.DSHOST_KEY);
+				String newDbname = conf.getProperty(Configuration.DSNAME_KEY);
+				String newMeasurementsColl = conf.getProperty(Configuration.MEASUREMENTSCOLL_KEY);
 
 				if(newHostname == null || newDbname == null || newMeasurementsColl == null)
 					throw new RTMException("Reload failed due to null DB config values : host="+newHostname+", name="+newDbname+", measurementColl="+newMeasurementsColl);
@@ -79,9 +79,6 @@ public class ConfigurationServlet {
 						RTMMongoClient.getInstance().triggerReload();
 				}
 			}
-		} catch (ConfigurationException e) {
-			e.printStackTrace();
-			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
 		} catch (RTMException e) {
 			e.printStackTrace();
 			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();

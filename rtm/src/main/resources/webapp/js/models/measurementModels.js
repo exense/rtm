@@ -1,8 +1,7 @@
 var Measurement = Backbone.Model.extend({});
 
 var Measurements = Backbone.Collection.extend({
-      //url: '/rtm/rest/service/allmeasurements',
-      url: '/rtm/rest/service/measurement',
+      url: '/rtm/rest/measurement/find',
       model: Measurement,
 
       refreshData: function(rawInput){
