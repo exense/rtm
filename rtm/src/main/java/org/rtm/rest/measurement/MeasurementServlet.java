@@ -48,7 +48,7 @@ public class MeasurementServlet {
 		//final String serviceDomain = conf.getProperty("measurementService.domain");
 		
 		try {
-			new MeasurementValidator().validate(input);
+			new MeasurementInputValidator().validate(input);
 			RTMMongoClient.getInstance();
 		} catch (ValidationException e1) {
 			e1.printStackTrace();

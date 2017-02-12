@@ -67,6 +67,83 @@ public class DotGenerator extends Thread{
 
 	@SuppressWarnings("deprecation")
 	public void run(){
+		structuredScenario();
+	}
+	
+	public void structuredScenario(){
+
+		String serviceUrl = "http://localhost:8099/rtm/rest/ingest/structured/{eId}/{time}/{name}/{value}";
+		//String serviceUrl = "http://localhost:8099/rtm/rest/ingest/structured/{eId}/{time}/{name}/{value}/{optionalData}";
+		CloseableHttpClient httpclient = HttpClients.createDefault();	
+		ObjectMapper mapper = new ObjectMapper();
+
+		try{
+
+			int dur;
+			int txRootFactor = 5;
+
+			String[] userId = {"Peter", "Michael", "Lisa", "Ted"};
+			String clientIp = "10.100.1.";
+			String dataSetName = "PERF_TEST";
+			String transactionName = "MyMeasurement_Y";
+			dur = 50;
+
+			for (int i = 10; i < 100000; i++){
+				Date dateObj = new Date();
+
+				Map<String,String> optional = new TreeMap<String,String>();
+				optional.put("client", clientIp + (int)Math.round(Math.random()*100 % 10));
+				optional.put("userId", userId[(int)Math.round(Math.random()*100 % (userId.length-1))]);
+				optional.put("threadId", String.valueOf(Thread.currentThread().getId()));
+
+				Random randomGenerator = new Random();
+				dur = randomGenerator.nextInt(100);
+
+				int transactionFactor = (randomGenerator.nextInt(txRootFactor)+1);
+				transactionName = "MyMeasurement_" + transactionFactor;
+
+				dur *= transactionFactor;
+
+				serviceUrl = serviceUrl.replace("{eId}", dataSetName);
+				serviceUrl = serviceUrl.replace("{name}", transactionName);
+				serviceUrl = serviceUrl.replace("{time}", ((Long)dateObj.getTime()).toString());
+				serviceUrl = serviceUrl.replace("{value}", new Long(dur) > 0 ? (new Long(dur)).toString() : new Long(1).toString());
+
+				HttpGet httpget = new HttpGet(serviceUrl);
+
+				System.out.println("Executing request " + httpget.getRequestLine());
+
+				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+					@Override
+					public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
+						int status = response.getStatusLine().getStatusCode();
+						if (status >= 200 && status < 300) {
+							HttpEntity entity = response.getEntity();
+							return entity != null ? EntityUtils.toString(entity) : null;
+						} else {
+							throw new ClientProtocolException("Unexpected response status: " + status);
+						}
+					}
+
+				};
+				String responseBody = httpclient.execute(httpget, responseHandler);
+				System.out.println("----------------------------------------");
+				System.out.println(responseBody);
+				Thread.sleep(1000);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void unstructuredScenario(){
 
 		String serviceUrl = "http://localhost:8080/rtm/rest/ingest/generic";
 		CloseableHttpClient httpclient = HttpClients.createDefault();	
@@ -143,13 +220,11 @@ public class DotGenerator extends Thread{
 		}
 	}
 
-
-	@SuppressWarnings("rawtypes")
 	private static void removeTestData() {
 		MongoClient mongoClient = new MongoClient("localhost");
 		MongoDatabase db = mongoClient.getDatabase("rtm");
 		MongoCollection<Document> coll = db.getCollection("measurements", Document.class);
-		coll.deleteOne(new BasicDBObject("eId", "PERF_TEST"));
+		coll.deleteMany(new BasicDBObject("eId", "PERF_TEST"));
 		mongoClient.close();
 	}
 

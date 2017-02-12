@@ -22,7 +22,7 @@ import org.rtm.commons.Configuration;
 import org.rtm.rest.InputValidator;
 import org.rtm.rest.aggregation.AggInput;
 
-public class MeasurementValidator extends InputValidator{
+public class MeasurementInputValidator extends InputValidator{
 
 	public static final String serviceDomain = Configuration.getInstance().getProperty("measurementService.domain");
 	
