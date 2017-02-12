@@ -18,16 +18,23 @@
  *******************************************************************************/
 package org.rtm.e2e;
 
+import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.bson.Document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
@@ -39,37 +46,35 @@ import com.mongodb.client.MongoDatabase;
 public class DotGenerator extends Thread{
 
 	public static void main (String[] args){
-			
+
 		removeTestData();
-		
+
 		int nb_threads = 1;
-		
-			for (int i = 0; i < nb_threads; i++)
-			{/**/
-				//For presentation purposes
-				try {
-					Thread.sleep(i * 60000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				/**/
-				new DotGenerator().start();
+
+		for (int i = 0; i < nb_threads; i++)
+		{/**/
+			//For presentation purposes
+			try {
+				Thread.sleep(i * 60000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-			
+			/**/
+			new DotGenerator().start();
 		}
+
+	}
 
 	@SuppressWarnings("deprecation")
 	public void run(){
+
+		String serviceUrl = "http://localhost:8080/rtm/rest/ingest/generic";
+		CloseableHttpClient httpclient = HttpClients.createDefault();	
+		ObjectMapper mapper = new ObjectMapper();
+
 		try{
-			
-			//http://localhost:8099/rtm/rest/measurement/save/queryparam/string?measurement={%22t%22:{%22client%22:%2210.100.1.7%22,%22eId%22:%22PERF_TEST%22,%22name%22:%22MyMeasurement_1%22,%22threadId%22:%2213%22,%22userId%22:%22Lisa%22},%22n%22:{%22begin%22:1484127847377,%22value%22:37}}
-			String serviceUrl = "http://localhost:8099/rtm/rest/ingest/generic";
-	
-			HttpClient httpclient = new HttpClient();
-			ObjectMapper mapper = new ObjectMapper();
 
 			int dur;
-			
 			int txRootFactor = 5;
 
 			String[] userId = {"Peter", "Michael", "Lisa", "Ted"};
@@ -77,11 +82,10 @@ public class DotGenerator extends Thread{
 			String dataSetName = "PERF_TEST";
 			String transactionName = "MyMeasurement_Y";
 			dur = 50;
-			
-			//for (int i = 0; i < 1; i++){
+
 			for (int i = 10; i < 100000; i++){
 				Date dateObj = new Date();
-				
+
 				Map<String,String> optional = new TreeMap<String,String>();
 				optional.put("client", clientIp + (int)Math.round(Math.random()*100 % 10));
 				optional.put("userId", userId[(int)Math.round(Math.random()*100 % (userId.length-1))]);
@@ -89,52 +93,64 @@ public class DotGenerator extends Thread{
 
 				Random randomGenerator = new Random();
 				dur = randomGenerator.nextInt(100);
-				//faster
-				//dur = randomGenerator.nextInt(5);
-	
+
 				int transactionFactor = (randomGenerator.nextInt(txRootFactor)+1);
 				transactionName = "MyMeasurement_" + transactionFactor;
-				
+
 				dur *= transactionFactor;
-				//System.out.println(dur);
-				
+
 				Map<String,Object> m = new HashMap<String,Object>();
 				m.put("eId", dataSetName);
 				m.put("name", transactionName);
 				m.put("begin", dateObj.getTime());
 				m.put("value", new Long(dur) > 0 ? new Long(dur) : 1);
 				m.putAll(optional);
-				/*
-				WriteResult wr = MeasurementAccessor.getInstance().saveMeasurement(t);
-				*/
-				
+
 				String serialized = mapper.writeValueAsString(m);
 				System.out.println("Posting measurement: " + serialized);
-				
-				GetMethod method = new GetMethod(serviceUrl + "?measurement="+ URLEncoder.encode(serialized));
-				//GetMethod method = new GetMethod(serviceUrl + "?measurement="+ serialized);
-				
-				httpclient.executeMethod(method);
-				byte[] responseBody = method.getResponseBody();
-			
-				 System.out.println(new String(responseBody,Charset.forName("UTF-8")));
-				
-				
-				//String body = "{\"_id\": \"perfdoc_"+dataSetName+"_"+i+"\",\"dataSet\": \""+ dataSetName+"\",\"transactionName\": \""+transactionName+"\",\"userId\": \""+userId+"\",\"client\": \""+clientIp+"\",\"date\": "+dateObj.getTime()+",\"duration\": "+dur+",\"year\": "+y+",\"month\": "+m+",\"day\": "+d+",\"hour\": "+h+",\"minute\": "+min+",\"second\": "+s+",\"ms\": "+ms+"}";
-				
+
+				HttpGet httpget = new HttpGet(serviceUrl + "?measurement="+ URLEncoder.encode(serialized));
+
+				System.out.println("Executing request " + httpget.getRequestLine());
+
+				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+					@Override
+					public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
+						int status = response.getStatusLine().getStatusCode();
+						if (status >= 200 && status < 300) {
+							HttpEntity entity = response.getEntity();
+							return entity != null ? EntityUtils.toString(entity) : null;
+						} else {
+							throw new ClientProtocolException("Unexpected response status: " + status);
+						}
+					}
+
+				};
+				String responseBody = httpclient.execute(httpget, responseHandler);
+				System.out.println("----------------------------------------");
+				System.out.println(responseBody);
 				Thread.sleep(1000);
 			}
-		}catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
-	
-	
-@SuppressWarnings("rawtypes")
-private static void removeTestData() {
-	MongoClient mongoClient = new MongoClient("localhost");
-	MongoDatabase db = mongoClient.getDatabase("rtm");
-	MongoCollection<Map> coll = db.getCollection("measurements", Map.class);
-	coll.deleteOne(new BasicDBObject("eId", "PERF_TEST1"));
-	mongoClient.close();
-}
+
+
+	@SuppressWarnings("rawtypes")
+	private static void removeTestData() {
+		MongoClient mongoClient = new MongoClient("localhost");
+		MongoDatabase db = mongoClient.getDatabase("rtm");
+		MongoCollection<Document> coll = db.getCollection("measurements", Document.class);
+		coll.deleteOne(new BasicDBObject("eId", "PERF_TEST"));
+		mongoClient.close();
+	}
 
 }

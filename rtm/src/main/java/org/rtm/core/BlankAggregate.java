@@ -47,6 +47,7 @@ public class BlankAggregate extends HashMap {
 		put("pcl80", 0L);
 		put("pcl90", 0L);
 		put("pcl99", 0L);
+		put("std", 0L);
 		
 	}
 

@@ -9,18 +9,18 @@ var MeasurementListView = Backbone.View.extend({
 	dateMetrics : [],
 	excludeList : [],
 	pagingValue : '',
-	
+
 	nextFactor : 0,
 
 	initialize : function(){
-		
+
 		var splitter = Config.getProperty('client.splitChar');
 
 		this.checkedTableMetrics =  Config.getProperty('client.MeasurementListView.checkedTableMetrics').split(splitter);
 		this.dateMetrics =  Config.getProperty('client.MeasurementListView.dateMetrics').split(splitter);
 		this.excludeList =  Config.getProperty('client.MeasurementListView.excludeList').split(splitter);
 		this.pagingValue =  Config.getProperty('client.MeasurementListView.pagingValue');
-		
+
 	},
 	getServiceFragment :function(){
 		return {
@@ -34,7 +34,7 @@ var MeasurementListView = Backbone.View.extend({
 				'tableMetricChoice' : this.getCurrentMetricChoices(),
 			};
 	},
-	
+
 	getGuiDomain: function(){
 		return 'measurementListView';
 	},
@@ -42,7 +42,7 @@ var MeasurementListView = Backbone.View.extend({
 	getServiceDomain: function(){
 		return 'measurementService';
 	},
-	
+
 	triggerMeasurementPrevious: function(){
 		this.nextFactor = this.nextFactor - 1;
 		this.trigger('MeasurementPrevious');
@@ -70,12 +70,12 @@ var MeasurementListView = Backbone.View.extend({
 	},
 	render: function () {
 		var that = this;
-		
+
 		$.get(resolveTemplate('measurement-list-template'), function (data) {
-			template = _.template(data, 
+			template = _.template(data,
 					{
 				measurements: that.collection.models,
-				metricsList : that.getMetricsList(), 
+				metricsList : that.getMetricsList(),
 				checkedTableMetrics : that.checkedTableMetrics,
 				dateMetric : that.dateMetrics,
 				pagingValue : that.pagingValue,
@@ -93,10 +93,7 @@ var MeasurementListView = Backbone.View.extend({
 		var firstModel = this.collection.models[0];
 		var excludes = this.getExcludeList();
 		if(firstModel){
-			for ( var key in firstModel.attributes.t){
-				metricsList.push(key);
-			}
-			for ( var key in firstModel.attributes.n){
+			for ( var key in firstModel.attributes){
 				metricsList.push(key);
 			}
 		}
