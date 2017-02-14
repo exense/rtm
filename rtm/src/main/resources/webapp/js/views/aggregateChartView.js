@@ -156,7 +156,7 @@ var x = d3.scaleTime().range([0, width]),
     z = d3.scaleOrdinal(d3.schemeCategory10);
 
 var line = d3.line()
-    .curve(d3.curveBasis)
+    .curve(d3.curveMonotoneX)
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.metricVal); });
 

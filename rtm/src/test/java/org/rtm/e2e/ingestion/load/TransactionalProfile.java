@@ -30,7 +30,7 @@ public class TransactionalProfile extends LoadDescriptor{
 
 	private Long computeSkew(int taskId) {
 		long smallDeviation= ThreadLocalRandom.current().nextLong(0, taskId * stdFactor);
-		boolean plusMinus = ThreadLocalRandom.current().nextInt(0,1) == 1;
+		boolean plusMinus = ThreadLocalRandom.current().nextInt(0,2) == 1;
 		Long value = new Long(taskId * this.skewFactor);
 		if(plusMinus)
 			value += smallDeviation;

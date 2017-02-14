@@ -31,6 +31,9 @@ public class E2EIngestionSimulatorTest {
 
 	MeasurementAccessor ma;
 	TransportClient tc;
+	
+	String hostname = "localhost";
+	int port = 8080;
 
 	boolean init = false;
 
@@ -39,7 +42,7 @@ public class E2EIngestionSimulatorTest {
 		if(!init){
 			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
 			ma = MeasurementAccessor.getInstance();
-			tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
+			tc = TransportClientBuilder.buildHttpClient(hostname, port);
 		}
 		
 		removeAllData();
@@ -52,7 +55,7 @@ public class E2EIngestionSimulatorTest {
 
 		boolean exception = false;
 		try {
-			TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
+			TransportClient tc = TransportClientBuilder.buildHttpClient(hostname, port);
 			E2EIngestionSimulator.sendStructuredMeasurement(tc, m);
 			tc.close();
 		} catch (Exception e) {
