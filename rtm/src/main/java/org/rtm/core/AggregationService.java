@@ -50,17 +50,8 @@ public class AggregationService{
 			this.isDebug  = Configuration.getInstance().getProperty("rtm.debug").equals("true");
 	}
 
-	public ComplexServiceResponse buildAggregatesForTimeInconsistent(String sessionId, Iterable<Map> ble,long granularity,
-			String differenciatorKey, String beginKey,  String endKey, String valueKey, String sessionKey
-			) throws Exception{
-		return buildAggregatesForTimeInconsistent(
-				sessionId, ble, null, null, granularity,
-				differenciatorKey, beginKey, endKey, valueKey, sessionKey
-				);
-	}
-
 	public ComplexServiceResponse buildAggregatesForTimeInconsistent(
-			String sessionId, Iterable<Map> ble, Date pStart, Date pEnd, long granularity,
+			String sessionId, Iterable<Map> ble, long granularity,
 			String differenciatorKey, String beginKey, String endKey, String valueKey, String sessionKey
 			) throws Exception{
 		// ASSUMING THE INCOMING DATA IS SORTED BY DATE
@@ -90,10 +81,8 @@ public class AggregationService{
 			differenciatorKey = UUID.randomUUID().toString();
 			noDiffMode = true;
 		}
-		if(pStart == null)
-			start = (Long)m.get(beginKey);
-		else
-			start = pStart.getTime();
+
+		start = (Long)m.get(beginKey);
 
 		LongTimeInterval curr = new LongTimeInterval(start, granularity);
 		while(!curr.belongs(firstBegin))
@@ -105,15 +94,10 @@ public class AggregationService{
 		int nbProcessedIntervals = 0;
 		while(true)
 		{
-			if(pEnd != null){
-				if((Long) m.get(beginKey) + (Long) m.get(valueKey) > pEnd.getTime())
-					break;
-			}
-
 			if(isDebug)
 				System.out.println("for=>["+m+"]");
 
-			// The currently evaluated Map<String, Object> belongs to current interval
+			// The currently evaluated measurement belongs to the current interval
 			if(curr.belongs((Long) m.get(beginKey))){
 				/* 211014 */
 				if(noDiffMode || m.get(differenciatorKey) == null)
