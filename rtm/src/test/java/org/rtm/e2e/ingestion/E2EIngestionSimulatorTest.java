@@ -72,7 +72,7 @@ public class E2EIngestionSimulatorTest {
 	public synchronized void skewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
-				1000,  // pauseTime
+				100,  // pauseTime
 				10,   // nbIterations
 				10,   // nbTasks
 				1000, // skewFactor
@@ -93,8 +93,12 @@ public class E2EIngestionSimulatorTest {
 		IntStream.rangeClosed(1, ld.getNbTasks()).forEach( i -> tasks.addElement(executor.submit(new IngestionCallable(tc, ld, i))));  
 
 		try {
-			if(!executor.awaitTermination(1, TimeUnit.SECONDS))
-				result = false;
+			for(Future<Boolean> f : tasks){
+				if(!f.get(3, TimeUnit.SECONDS)){
+					result = false;
+					logger.error("Failed due to task :" + f);
+				}
+			}
 		} catch (Exception e) {
 			ExceptionHandling.processException(logger, e);
 			result = false;
