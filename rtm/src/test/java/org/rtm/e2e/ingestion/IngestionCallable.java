@@ -1,10 +1,7 @@
 package org.rtm.e2e.ingestion;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 import org.rtm.commons.ExceptionHandling;
 import org.rtm.e2e.ingestion.load.LoadDescriptor;
@@ -29,23 +26,18 @@ public class IngestionCallable implements Callable<Boolean>{
 	@Override
 	public Boolean call() throws Exception {
 
-		List<String> errorList = new ArrayList<>();
+		boolean error = false;
 
-		IntStream.rangeClosed(1, ld.getNbIterations()).forEach(
-					nbr -> {
-						try {
-							tc.sendStructuredMeasurement(ld.getNextMeasurementForSend(taskId));
-							TimeUnit.MILLISECONDS.sleep(ld.getPauseTime());
-						} catch (Exception e) {
-							errorList.add(ExceptionHandling.processExceptionAndReturnMessage(logger, e));
-						}
-					}
-					);
-
-		if(errorList.size() > 0)
-			return false;
-		else
-			return true;
+		for(int i = 1; i <= ld.getNbIterations(); i++){
+			try {
+				tc.sendStructuredMeasurement(ld.getNextMeasurementForSend(taskId));
+				TimeUnit.MILLISECONDS.sleep(ld.getPauseTime());
+			} catch (Exception e) {
+				ExceptionHandling.processException(logger, e);
+				error = true;
+			}
+		}
+		return !error;
 	}
 
 }

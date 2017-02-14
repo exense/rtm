@@ -16,6 +16,8 @@ public class ExceptionHandling {
 	
 	public static void processException(Logger l, Exception e){
 		l.error(buildCustomMessage(e));
+		// TODO: fix slf4j logger
+		System.out.println(buildCustomMessage(e));
 	}
 	
 }

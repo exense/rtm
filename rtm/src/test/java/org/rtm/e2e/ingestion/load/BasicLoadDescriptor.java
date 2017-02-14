@@ -5,9 +5,9 @@ import java.util.Map;
 import org.rtm.commons.TestMeasurementBuilder;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
 
-public class SimpleLoadDescriptor extends LoadDescriptor {
+public class BasicLoadDescriptor extends LoadDescriptor {
 
-	public SimpleLoadDescriptor(){
+	public BasicLoadDescriptor(){
 		super(100L, 10, 10);
 	}
 

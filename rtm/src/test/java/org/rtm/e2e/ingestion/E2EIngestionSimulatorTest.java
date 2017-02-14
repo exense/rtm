@@ -19,7 +19,7 @@ import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.TestMeasurementBuilder;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
 import org.rtm.e2e.ingestion.load.LoadDescriptor;
-import org.rtm.e2e.ingestion.load.SimpleLoadDescriptor;
+import org.rtm.e2e.ingestion.load.BasicLoadDescriptor;
 import org.rtm.e2e.ingestion.load.TransactionalProfile;
 import org.rtm.e2e.ingestion.transport.TransportClient;
 import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
@@ -30,7 +30,6 @@ public class E2EIngestionSimulatorTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(E2EIngestionSimulatorTest.class);
 	
-	boolean executeEndToEndParallelTest_result;
 	MeasurementAccessor ma;
 	
 	@Before
@@ -62,17 +61,17 @@ public class E2EIngestionSimulatorTest {
 	public synchronized void simpleParallelTest(){
 		
 		TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
-		LoadDescriptor ld = new SimpleLoadDescriptor();
+		LoadDescriptor ld = new BasicLoadDescriptor();
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 	
 	@Test
-	public synchronized void skewedLoadTestDemo(){
+	public synchronized void skewedLoadTest(){
 		
 		TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
-		LoadDescriptor ld = new TransactionalProfile(10, 10, 10, 1000, 200);
+		LoadDescriptor ld = new TransactionalProfile(100, 10, 10, 1000, 200);
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
@@ -81,26 +80,26 @@ public class E2EIngestionSimulatorTest {
 	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc){
 		
 		removeAllData();
-		executeEndToEndParallelTest_result = true;
+		boolean result = true;
 		
 		Vector<Future<Boolean>> tasks = new Vector<>();
 		
 		ExecutorService executor = Executors.newFixedThreadPool(ld.getNbTasks());
 		IntStream.rangeClosed(1, ld.getNbTasks()).forEach( i -> tasks.addElement(executor.submit(new IngestionCallable(tc, ld, i))));  
 
-		tasks.stream().forEach(f -> {
+		for(Future<Boolean> task : tasks){
 			try {
-				if(!f.get(3, TimeUnit.SECONDS))
-					this.executeEndToEndParallelTest_result = false;
+				if(!task.get(3, TimeUnit.SECONDS))
+					result = false;
 			} catch (Exception e) {
 				ExceptionHandling.processException(logger, e);
-				this.executeEndToEndParallelTest_result = false;
+				result = false;
 			}
-		});
+		}
 		
 		tc.close();
 		
-		return this.executeEndToEndParallelTest_result;
+		return result;
 	}
 
 	public synchronized void removeAllData() {
