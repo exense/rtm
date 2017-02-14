@@ -29,22 +29,24 @@ import org.slf4j.LoggerFactory;
 public class E2EIngestionSimulatorTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(E2EIngestionSimulatorTest.class);
-	
+
 	MeasurementAccessor ma;
-	
+	TransportClient tc;
+
 	@Before
 	public void init(){
 		Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
 		ma = MeasurementAccessor.getInstance();
+		tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
 	}
-	
+
 	@Test
 	public synchronized void simpleEndToEndTest(){
-		
+
 		removeAllData();
-		
+
 		Map<String, Object> m = TestMeasurementBuilder.buildStatic(TestMeasurementType.SIMPLE);
-		
+
 		boolean exception = false;
 		try {
 			TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
@@ -56,49 +58,50 @@ public class E2EIngestionSimulatorTest {
 		Assert.assertEquals(false, exception);
 		Assert.assertEquals(1L, ma.getMeasurementCount());
 	}
-	
+
 	@Test
 	public synchronized void simpleParallelTest(){
-		
-		TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
+
 		LoadDescriptor ld = new BasicLoadDescriptor();
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
-	
+
 	@Test
 	public synchronized void skewedLoadTest(){
-		
-		TransportClient tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
-		LoadDescriptor ld = new TransactionalProfile(100, 10, 10, 1000, 200);
+
+		LoadDescriptor ld = new TransactionalProfile(
+				1000,  // pauseTime
+				10,   // nbIterations
+				10,   // nbTasks
+				1000, // skewFactor
+				200); // stdFactor
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
-	
+
 	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc){
-		
+
 		removeAllData();
 		boolean result = true;
-		
+
 		Vector<Future<Boolean>> tasks = new Vector<>();
-		
+
 		ExecutorService executor = Executors.newFixedThreadPool(ld.getNbTasks());
 		IntStream.rangeClosed(1, ld.getNbTasks()).forEach( i -> tasks.addElement(executor.submit(new IngestionCallable(tc, ld, i))));  
 
-		for(Future<Boolean> task : tasks){
-			try {
-				if(!task.get(3, TimeUnit.SECONDS))
-					result = false;
-			} catch (Exception e) {
-				ExceptionHandling.processException(logger, e);
+		try {
+			if(!executor.awaitTermination(1, TimeUnit.SECONDS))
 				result = false;
-			}
+		} catch (Exception e) {
+			ExceptionHandling.processException(logger, e);
+			result = false;
+		}finally{
+			tc.close();
 		}
-		
-		tc.close();
-		
+
 		return result;
 	}
 
@@ -111,5 +114,5 @@ public class E2EIngestionSimulatorTest {
 		// either that or dockerize everything and isolate test executions in multiple containers
 	}
 
-	
+
 }
