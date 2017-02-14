@@ -32,17 +32,21 @@ public class E2EIngestionSimulatorTest {
 	MeasurementAccessor ma;
 	TransportClient tc;
 
+	boolean init = false;
+
 	@Before
 	public void init(){
-		Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
-		ma = MeasurementAccessor.getInstance();
-		tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
+		if(!init){
+			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
+			ma = MeasurementAccessor.getInstance();
+			tc = TransportClientBuilder.buildHttpClient("localhost", 8099);
+		}
+		
+		removeAllData();
 	}
 
 	@Test
 	public synchronized void simpleEndToEndTest(){
-
-		removeAllData();
 
 		Map<String, Object> m = TestMeasurementBuilder.buildStatic(TestMeasurementType.SIMPLE);
 
@@ -83,7 +87,6 @@ public class E2EIngestionSimulatorTest {
 
 	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc){
 
-		removeAllData();
 		boolean result = true;
 
 		Vector<Future<Boolean>> tasks = new Vector<>();
