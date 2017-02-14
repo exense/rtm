@@ -15,7 +15,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.rtm.commons.MeasurementUtils;
-import org.rtm.e2e.ingestion.TransportException;
 import org.rtm.rest.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
 import org.slf4j.Logger;

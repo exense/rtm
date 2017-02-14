@@ -2,8 +2,6 @@ package org.rtm.e2e.ingestion.transport;
 
 import java.util.Map;
 
-import org.rtm.e2e.ingestion.TransportException;
-
 public interface TransportClient {
 	
 	public String sendStructuredMeasurement(Map<String, Object> measurement) throws TransportException;

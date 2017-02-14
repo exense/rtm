@@ -71,7 +71,7 @@ public class E2EIngestionSimulatorTest {
 	public synchronized void skewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
-				1000,  // pauseTime
+				100,  // pauseTime
 				10,   // nbIterations
 				10,   // nbTasks
 				1000, // skewFactor
