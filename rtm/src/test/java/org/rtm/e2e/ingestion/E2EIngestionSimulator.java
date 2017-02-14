@@ -3,8 +3,6 @@ package org.rtm.e2e.ingestion;
 import java.util.Map;
 
 import org.rtm.e2e.ingestion.transport.TransportClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class E2EIngestionSimulator {
 	

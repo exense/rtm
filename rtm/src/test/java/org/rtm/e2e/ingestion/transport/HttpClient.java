@@ -15,6 +15,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.rtm.commons.MeasurementUtils;
+import org.rtm.e2e.ingestion.TransportException;
 import org.rtm.rest.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
 import org.slf4j.Logger;
@@ -69,7 +70,7 @@ public class HttpClient implements TransportClient {
 	}
 	
 	@Override
-	public String sendStructuredMeasurement(Map<String, Object> measurement){
+	public String sendStructuredMeasurement(Map<String, Object> measurement) throws TransportException {
 		String url = buildRestURLBase() + MeasurementUtils.mapToURI(measurement);
 		
 		HttpGet httpget = new HttpGet(url);
@@ -78,8 +79,8 @@ public class HttpClient implements TransportClient {
 		try {
 			return httpClient.execute(httpget, responseHandler);
 		} catch (Exception e) {
-			logger.error("HttpGet failed :" + httpget, e);
-			return null;
+			logger.error("HttpGet failed : " + httpget, e);
+			throw new TransportException("Send failed for HttpGet : " + httpget);	
 		}
 	}
 
@@ -90,7 +91,7 @@ public class HttpClient implements TransportClient {
 	}
 
 	@Override
-	public String sendStructuredMeasurement(String json) {
+	public String sendStructuredMeasurement(String json) throws TransportException {
 		try {
 			return sendStructuredMeasurement(MeasurementUtils.stringToMap(json));
 		} catch (IOException e) {

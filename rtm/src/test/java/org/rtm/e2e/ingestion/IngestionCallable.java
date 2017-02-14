@@ -1,5 +1,6 @@
 package org.rtm.e2e.ingestion;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -28,11 +29,13 @@ public class IngestionCallable implements Callable<Boolean>{
 		boolean error = false;
 
 		for(int i = 1; i <= ld.getNbIterations(); i++){
+			Map<String, Object> m = ld.getNextMeasurementForSend(taskId);
 			try {
-				tc.sendStructuredMeasurement(ld.getNextMeasurementForSend(taskId));
+				String response = tc.sendStructuredMeasurement(m);
+				logger.debug(response);
 				TimeUnit.MILLISECONDS.sleep(ld.getPauseTime());
 			} catch (Exception e) {
-				logger.error("Send failed.", e);
+				logger.error("Send failed for taskId: " + taskId + ", and measurement: " + m, e);
 				error = true;
 			}
 		}

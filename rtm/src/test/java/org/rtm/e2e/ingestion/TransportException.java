@@ -4,7 +4,7 @@ public class TransportException extends Exception {
 
 	private static final long serialVersionUID = -3939106949634517305L;
 	
-	TransportException(String msg){
+	public TransportException(String msg){
 		super(msg);
 	}
 
