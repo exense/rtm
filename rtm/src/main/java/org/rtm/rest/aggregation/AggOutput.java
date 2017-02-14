@@ -44,4 +44,7 @@ public class AggOutput {
 		this.payload = new ArrayList<AggregateResult>();		
 	}
 
+	public String toString(){
+		return "payload="+payload.toString()+"; warning=" + warning + ";";
+	}
 }

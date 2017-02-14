@@ -19,6 +19,7 @@
 package org.rtm.rest.aggregation;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.inject.Singleton;
 import javax.ws.rs.POST;
@@ -35,11 +36,17 @@ import org.rtm.core.ComplexServiceResponse.Status;
 import org.rtm.dao.RTMMongoClient;
 import org.rtm.exception.NoDataException;
 import org.rtm.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.mongodb.client.MongoCursor;
 
 @Singleton
 @Path("/aggregate")
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class AggregationServlet {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
 
 	@POST
 	@Path("/timebased")
@@ -64,15 +71,35 @@ public class AggregationServlet {
 		}
 		try{
 			String separator = conf.getProperty("domainSeparator");
-			Iterable it = RTMMongoClient.getInstance().selectMeasurements(input.getSelectors(), skip, limit, MeasurementConstants.BEGIN_KEY);
+			RTMMongoClient rtmc = RTMMongoClient.getInstance();
+			Iterable queryIt = rtmc.selectMeasurements(input.getSelectors(), skip, limit, MeasurementConstants.BEGIN_KEY);
 			AggregationService as = new AggregationService();
 
 			Map<String,String> serviceParams = input.getServiceParams();
+			
+			int targetSeriesDots = Configuration.getInstance().getPropertyAsInteger("client.AggregateChartView.chartMaxDotsPerSeries");
+			
+			long granularity;
+			if(serviceParams.get(serviceDomain + separator +Configuration.GRANULARITY_KEY).trim().toLowerCase().equals("auto")){
+				Iterable naturalIt = rtmc.selectMeasurements(input.getSelectors(), skip, limit, MeasurementConstants.BEGIN_KEY, "1");
+				Iterable reverseIt = rtmc.selectMeasurements(input.getSelectors(), skip, limit, MeasurementConstants.BEGIN_KEY, "-1");
+				
+				granularity = as.computeAutoGranularity(rtmc.getTimeWindow(naturalIt, reverseIt), targetSeriesDots);
+				
+				((MongoCursor) naturalIt.iterator()).close();
+				((MongoCursor) reverseIt.iterator()).close();
+				
+				logger.debug("autogranularity:" +granularity);
+			}
+			else{
+				granularity = Long.parseLong(serviceParams.get(serviceDomain + separator +Configuration.GRANULARITY_KEY));
+				logger.debug("user-defined granularity:" +granularity);
+			}
+			
 			ComplexServiceResponse inconsistent = as.buildAggregatesForTimeInconsistent(
 					serviceParams.get(serviceDomain + separator +MeasurementConstants.SESSION_KEY), 
-					it,
-					Long.parseLong(serviceParams.get(serviceDomain + separator +Configuration.GRANULARITY_KEY)),
-					//Configuration.TEXT_PREFIX +Configuration.SPLITTER+serviceParams.get(serviceDomain + dSep +Configuration.GROUPBY_KEY),
+					queryIt,
+					granularity,
 					serviceParams.get(serviceDomain + separator +Configuration.GROUPBY_KEY),
 					MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.VALUE_KEY, MeasurementConstants.SESSION_KEY
 					);
@@ -83,15 +110,19 @@ public class AggregationServlet {
 			if(inconsistent.getReturnStatus() == Status.WARNING)
 				response.setWarning(inconsistent.getMessage());
 
+			logger.debug("Sending response : " + response.toString());
 			return Response.ok(response).build();
-		}catch(NoDataException e){
+		}catch(NoDataException | NoSuchElementException e){
 			response = new AggOutput();
 			response.setShallowPayload();
 			response.setWarning("No data found with the given criteria.");
+			
+			logger.error("Sending error response : " + response.toString());
+			
 			return Response.ok(response).build();
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			logger.error("Something unforseen went wrong. ", e);
 			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
 		}
 	}

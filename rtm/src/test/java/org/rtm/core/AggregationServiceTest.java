@@ -27,7 +27,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.commons.MeasurementConstants;
 
-@SuppressWarnings("rawtypes")
 public class AggregationServiceTest {
 
 	@Test
@@ -37,7 +36,7 @@ public class AggregationServiceTest {
 		String sessionName = "junit";
 
 		long gran = 30000L;
-		List<Map> lm = new ArrayList<>();
+		List<Map<String, Object>> lm = new ArrayList<>();
 		AggregationService as = new AggregationService();
 
 		long begin = 1485548400L;
@@ -71,7 +70,7 @@ public class AggregationServiceTest {
 		String sessionName = "junit";
 
 		long gran = 30000L;
-		List<Map> lm = new ArrayList<>();
+		List<Map<String, Object>> lm = new ArrayList<>();
 		AggregationService as = new AggregationService();
 
 		long begin = 1485548400L;

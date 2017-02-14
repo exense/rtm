@@ -35,10 +35,14 @@ import org.rtm.exception.NoDataException;
 import org.rtm.exception.ShouldntHappenException;
 import org.rtm.rest.aggregation.AggOutput;
 import org.rtm.rest.aggregation.AggregationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AggregationService{
 
+	private static final Logger logger = LoggerFactory.getLogger(AggregationService.class);
+	
 	private static final int maxCapacityForInterval = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxCapacityForInterval"));
 	private static final int maxAggregatesForSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxAggregatesForSeries"));
 	private static final int maxSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxSeries"));
@@ -51,7 +55,7 @@ public class AggregationService{
 	}
 
 	public ComplexServiceResponse buildAggregatesForTimeInconsistent(
-			String sessionId, Iterable<Map> ble, long granularity,
+			String sessionId, Iterable<Map<String, Object>> ble, long granularity,
 			String differenciatorKey, String beginKey, String endKey, String valueKey, String sessionKey
 			) throws Exception{
 		// ASSUMING THE INCOMING DATA IS SORTED BY DATE
@@ -64,7 +68,7 @@ public class AggregationService{
 		Map<String,List<Map<String, Object>>> res = new TreeMap<String,List<Map<String, Object>>>();
 		Map<String,List<Map<String, Object>>> subChunk = new TreeMap<String,List<Map<String, Object>>>();
 
-		Iterator<Map> it = ble.iterator();
+		Iterator<Map<String, Object>> it = ble.iterator();
 		Map<String, Object> m = null;
 		Long firstBegin = null;
 		if(it.hasNext())
@@ -412,5 +416,11 @@ public class AggregationService{
 		}
 		so.setPayload(res);
 		return so;
+	}
+
+	public long computeAutoGranularity(long timeWindow, int targetSeriesDots) {
+		long result = Math.abs(timeWindow / targetSeriesDots);
+		logger.debug("auto-granularity : abs(" + timeWindow + " / " + targetSeriesDots + " ) = " + result);
+		return result;
 	}
 }

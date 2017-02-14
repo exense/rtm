@@ -38,5 +38,8 @@ public class AggregateResult {
 	public void setData(List<Map<String, Object>> data) {
 		this.aggregates = data;
 	}
+	public String toString(){
+		return "groupby="+groupby + "; size=" + aggregates.size() +"; aggregates=" + aggregates;
+	}
 	
 }

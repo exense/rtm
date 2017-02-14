@@ -20,9 +20,11 @@ package org.rtm.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.Document;
 import org.rtm.commons.Configuration;
+import org.rtm.commons.MeasurementConstants;
 import org.rtm.commons.MeasurementDBConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class RTMMongoClient{
 
 	private static final Logger logger = LoggerFactory.getLogger(RTMMongoClient.class);
@@ -91,7 +94,12 @@ public class RTMMongoClient{
 		return INSTANCE;
 	}
 
-	public Iterable<Document> selectMeasurements(List<Selector> selectors, int skip, int limit, String sortAttribute) throws Exception {
+	public Iterable<Document> selectMeasurements(List<Selector> selectors, int skip, int limit,
+			String beginKey) throws Exception {
+		return selectMeasurements(selectors, skip, limit, beginKey, "1");
+	}
+
+	public Iterable selectMeasurements(List<Selector> selectors, int skip, int limit, String sortAttribute, String sortDirection) throws Exception {
 
 		String genQuery;
 
@@ -100,9 +108,9 @@ public class RTMMongoClient{
 		else
 			genQuery = "{}";
 
-		String sort = "{"+sortAttribute+": 1}";
+		String sort = "{"+sortAttribute+": "+sortDirection+"}";
 		logger.debug("selectMeasurements: [sort]"+sort+"[find]" + genQuery);
-		
+
 		if(skip > 0){
 			if(limit > 0){
 				return coll.find(MeasurementDBConverter.convertToMongo(genQuery)).skip(skip).limit(limit).sort(MeasurementDBConverter.convertToMongo(sort));
@@ -126,4 +134,22 @@ public class RTMMongoClient{
 	public void close(){
 		mongoClient.close();
 	}
+
+	public long getTimeWindow(Iterable<? extends Map<String, Object>> naturalOrder, Iterable<? extends Map<String, Object>> reverseOrder) throws Exception {
+		Map<String, Object> min = naturalOrder.iterator().next();
+		Map<String, Object> max = reverseOrder.iterator().next();
+
+		Long maxVal = (Long)max.get(MeasurementConstants.BEGIN_KEY); 
+		Long minVal = (Long)min.get(MeasurementConstants.BEGIN_KEY);
+		
+		long result = maxVal - minVal;
+		logger.debug("time window : " + maxVal + " - " + minVal + " = " + result);
+		
+		if(result < 1L)
+			throw new Exception("Could not compute auto-granularity : result="+result);
+		
+		return result;
+	}
+
+
 }

@@ -33,7 +33,7 @@ public class E2EIngestionSimulatorTest {
 	TransportClient tc;
 	
 	String hostname = "localhost";
-	int port = 8080;
+	int port = 8099;
 
 	boolean init = false;
 
@@ -70,7 +70,7 @@ public class E2EIngestionSimulatorTest {
 
 		LoadDescriptor ld = new BasicLoadDescriptor();
 
-		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, 10));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
@@ -84,11 +84,27 @@ public class E2EIngestionSimulatorTest {
 				1000, // skewFactor
 				200); // stdFactor
 
-		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, 10));
+		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
+	}
+	
+	@Test
+	public synchronized void longLoadTest(){
+
+		int timeout = 120;
+		
+		LoadDescriptor ld = new TransactionalProfile(
+				100,  // pauseTime
+				1000,   // nbIterations
+				3,   // nbTasks
+				1000, // skewFactor
+				200); // stdFactor
+		
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, timeout));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc){
+	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc, int timeoutSecs){
 
 		boolean result = true;
 
@@ -99,9 +115,11 @@ public class E2EIngestionSimulatorTest {
 
 		try {
 			for(Future<Boolean> f : tasks){
-				if(!f.get(3, TimeUnit.SECONDS)){
+				if(!f.get(timeoutSecs, TimeUnit.SECONDS)){
 					result = false;
 					logger.error("Failed due to task :" + f);
+					executor.shutdownNow();
+					break;
 				}
 			}
 		} catch (Exception e) {
