@@ -14,12 +14,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.rtm.commons.Configuration;
-import org.rtm.commons.ExceptionHandling;
 import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.TestMeasurementBuilder;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
-import org.rtm.e2e.ingestion.load.LoadDescriptor;
 import org.rtm.e2e.ingestion.load.BasicLoadDescriptor;
+import org.rtm.e2e.ingestion.load.LoadDescriptor;
 import org.rtm.e2e.ingestion.load.TransactionalProfile;
 import org.rtm.e2e.ingestion.transport.TransportClient;
 import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
@@ -100,7 +99,7 @@ public class E2EIngestionSimulatorTest {
 				}
 			}
 		} catch (Exception e) {
-			ExceptionHandling.processException(logger, e);
+			logger.error("Test failed.", e);
 			result = false;
 		}finally{
 			tc.close();

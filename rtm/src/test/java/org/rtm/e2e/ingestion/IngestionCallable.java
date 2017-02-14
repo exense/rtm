@@ -3,7 +3,6 @@ package org.rtm.e2e.ingestion;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import org.rtm.commons.ExceptionHandling;
 import org.rtm.e2e.ingestion.load.LoadDescriptor;
 import org.rtm.e2e.ingestion.transport.TransportClient;
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ public class IngestionCallable implements Callable<Boolean>{
 				tc.sendStructuredMeasurement(ld.getNextMeasurementForSend(taskId));
 				TimeUnit.MILLISECONDS.sleep(ld.getPauseTime());
 			} catch (Exception e) {
-				ExceptionHandling.processException(logger, e);
+				logger.error("Send failed.", e);
 				error = true;
 			}
 		}

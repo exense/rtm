@@ -14,7 +14,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.rtm.commons.ExceptionHandling;
 import org.rtm.commons.MeasurementUtils;
 import org.rtm.rest.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
@@ -74,14 +73,13 @@ public class HttpClient implements TransportClient {
 		String url = buildRestURLBase() + MeasurementUtils.mapToURI(measurement);
 		
 		HttpGet httpget = new HttpGet(url);
-		
 		logger.debug("Sending measurement : " + url);
-		System.out.println("Sending measurement : " + url);
 		
 		try {
 			return httpClient.execute(httpget, responseHandler);
 		} catch (Exception e) {
-			return ExceptionHandling.processExceptionAndReturnMessage(logger, e);
+			logger.error("HttpGet failed :" + httpget, e);
+			return null;
 		}
 	}
 
@@ -96,7 +94,8 @@ public class HttpClient implements TransportClient {
 		try {
 			return sendStructuredMeasurement(MeasurementUtils.stringToMap(json));
 		} catch (IOException e) {
-			return ExceptionHandling.processExceptionAndReturnMessage(logger, e);
+			logger.error("Send failed.", e);
+			return null;
 		}
 	}
 
@@ -117,7 +116,7 @@ public class HttpClient implements TransportClient {
 		try {
 			httpClient.close();
 		} catch (IOException e) {
-			ExceptionHandling.processException(logger, e);
+			logger.error("Close failed.", e);
 		}		
 	}
 
