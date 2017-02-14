@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.rtm.commons.MeasurementUtils;
 
 public class IngestionServletTest {
 
@@ -35,13 +36,13 @@ public class IngestionServletTest {
 
 	@Test
 	public void buildSimpleMeasurement(){
-		Map<String, Object> measurement = IngestionServlet.buildStructuredMeasurement(eId, time, name, value, null);
+		Map<String, Object> measurement = MeasurementUtils.structuredToMap(eId, time, name, value, null);
 		Assert.assertEquals(4, measurement.size());
 	}
 
 	@Test
 	public void buildMeasurementWithOptionalData(){
-		Map<String, Object> measurement = IngestionServlet.buildStructuredMeasurement(eId, time, name, value, optional);
+		Map<String, Object> measurement = MeasurementUtils.structuredToMap(eId, time, name, value, optional);
 		boolean autoLongConversion = false;
 		if(measurement.get("foo") instanceof Long)
 			autoLongConversion = true;

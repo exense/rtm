@@ -18,10 +18,7 @@
  *******************************************************************************/
 package org.rtm.rest.ingestion;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -33,23 +30,22 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.rtm.commons.MeasurementAccessor;
-import org.rtm.commons.MeasurementConstants;
+import org.rtm.commons.MeasurementUtils;
 import org.rtm.rest.ingestion.SimpleResponse.STATUS;
 
-@Path("/ingest")
+@Path(IngestionConstants.servletPrefix)
 public class IngestionServlet {
 
 	@GET
-	@Path("/generic")
+	@Path(IngestionConstants.genericPrefix)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveGenericMeasurementGet(@QueryParam("measurement") String json) {
 		return saveMeasurement(json);
 	}
 
 	@POST
-	@Path("/generic")
+	@Path(IngestionConstants.genericPrefix)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response saveGenericMeasurementPost(@FormParam("measurement") String json) {
 		return saveMeasurement(json);
@@ -57,68 +53,40 @@ public class IngestionServlet {
 
 
 	@POST
-	@Path("/structured")
+	@Path(IngestionConstants.structuredPrefix)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveStructuredMeasurementWithOptionalPost(@FormParam("eId") String eId,
-												  @FormParam("time") String time,
-												  @FormParam("name") String name,
-												  @FormParam("value") String value,
-												  @FormParam("optionalData") String optionalData) {
+	public Response saveStructuredMeasurementWithOptionalPost(@FormParam(IngestionConstants.EID_KEY) String eId,
+												  @FormParam(IngestionConstants.TIME_KEY) String time,
+												  @FormParam(IngestionConstants.NAME_KEY) String name,
+												  @FormParam(IngestionConstants.VALUE_KEY) String value,
+												  @FormParam(IngestionConstants.OPTIONALDATA_KEY) String optionalData) {
 		
-		return saveMeasurement(buildStructuredMeasurement(eId, time, name, value, optionalData));
+		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value, optionalData));
 	}
 	
 	@GET
-	@Path("/structured/{eId}/{time}/{name}/{value}")
+	@Path(IngestionConstants.structuredPrefix + "/{eId}/{time}/{name}/{value}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveStructuredMeasurementGet(@PathParam("eId") String eId,
-												 @PathParam("time") String time,
-												 @PathParam("name") String name,
-												 @PathParam("value") String value) {
+	public Response saveStructuredMeasurementGet(@PathParam(IngestionConstants.EID_KEY) String eId,
+												 @PathParam(IngestionConstants.TIME_KEY) String time,
+												 @PathParam(IngestionConstants.NAME_KEY) String name,
+												 @PathParam(IngestionConstants.VALUE_KEY) String value) {
 		
-		return saveMeasurement(buildStructuredMeasurement(eId, time, name, value, null));
+		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value));
 	}
 	
 	@GET
-	@Path("/structured/{eId}/{time}/{name}/{value}/{optionalData}")
+	@Path(IngestionConstants.structuredPrefix + "/{eId}/{time}/{name}/{value}/{optionalData}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveStructuredMeasurementWithOptionalGet(@PathParam("eId") String eId,
-												  @PathParam("time") String time,
-												  @PathParam("name") String name,
-												  @PathParam("value") String value,
-												  @PathParam("optionalData") String optionalData) {
+	public Response saveStructuredMeasurementWithOptionalGet(@PathParam(IngestionConstants.EID_KEY) String eId,
+												  @PathParam(IngestionConstants.TIME_KEY) String time,
+												  @PathParam(IngestionConstants.NAME_KEY) String name,
+												  @PathParam(IngestionConstants.VALUE_KEY) String value,
+												  @PathParam(IngestionConstants.OPTIONALDATA_KEY) String optionalData) {
 		
-		return saveMeasurement(buildStructuredMeasurement(eId, time, name, value, optionalData));
+		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value, optionalData));
 	}
 	
-	public static Map<String, Object> buildStructuredMeasurement(String eId, String time, String name, String value, String optionalKeyValuePairs) {
-		Map<String, Object> map = new HashMap<>();
-		map.put(MeasurementConstants.EID_KEY, eId);
-		map.put(MeasurementConstants.BEGIN_KEY, Long.parseLong(time));
-		map.put(MeasurementConstants.NAME_KEY, name);
-		map.put(MeasurementConstants.VALUE_KEY, value);
-		
-		if(optionalKeyValuePairs != null && !optionalKeyValuePairs.isEmpty())
-			map.putAll(parseOptionalValues(optionalKeyValuePairs));
-		
-		return map;
-	}
-
-	public static Map<String, Object> parseOptionalValues(String optionalKeyValuePairs) {
-		Map<String, Object> map = new HashMap<>();
-		
-		Matcher m = Pattern.compile("(.+?)=(.+?)(;|$)").matcher(optionalKeyValuePairs);
-		
-		while(m.find()){
-			String s = m.group(2);
-			if(StringUtils.isNumeric(s))
-				map.put(m.group(1), Long.parseLong(s));
-			else
-				map.put(m.group(1), s);
-		}
-		return map;
-	}
-
 	private Response saveMeasurement(String json) {
 
 		SimpleResponse resp = new SimpleResponse();

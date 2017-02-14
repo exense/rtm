@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.bson.Document;
 import org.rtm.commons.Configuration;
-import org.rtm.commons.MeasurementConverter;
+import org.rtm.commons.MeasurementDBConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,15 +105,15 @@ public class RTMMongoClient{
 		
 		if(skip > 0){
 			if(limit > 0){
-				return coll.find(MeasurementConverter.convertToMongo(genQuery)).skip(skip).limit(limit).sort(MeasurementConverter.convertToMongo(sort));
+				return coll.find(MeasurementDBConverter.convertToMongo(genQuery)).skip(skip).limit(limit).sort(MeasurementDBConverter.convertToMongo(sort));
 			}else{
-				return coll.find(MeasurementConverter.convertToMongo(genQuery)).skip(skip).sort(MeasurementConverter.convertToMongo(sort));
+				return coll.find(MeasurementDBConverter.convertToMongo(genQuery)).skip(skip).sort(MeasurementDBConverter.convertToMongo(sort));
 			}
 		}else{
 			if(limit > 0){
-				return coll.find(MeasurementConverter.convertToMongo(genQuery)).limit(limit).sort(MeasurementConverter.convertToMongo(sort));
+				return coll.find(MeasurementDBConverter.convertToMongo(genQuery)).limit(limit).sort(MeasurementDBConverter.convertToMongo(sort));
 			}else{
-				return coll.find(MeasurementConverter.convertToMongo(genQuery)).sort(MeasurementConverter.convertToMongo(sort));				
+				return coll.find(MeasurementDBConverter.convertToMongo(genQuery)).sort(MeasurementDBConverter.convertToMongo(sort));				
 			}
 		}
 	}

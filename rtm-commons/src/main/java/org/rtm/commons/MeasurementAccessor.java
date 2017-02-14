@@ -72,13 +72,13 @@ public class MeasurementAccessor {
 	public static MeasurementAccessor getInstance() {
 		return INSTANCE;
 	}
-
+	
 	public void saveMeasurement(Map<String, Object> m){
 		saveMeasurementInternal(new Document(m));
 	}
 
 	public void saveMeasurement(String m){
-		saveMeasurementInternal(MeasurementConverter.convertToMongo(m));
+		saveMeasurementInternal(MeasurementDBConverter.convertToMongo(m));
 	}
 
 	private void saveMeasurementInternal(Document m){
@@ -86,12 +86,27 @@ public class MeasurementAccessor {
 	}
 
 	public void saveManyMeasurements(List<Object> lm){
-		saveManyMeasurementsInternal(MeasurementConverter.convertManyForInsert(lm));
+		saveManyMeasurementsInternal(MeasurementDBConverter.convertManyToMongo(lm));
 	}
 
 
 	public void saveManyMeasurementsInternal(List<Document> lm){
 		coll.insertMany(lm);
 	}
+	
+	public void removeOneViaPattern(Map<String, Object> m){
+		coll.deleteOne(new Document(m));
+	}
+	
+	public void removeManyViaPatternList(List<Map<String, Object>> lm){
+		lm.stream().forEach(m -> removeOneViaPattern(m));
+	}
+	
+	public void removeManyViaPattern(Map<String, Object> m){
+		coll.deleteMany(new Document(m));
+	}
 
+	public long getMeasurementCount(){
+		return coll.count();
+	}
 }

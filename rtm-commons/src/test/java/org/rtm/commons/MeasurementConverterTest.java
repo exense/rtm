@@ -11,7 +11,7 @@ public class MeasurementConverterTest {
 	@Test
 	public void testConversion(){
 		String json = "{ \"begin\" : \"14712342\", \"value\" : 223, \"name\" : \"MyTransaction\", \"clientIp\" : \"192.168.0.1\" }";
-		Assert.assertEquals(true, (MeasurementConverter.convertToMongo(json) instanceof Document));
+		Assert.assertEquals(true, (MeasurementDBConverter.convertToMongo(json) instanceof Document));
 	}
 	
 	@Test
@@ -19,7 +19,7 @@ public class MeasurementConverterTest {
 		String json = "{ \"begin\" : \"14712342\", \"value\" : 223, \"name\" : \"MyTransaction\", \"clientIp\" : 192.168.0.1 }";
 		boolean exceptionRaised = false;
 		try{
-			MeasurementConverter.convertToMongo(json);
+			MeasurementDBConverter.convertToMongo(json);
 		}catch(JSONParseException e){
 			exceptionRaised = true;
 		}finally{
