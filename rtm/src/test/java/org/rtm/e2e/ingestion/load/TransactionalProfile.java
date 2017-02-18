@@ -12,8 +12,8 @@ public class TransactionalProfile extends LoadDescriptor{
 	private int skewFactor;
 	private int stdFactor;
 
-	public TransactionalProfile(long pauseTime, int nbIterations, int nbTasks, int skewFactor, int stdFactor){
-		super(pauseTime, nbIterations, nbTasks);
+	public TransactionalProfile(long pauseTime, int nbIterations, int nbTasks, int timeOut, int skewFactor, int stdFactor){
+		super(pauseTime, nbIterations, nbTasks, timeOut);
 		this.stdFactor = stdFactor;
 		this.skewFactor = skewFactor;
 	}

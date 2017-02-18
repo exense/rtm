@@ -8,7 +8,7 @@ import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
 public class BasicLoadDescriptor extends LoadDescriptor {
 
 	public BasicLoadDescriptor(){
-		super(100L, 10, 10);
+		super(100L, 10, 10, 10);
 	}
 
 	@Override

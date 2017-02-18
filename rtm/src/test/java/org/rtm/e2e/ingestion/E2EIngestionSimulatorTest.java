@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -31,7 +32,7 @@ public class E2EIngestionSimulatorTest {
 
 	MeasurementAccessor ma;
 	TransportClient tc;
-	
+
 	String hostname = "localhost";
 	int port = 8099;
 
@@ -44,7 +45,7 @@ public class E2EIngestionSimulatorTest {
 			ma = MeasurementAccessor.getInstance();
 			tc = TransportClientBuilder.buildHttpClient(hostname, port);
 		}
-		
+
 		removeAllData();
 	}
 
@@ -70,7 +71,7 @@ public class E2EIngestionSimulatorTest {
 
 		LoadDescriptor ld = new BasicLoadDescriptor();
 
-		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, 10));
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
@@ -81,41 +82,42 @@ public class E2EIngestionSimulatorTest {
 				100,  // pauseTime
 				10,   // nbIterations
 				10,   // nbTasks
+				10,   // timeOut
 				1000, // skewFactor
 				200); // stdFactor
 
-		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, 10));
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
-	
+
 	@Test
 	public synchronized void longLoadTest(){
 
-		int timeout = 120;
-		
 		LoadDescriptor ld = new TransactionalProfile(
 				100,  // pauseTime
-				1000,   // nbIterations
-				3,   // nbTasks
+				1000, // nbIterations
+				3,    // nbTasks
+				120,  // timeOut
 				1000, // skewFactor
 				200); // stdFactor
-		
-		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc, timeout));
+
+		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc, int timeoutSecs){
+	public synchronized boolean executeEndToEndParallelTest(LoadDescriptor ld, TransportClient tc){
 
 		boolean result = true;
 
-		Vector<Future<Boolean>> tasks = new Vector<>();
+		Vector<Callable<Boolean>> tasks = new Vector<>();
 
 		ExecutorService executor = Executors.newFixedThreadPool(ld.getNbTasks());
-		IntStream.rangeClosed(1, ld.getNbTasks()).forEach( i -> tasks.addElement(executor.submit(new IngestionCallable(tc, ld, i))));  
-
+		IntStream.rangeClosed(1, ld.getNbTasks()).forEach( i -> tasks.addElement(new IngestionCallable(tc, ld, i)));
+		logger.debug("submitting task vector: " + tasks);
 		try {
-			for(Future<Boolean> f : tasks){
-				if(!f.get(timeoutSecs, TimeUnit.SECONDS)){
+			for(Future<Boolean> f : executor.invokeAll(tasks, ld.getTimeOut(), TimeUnit.SECONDS)){
+				logger.debug("future done: " + f.isDone());
+				if(!f.get()){
 					result = false;
 					logger.error("Failed due to task :" + f);
 					executor.shutdownNow();
