@@ -116,11 +116,9 @@ public class E2EIngestionSimulatorTest {
 		logger.debug("submitting task vector: " + tasks);
 		try {
 			for(Future<Boolean> f : executor.invokeAll(tasks, ld.getTimeOut(), TimeUnit.SECONDS)){
-				logger.debug("future done: " + f.isDone());
 				if(!f.get()){
+					// in practiced will never be executed because f.get throws an exception
 					result = false;
-					logger.error("Failed due to task :" + f);
-					executor.shutdownNow();
 					break;
 				}
 			}
