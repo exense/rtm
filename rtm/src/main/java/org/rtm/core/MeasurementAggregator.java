@@ -191,17 +191,17 @@ public class MeasurementAggregator {
 	public static Map<String,Long> reduceAll(List<Long> durationList) throws Exception {
 
 		Map<String,Long> result = new TreeMap<String,Long>();
-
-		result.put("avg", MeasurementAggregator.aggregateAverageByNumericVal(durationList));
-		result.put("cnt", MeasurementAggregator.aggregateCountByNumericVal(durationList));
-		result.put("sum", MeasurementAggregator.aggregateSumByNumericVal(durationList));
-		result.put("min", MeasurementAggregator.aggregateMinByNumericVal(durationList));
-		result.put("max", MeasurementAggregator.aggregateMaxByNumericVal(durationList));
-		result.put("std", MeasurementAggregator.aggregateStandardDevByNumericVal(durationList));
-		result.put("pcl50", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
-		result.put("pcl80", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
-		result.put("pcl90", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
-		result.put("pcl99", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
+		
+		result.put(AggregationType.AVG.getShort(), MeasurementAggregator.aggregateAverageByNumericVal(durationList));
+		result.put(AggregationType.COUNT.getShort(), MeasurementAggregator.aggregateCountByNumericVal(durationList));
+		result.put(AggregationType.SUM.getShort(), MeasurementAggregator.aggregateSumByNumericVal(durationList));
+		result.put(AggregationType.MIN.getShort(), MeasurementAggregator.aggregateMinByNumericVal(durationList));
+		result.put(AggregationType.MAX.getShort(), MeasurementAggregator.aggregateMaxByNumericVal(durationList));
+		result.put(AggregationType.STD.getShort(), MeasurementAggregator.aggregateStandardDevByNumericVal(durationList));
+		result.put(AggregationType.PCL.getShort() + "50", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
+		result.put(AggregationType.PCL.getShort() + "80", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
+		result.put(AggregationType.PCL.getShort() + "90", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
+		result.put(AggregationType.PCL.getShort() + "99", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
 
 		return result;
 	}
