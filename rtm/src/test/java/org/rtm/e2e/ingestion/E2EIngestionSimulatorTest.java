@@ -117,7 +117,7 @@ public class E2EIngestionSimulatorTest {
 		try {
 			for(Future<Boolean> f : executor.invokeAll(tasks, ld.getTimeOut(), TimeUnit.SECONDS)){
 				if(!f.get()){
-					// in practiced will never be executed because f.get throws an exception
+					// in practice will never be executed because f.get throws an exception
 					result = false;
 					break;
 				}

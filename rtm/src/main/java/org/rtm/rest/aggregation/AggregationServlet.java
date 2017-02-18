@@ -102,7 +102,7 @@ public class AggregationServlet {
 					granularity,
 					serviceParams.get(serviceDomain + separator +Configuration.GROUPBY_KEY),
 					MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.VALUE_KEY, MeasurementConstants.SESSION_KEY
-					);
+					); // TODO: these constants should actually be AggregateConstants, not MeasurementConstants.
 
 			ComplexServiceResponse consistent = AggregationService.makeDataConsistent(inconsistent, MeasurementConstants.SESSION_KEY, MeasurementConstants.BEGIN_KEY, MeasurementConstants.END_KEY, MeasurementConstants.NAME_KEY);
 

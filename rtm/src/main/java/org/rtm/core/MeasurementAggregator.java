@@ -14,39 +14,21 @@ import org.rtm.exception.ShouldntHappenException;
 
 public class MeasurementAggregator {
 
-	public static enum AggregationType {
-		COUNT,
-		MIN,
-		MAX,
-		SUM,
-		AVG,
-		PCL,
-		STD
-	}
+	public enum AggregationType {
+		COUNT("cnt"), MIN("min"), MAX("max"), SUM("sum"), AVG("avg"), PCL("pcl"), STD("std"), TPS("tps");
 
-	public static AggregationType getAggTypeFromMetricName(String metricType) throws Exception {
-
-		if(metricType.toLowerCase().equals("avg") || metricType.toLowerCase().equals("average"))
-			return AggregationType.AVG;
-		if(metricType.toLowerCase().equals("min") || metricType.toLowerCase().equals("minimum"))
-			return AggregationType.MIN;
-		if(metricType.toLowerCase().equals("max") || metricType.toLowerCase().equals("maximum"))
-			return AggregationType.MAX;
-		if(metricType.toLowerCase().equals("cnt") || metricType.toLowerCase().equals("count"))
-			return AggregationType.COUNT;
-		if(metricType.toLowerCase().equals("sum"))
-			return AggregationType.SUM;
-		if(metricType.toLowerCase().contains("pcl"))
-			return AggregationType.PCL;
-		if(metricType.toLowerCase().equals("std"))
-			return AggregationType.STD;
-
-		throw new Exception("Unknown AggregationType");
+		String shortName;
+		AggregationType(String s) {
+			shortName = s;
+		}
+		String getShort() {
+			return shortName;
+		} 
 	}
 
 	public static Map<String, Matcher> getFilterMatcherMap(Map<String,String> valuedFilters) throws Exception{
 		Map<String, Matcher> fmm = null;
-		
+
 		if(valuedFilters != null && valuedFilters.size() > 0){
 
 			fmm = new TreeMap<String, Matcher>();
@@ -106,7 +88,7 @@ public class MeasurementAggregator {
 		}
 		return false;
 	}
-	
+
 	static boolean isMatchMeasurementAgainstStringPatternFilter(Matcher curMatcher, String value) {
 		curMatcher.reset(value);
 		return curMatcher.matches();
@@ -161,7 +143,7 @@ public class MeasurementAggregator {
 
 		return new Double(p.evaluate(getDoubleArrayFromLongList(toAgg), optional)).longValue();
 	}
-	
+
 	static long aggregateStandardDevByNumericVal(List<Long> toAgg) {
 
 		StandardDeviation std = new StandardDeviation(false);
@@ -170,7 +152,7 @@ public class MeasurementAggregator {
 
 		return new Double(std.evaluate(getDoubleArrayFromLongList(toAgg))).longValue();
 	}
-	
+
 	static long aggregateStandardDevNoBiasByNumericVal(List<Long> toAgg) {
 
 		StandardDeviation std = new StandardDeviation(true);
@@ -209,7 +191,7 @@ public class MeasurementAggregator {
 	public static Map<String,Long> reduceAll(List<Long> durationList) throws Exception {
 
 		Map<String,Long> result = new TreeMap<String,Long>();
-		
+
 		result.put("avg", MeasurementAggregator.aggregateAverageByNumericVal(durationList));
 		result.put("cnt", MeasurementAggregator.aggregateCountByNumericVal(durationList));
 		result.put("sum", MeasurementAggregator.aggregateSumByNumericVal(durationList));
@@ -222,6 +204,15 @@ public class MeasurementAggregator {
 		result.put("pcl99", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
 
 		return result;
+	}
+
+	public static Long computeTps(long count, long begin, long end) {
+		float fCount = (float) count;
+		float fWindow = (float) (end - begin);
+		
+		if(count > 0)
+			return (long) Math.abs((fCount / fWindow)* 1000F);
+		return 0L;
 	}
 
 }

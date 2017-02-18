@@ -19,9 +19,12 @@
 package org.rtm.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.rtm.core.MeasurementAggregator.AggregationType;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BlankAggregate extends HashMap {
@@ -31,23 +34,8 @@ public class BlankAggregate extends HashMap {
 	public BlankAggregate() throws Exception{
 		super();
 		
-		put("avg", 0L);
-		put("cnt", 0L);
-		put("sum", 0L);
-		put("min", 0L);
-		put("max", 0L);
-		put("pcl1", 0L);
-		put("pcl10", 0L);
-		put("pcl20", 0L);
-		put("pcl30", 0L);
-		put("pcl40", 0L);
-		put("pcl50", 0L);
-		put("pcl60", 0L);
-		put("pcl70", 0L);
-		put("pcl80", 0L);
-		put("pcl90", 0L);
-		put("pcl99", 0L);
-		put("std", 0L);
+		for(AggregationType type : Arrays.asList(AggregationType.values()))
+			put(type.getShort(), 0L);
 		
 	}
 

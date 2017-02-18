@@ -30,7 +30,9 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import org.rtm.commons.Configuration;
+import org.rtm.commons.MeasurementConstants;
 import org.rtm.core.ComplexServiceResponse.Status;
+import org.rtm.core.MeasurementAggregator.AggregationType;
 import org.rtm.exception.NoDataException;
 import org.rtm.exception.ShouldntHappenException;
 import org.rtm.rest.aggregation.AggOutput;
@@ -159,13 +161,10 @@ public class AggregationService{
 					if(dataList.size() > 0){
 						if(res.get(tn) == null)
 							res.put(tn, new ArrayList<Map<String, Object>>());
-						Map<String, Object> agg = new HashMap<String, Object>();
-						agg.put(differenciatorKey, tn);
-						agg.put(sessionKey, sessionId);
-						agg.put(beginKey, curr.getBegin());
-						agg.put(endKey, curr.getEnd());
-						agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
-						res.get(tn).add(agg);
+
+						res.get(tn).add(buildAggregate(differenciatorKey, tn, sessionKey, sessionId,
+													beginKey, curr.getBegin(), endKey, curr.getEnd(),
+													dataList, valueKey));
 
 						subChunk.get(tn).clear();
 						totalChunkSize = 0;
@@ -228,13 +227,9 @@ public class AggregationService{
 			if(dataList.size() > 0){
 				if(res.get(tn) == null)
 					res.put(tn, new ArrayList<Map<String, Object>>());
-				Map<String, Object> agg = new HashMap<String, Object>();
-				agg.put(differenciatorKey, tn);
-				agg.put(sessionKey, sessionId);
-				agg.put(beginKey, curr.getBegin());
-				agg.put(endKey, curr.getEnd());
-				agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
-				res.get(tn).add(agg);
+				res.get(tn).add(buildAggregate(differenciatorKey, tn, sessionKey, sessionId,
+						beginKey, curr.getBegin(), endKey, curr.getEnd(),
+						dataList, valueKey));
 				subChunk.get(tn).clear();
 			}
 		}
@@ -262,6 +257,19 @@ public class AggregationService{
 			resp.setMessage(resp.getMessage() + "The maximum number of Aggregates (" + maxAggregatesForSeries + ") has been reached. Certain Aggregates were ignored in the aggregated results. Try increasing the value of field \"granularity\" or select a smaller interval.; ");
 		}
 		return resp;
+	}
+
+	private Map<String, Object> buildAggregate(String differenciatorKey, String tn, String sessionKey, String sessionId,
+												String beginKey, long begin, String endKey, long end,
+												List<Map<String, Object>> dataList, String valueKey) throws Exception{
+		Map<String, Object> agg = new HashMap<String, Object>();
+		agg.put(differenciatorKey, tn);
+		agg.put(sessionKey, sessionId);
+		agg.put(beginKey, begin);
+		agg.put(endKey, end);
+		agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
+		enrichWithTpms(agg);
+		return agg;
 	}
 
 	public static ComplexServiceResponse makeDataConsistent(ComplexServiceResponse input, 
@@ -422,5 +430,15 @@ public class AggregationService{
 		long result = Math.abs(timeWindow / targetSeriesDots);
 		logger.debug("auto-granularity : abs(" + timeWindow + " / " + targetSeriesDots + " ) = " + result);
 		return result;
+	}
+	
+
+	public static void enrichWithTpms(Map<String, Object> agg) {
+		agg.put(AggregationType.TPS.getShort(),
+					MeasurementAggregator.computeTps(
+							(Long)agg.get(AggregationType.COUNT.getShort()), 
+							(Long)agg.get(MeasurementConstants.BEGIN_KEY),
+							(Long)agg.get(MeasurementConstants.END_KEY)));
+		
 	}
 }
