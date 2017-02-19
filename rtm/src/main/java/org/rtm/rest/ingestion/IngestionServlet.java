@@ -92,7 +92,7 @@ public class IngestionServlet {
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			MeasurementAccessor.getInstance().saveMeasurement(json);			
+			MeasurementAccessor.getInstance().sendStructuredMeasurement(json);			
 			resp.setStatus(STATUS.SUCCESS);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -108,7 +108,7 @@ public class IngestionServlet {
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			MeasurementAccessor.getInstance().saveMeasurement(measurement);			
+			MeasurementAccessor.getInstance().sendStructuredMeasurement(measurement);			
 			resp.setStatus(STATUS.SUCCESS);
 		}catch(Exception e){
 			e.printStackTrace();

@@ -1,5 +1,8 @@
 package org.rtm.e2e.ingestion.transport;
 
+import org.rtm.commons.MeasurementAccessor;
+import org.rtm.commons.TransportClient;
+
 public class TransportClientBuilder {
 	
 	public static TransportClient buildHttpClient(String hostname, int port){
@@ -7,8 +10,7 @@ public class TransportClientBuilder {
 	}
 	
 	public static TransportClient buildAccessorClient(String hostname, int port){
-		//TODO : via accessor
-		return null;
+		return MeasurementAccessor.getInstance();
 	}
 	
 }

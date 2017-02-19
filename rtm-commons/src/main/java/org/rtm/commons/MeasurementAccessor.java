@@ -15,7 +15,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class MeasurementAccessor {
+public class MeasurementAccessor implements TransportClient{
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementAccessor.class);
 
@@ -74,11 +74,11 @@ public class MeasurementAccessor {
 		return INSTANCE;
 	}
 	
-	public void saveMeasurement(Map<String, Object> m){
+	public void sendStructuredMeasurement(Map<String, Object> m){
 		saveMeasurementInternal(new Document(m));
 	}
 
-	public void saveMeasurement(String m){
+	public void sendStructuredMeasurement(String m){
 		saveMeasurementInternal(MeasurementDBConverter.convertToMongo(m));
 	}
 
@@ -113,5 +113,11 @@ public class MeasurementAccessor {
 	
 	public Iterable<Document> find(Bson filter){
 		return coll.find(filter);
+	}
+
+	@Override
+	public void close() {
+		// we actually want to keep it alive for the whole JVM lifetime 
+		//mongo.close();
 	}
 }

@@ -15,6 +15,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.rtm.commons.MeasurementUtils;
+import org.rtm.commons.TransportClient;
+import org.rtm.commons.TransportException;
 import org.rtm.rest.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
 import org.slf4j.Logger;
@@ -69,14 +71,14 @@ public class HttpClient implements TransportClient {
 	}
 	
 	@Override
-	public String sendStructuredMeasurement(Map<String, Object> measurement) throws TransportException {
+	public void sendStructuredMeasurement(Map<String, Object> measurement) throws TransportException {
 		String url = buildRestURLBase() + MeasurementUtils.mapToURI(measurement);
 		
 		HttpGet httpget = new HttpGet(url);
 		logger.debug("Sending measurement : " + url);
 		
 		try {
-			return httpClient.execute(httpget, responseHandler);
+			httpClient.execute(httpget, responseHandler);
 		} catch (Exception e) {
 			logger.error("HttpGet failed : " + httpget, e);
 			throw new TransportException("Send failed for HttpGet : " + httpget);	
@@ -90,25 +92,22 @@ public class HttpClient implements TransportClient {
 	}
 
 	@Override
-	public String sendStructuredMeasurement(String json) throws TransportException {
+	public void sendStructuredMeasurement(String json) throws TransportException {
 		try {
-			return sendStructuredMeasurement(MeasurementUtils.stringToMap(json));
+			sendStructuredMeasurement(MeasurementUtils.stringToMap(json));
 		} catch (IOException e) {
 			logger.error("Send failed.", e);
-			return null;
 		}
 	}
 
-	@Override
-	public String sendGenericMeasurement(Map<String, Object> measurement) {
+	//@Override
+	public void sendGenericMeasurement(Map<String, Object> measurement) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
-	@Override
-	public String sendGenericMeasurement(String json) {
+	//@Override
+	public void sendGenericMeasurement(String json) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -120,11 +119,7 @@ public class HttpClient implements TransportClient {
 		}		
 	}
 
-	@Override
-	public boolean isSuccessful(String response) {
-		return response.contains("SUCCESS");
-	}
-	
+
 	@Override
 	public String toString() {
 		return "{\"hostname\""+this.hostname+", \"port\" : "+this.port+", \"maxConnections\" : "+maxConnections+"}";

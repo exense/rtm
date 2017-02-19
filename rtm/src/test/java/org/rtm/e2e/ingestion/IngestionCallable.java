@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
+import org.rtm.commons.TransportClient;
+import org.rtm.commons.TransportException;
 import org.rtm.e2e.ingestion.load.LoadDescriptor;
-import org.rtm.e2e.ingestion.transport.TransportClient;
-import org.rtm.e2e.ingestion.transport.TransportException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,7 @@ public class IngestionCallable implements Callable<Boolean>{
 		for(int i = 1; i <= ld.getNbIterations(); i++){
 			Map<String, Object> m = ld.getNextMeasurementForSend(taskId);
 			try{
-				String response = tc.sendStructuredMeasurement(m);
-				logger.debug(response);
+				tc.sendStructuredMeasurement(m);
 			} catch (TransportException e) {
 				logger.error("Send failed for taskId: " + taskId + ", and measurement: " + m, e);
 				error = true;
