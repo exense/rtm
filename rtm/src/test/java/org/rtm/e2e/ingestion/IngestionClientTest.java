@@ -26,9 +26,9 @@ import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class E2EIngestionSimulatorTest {
+public class IngestionClientTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(E2EIngestionSimulatorTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(IngestionClientTest.class);
 
 	MeasurementAccessor ma;
 	TransportClient tc;
@@ -57,7 +57,7 @@ public class E2EIngestionSimulatorTest {
 		boolean exception = false;
 		try {
 			TransportClient tc = TransportClientBuilder.buildHttpClient(hostname, port);
-			E2EIngestionSimulator.sendStructuredMeasurement(tc, m);
+			IngestionClient.sendStructuredMeasurement(tc, m);
 			tc.close();
 		} catch (Exception e) {
 			exception = true;
