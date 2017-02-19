@@ -65,4 +65,8 @@ public class DateTimeInterval {
 	
 	public String toString(){return "BEG="+this.begin+"|END="+this.end;}
 	
+	public LongTimeInterval toLongTime(){
+		long beginLong = this.begin.getTime();
+		return new LongTimeInterval(beginLong, this.end.getTime() - beginLong);
+	}
 }

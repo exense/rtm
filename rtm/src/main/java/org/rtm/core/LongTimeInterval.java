@@ -23,9 +23,9 @@ public class LongTimeInterval {
 	private Long begin;
 	private Long end;
 	
-	public LongTimeInterval(Long pBegin, long pGranularity) {
+	public LongTimeInterval(Long pBegin, long duration) {
 		this.begin = pBegin;
-		this.end = new Long(pBegin + pGranularity);
+		this.end = new Long(pBegin + duration);
 	}
 
 	public Long getBegin() {
@@ -41,6 +41,10 @@ public class LongTimeInterval {
 		this.end = end;
 	}	
 
+	public Long getSpan() {
+		return end - begin;
+	}
+	
 	public boolean belongs(Long d){
 		return ((d >= this.begin) && (d < this.end));
 	}
