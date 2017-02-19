@@ -15,6 +15,7 @@ import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.Selector;
 import org.rtm.results.AggregationResult;
 import org.rtm.results.ResultHandler;
+import org.rtm.struct.Dimension;
 
 public class TimebasedParallelExecutor {
 
@@ -25,7 +26,7 @@ public class TimebasedParallelExecutor {
 	}
 
 	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, ResultHandler rm, List<Selector> sel, Properties requestProp) throws Exception{
-		Vector<Callable<AggregationResult>> tasks = new Vector<>();
+		Vector<Callable<Dimension>> tasks = new Vector<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).forEach(
 				i -> {
@@ -41,8 +42,8 @@ public class TimebasedParallelExecutor {
 					}
 				});
 
-		for(Future<AggregationResult> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
-			AggregationResult r = f.get(); 
+		for(Future<Dimension> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
+			Dimension r = f.get(); 
 			if(r != null){
 				rm.attachResult(r);
 			}

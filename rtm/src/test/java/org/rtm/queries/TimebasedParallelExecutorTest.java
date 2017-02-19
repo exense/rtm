@@ -6,12 +6,13 @@ import org.junit.Test;
 import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.results.ResultHandler;
+import org.rtm.struct.Stream;
 
 public class TimebasedParallelExecutorTest {
 
 	@Test
 	public void e2eTestWithMongo() {
-		ResultHandler rh = new ResultHandler();
+		ResultHandler rh = new ResultHandler(new Stream());
 		
 		// Simulate real request inputs
 		long begin = 0L;
@@ -31,6 +32,6 @@ public class TimebasedParallelExecutorTest {
 			e.printStackTrace();
 		}
 		
-		System.out.println(rh.getStreamHandle());
+		System.out.println(rh.getStream());
 	}
 }
