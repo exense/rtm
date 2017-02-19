@@ -5,10 +5,10 @@ import java.util.Map;
 public class AggregationResult {
 	
 	private Long intervalBegin;
-	private Map<String, Object> payload;
+	private Map<String, Map<String, Object>> payload;
 	private String dimension;
 
-	public AggregationResult(Long intervalBegin, Map<String, Object> payload, String dimension) {
+	public AggregationResult(Long intervalBegin,  Map<String, Map<String, Object>> payload, String dimension) {
 		super();
 		this.intervalBegin = intervalBegin;
 		this.payload = payload;
@@ -23,11 +23,11 @@ public class AggregationResult {
 		this.intervalBegin = intervalBegin;
 	}
 
-	public Map<String, Object> getPayload() {
+	public  Map<String, Map<String, Object>> getPayload() {
 		return payload;
 	}
 
-	public void setPayload(Map<String, Object> payload) {
+	public void setPayload( Map<String, Map<String, Object>> payload) {
 		this.payload = payload;
 	}
 

@@ -3,20 +3,24 @@ package org.rtm.queries;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rtm.core.AggregateResult;
+import org.rtm.buckets.RangeBucket;
 import org.rtm.results.AggregationResult;
 
-public class QueryHandler extends AggregateResult {
+public class CursorHandler{
 
-	public AggregationResult handle(Iterable<? extends Map> iterable) {
-		for(Map<String, Object> m : iterable)
-			System.out.println(m);
+	public AggregationResult handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket) {
 		
-		Map<String, Object> res = new HashMap<>();
-		res.put("name", "Transaction1");
-		res.put("begin", 123L);
+		// we'll only do counts for now
 		
-		return new AggregationResult(123L, res, "name");
+		int count = 0;
+		for(Map<String, Object> m : iterable){
+			count++;
+			//incremental stats go here
+		}
+		
+		// TODO: produce a "dimension" data point
+		
+		return null;
 	}
 
 }

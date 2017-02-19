@@ -1,9 +1,8 @@
 package org.rtm.requests;
 
-import java.util.concurrent.ConcurrentMap;
-
 import org.rtm.orchestration.SplittingOrchestrator;
 import org.rtm.stream.StreamedSessionManager;
+import org.rtm.struct.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ public class RequestHandler {
 
 		AbstractResponse r = null;
 		try {
-			ConcurrentMap streamHandle = mo.execute(aggregationRequest.getSelectors(), aggregationRequest.getProperties());
+			Stream streamHandle = mo.execute(aggregationRequest.getSelectors(), aggregationRequest.getProperties());
 			r = new AggregationResponse(ssm.registerStreamSession(streamHandle));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
