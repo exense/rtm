@@ -2,19 +2,12 @@ package org.rtm.buckets;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class OptimisticLongPartitioner extends RangePartitioner<Long>{
 	
-	private static final Logger logger = LoggerFactory.getLogger(OptimisticLongPartitioner.class);
-
-	//private LongAccumulator la;
 	private AtomicLong al;
 
 	public OptimisticLongPartitioner(Long min, Long max, Long incrementSize) {
 		super(min, max, incrementSize);
-		//la = new LongAccumulator((x, y) -> x + y, min);
 		al = new AtomicLong(min);
 	}
 
@@ -37,12 +30,9 @@ public class OptimisticLongPartitioner extends RangePartitioner<Long>{
 		 * 
 		 */
 		if(newLower > super.max){
-			//throw new IllegalStateException("Partition exhausted: newLower="+newLower+"; max="+super.max);
-			//logger.warn("Partition exhausted: newLower="+newLower+"; max="+super.max);
-			
 			return null;
 		}
-		//la.accumulate(super.incrementSize);
+
 		Long targetUpper = newLower + super.incrementSize;
 		if(al.compareAndSet(newLower, targetUpper))
 		{
