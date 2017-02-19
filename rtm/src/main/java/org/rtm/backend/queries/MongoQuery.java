@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
-import org.rtm.buckets.RangeBucket;
 import org.rtm.dao.Selector;
 
 import com.mongodb.util.JSON;
@@ -13,7 +12,7 @@ public class MongoQuery extends Document {
 
 	private static final long serialVersionUID = -2093436314450930059L;
 
-	public MongoQuery(Document timelessQuery, RangeBucket<Long> next) {
+	public MongoQuery(Document timelessQuery) {
 		// TODO Auto-generated constructor stub
 	}
 

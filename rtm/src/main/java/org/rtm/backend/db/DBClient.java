@@ -3,18 +3,19 @@ package org.rtm.backend.db;
 import java.util.Map;
 
 import org.bson.Document;
-
-import com.mongodb.MongoClient;
+import org.rtm.commons.MeasurementAccessor;
 
 public class DBClient {
 
-	public DBClient(MongoClient mongoClient) {
-		// TODO Auto-generated constructor stub
+	MeasurementAccessor ma = MeasurementAccessor.getInstance();
+	
+	public DBClient() {
+		this.ma = MeasurementAccessor.getInstance();
 	}
 
-	public Iterable<Map<String, Object>> executeQuery(Document timelessQuery) {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("rawtypes")
+	public Iterable<? extends Map> executeQuery(Document timelessQuery) {
+		return ma.find(timelessQuery);
 	}
 
 }
