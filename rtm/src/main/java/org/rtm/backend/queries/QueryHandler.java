@@ -7,11 +7,7 @@ import org.rtm.core.AggregateResult;
 
 public class QueryHandler extends AggregateResult {
 
-	public QueryHandler(Iterable<Map<String, Object>> executeQuery) {
-		// TODO Auto-generated constructor stub
-	}
-
-	public AggregationResult handle() {
+	public AggregationResult handle(Iterable<? extends Map> iterable) {
 		// TODO Auto-generated method stub
 		return null;
 	}

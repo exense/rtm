@@ -17,17 +17,15 @@ import com.mongodb.MongoClient;
 public class MongoOrchestrator extends Orchestrator{
 
 	private TimebasedParallelExecutor tpe;
-	private DBClient dbc;
 	
 	public MongoOrchestrator(DateTimeInterval dateTimeInterval){
 		LongTimeInterval lti = dateTimeInterval.toLongTime();
-		dbc = new DBClient(new MongoClient());
 		new TimebasedParallelExecutor( lti, super.computeOptimalInterval(lti.getSpan(), 20));
 	}
 
 	public ConcurrentMap execute(List<Selector> sel, Properties requestProp) throws Exception {
 		ResultHandler rh = new ResultHandler();
-		tpe.processParallel(3, 30, rh, dbc, MongoQuery.selectorsToQuery(sel), requestProp);
+		tpe.processParallel(3, 30, rh, MongoQuery.selectorsToQuery(sel), requestProp);
 		return rh.getStreamHandle(); 
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,5 +109,9 @@ public class MeasurementAccessor {
 
 	public long getMeasurementCount(){
 		return coll.count();
+	}
+	
+	public Iterable<Document> find(Bson filter){
+		return coll.find(filter);
 	}
 }

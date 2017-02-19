@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.bson.Document;
-import org.rtm.backend.db.DBClient;
 import org.rtm.backend.results.AggregationResult;
 import org.rtm.backend.results.ResultHandler;
 import org.rtm.buckets.OptimisticLongPartitioner;
@@ -23,19 +22,21 @@ public class TimebasedParallelExecutor {
 		olp = new OptimisticLongPartitioner(global.getBegin(), global.getEnd(), bucketSize);
 	}
 
-	public void processParallel(int nbThreads, long timeoutSecs, ResultHandler rm, DBClient tc, Document timelessQuery, Properties requestProp) throws Exception{
+	public void processParallel(int nbThreads, long timeoutSecs, ResultHandler rm, Document timelessQuery, Properties requestProp) throws Exception{
 		Vector<Callable<AggregationResult>> tasks = new Vector<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).forEach(
-				i -> tasks.addElement(new MongoSubqueryCallable(new MongoQuery(timelessQuery,olp.next()), tc, requestProp)));
+				i -> tasks.addElement(new MongoSubqueryCallable(new MongoQuery(timelessQuery), olp.next(),requestProp)));
 
 		for(Future<AggregationResult> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
 			AggregationResult r = f.get(); 
 			if(r != null){
 				rm.attachResult(r);
 			}
-			else
-				throw new Exception("Null query result.");
+			else{
+				//throw new Exception("Null query result.");
+				System.out.println("awesome!");
+			}
 		}
 	}
 
