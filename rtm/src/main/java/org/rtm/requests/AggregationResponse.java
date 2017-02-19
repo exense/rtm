@@ -1,22 +1,23 @@
 package org.rtm.requests;
 
-import org.json.JSONObject;
 import org.rtm.stream.StreamedSessionId;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class AggregationResponse extends AbstractResponse {
 
-	private final StreamedSessionId sId;
-	
-	public AggregationResponse(StreamedSessionId registeredStreamSessionId) {
-		this.sId = registeredStreamSessionId;
-		
-		super.setPayload(new JSONObject().accumulate("streamId", this.sId.getIdentifierAsString()));
+	//private static final Logger logger = LoggerFactory.getLogger(AggregationResponse.class);
+
+	public AggregationResponse(StreamedSessionId registeredStreamSessionId) throws JsonProcessingException{
+		super.setPayload(registeredStreamSessionId);
 		super.setMetaMessage("Stream initialized. Call the streaming service next to start retrieving data.");
 		super.setStatus(ResponseStatus.SUCCESS);
 	}
-
-	public StreamedSessionId getsId() {
-		return sId;
-	}
 	
+	@JsonIgnore
+	public StreamedSessionId getsId() {
+		return (StreamedSessionId) super.getPayload();
+	}
+
 }

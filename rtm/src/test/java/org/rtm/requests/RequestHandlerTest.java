@@ -2,18 +2,20 @@ package org.rtm.requests;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 import org.junit.Test;
 import org.rtm.core.DateTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.StreamedSessionManager;
 import org.rtm.utils.DateUtils;
+import org.rtm.utils.JSONMapper;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class RequestHandlerTest {
 	
 	@Test
-	public void basicTest(){
+	public void basicTest() throws JsonProcessingException{
 		
 		LocalDate today = LocalDate.now();
 		LocalDate twoWeeksAgo = today.minus(2, ChronoUnit.WEEKS);
@@ -23,7 +25,7 @@ public class RequestHandlerTest {
 		RequestHandler rh = new RequestHandler(new StreamedSessionManager());
 		
 		AbstractResponse response = rh.handle(ar);
-		System.out.println(response);
+		System.out.println(new JSONMapper().convertToJsonString(response));
 	}
 
 }

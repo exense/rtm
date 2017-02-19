@@ -21,10 +21,19 @@ package org.rtm.requests.guiselector;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Selector {
-	
+
 	private List<TextFilter> textFilters = new ArrayList<TextFilter>();
 	private List<NumericalFilter> numericalFilters = new ArrayList<NumericalFilter>();
+
+	@JsonCreator
+	public Selector(@JsonProperty("textFilters")List<TextFilter> textFilters,@JsonProperty("numericalFilters") List<NumericalFilter> numericalFilters){
+		this.textFilters = textFilters;
+		this.numericalFilters = numericalFilters;
+	}
 	
 	public Selector(){}
 	

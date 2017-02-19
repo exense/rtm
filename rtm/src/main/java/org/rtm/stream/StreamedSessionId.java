@@ -4,14 +4,14 @@ import java.util.UUID;
 
 public class StreamedSessionId {
 
-	private UUID id;
+	private UUID streamedSessionId;
 	
 	public StreamedSessionId(){
-		this.id = UUID.randomUUID();
+		this.streamedSessionId = UUID.randomUUID();
 	}
 	
-	public String getIdentifierAsString(){
-		return id.toString();
+	public String getStreamedSessionId(){
+		return streamedSessionId.toString();
 	}
 	
 }
