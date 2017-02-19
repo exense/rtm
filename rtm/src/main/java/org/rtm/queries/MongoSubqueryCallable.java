@@ -29,10 +29,14 @@ public class MongoSubqueryCallable implements Callable<AggregationResult>{
 
 	@Override
 	public AggregationResult call() throws Exception {
-		return new QueryHandler().handle(
-				new DBClient().executeQuery(
-						mergeTimelessWithTimeCriterion(query, buildTimeCriterion(bucket))
-						));
+		
+		Document completeQuery = mergeTimelessWithTimeCriterion(query, buildTimeCriterion(bucket));
+		DBClient db = new DBClient();
+		
+		return new CursorHandler().handle(
+										db.executeQuery(completeQuery),
+										bucket
+										);
 	}
 
 	private Document mergeTimelessWithTimeCriterion(Document timelessQuery, BasicDBObject timeCriterion) {
