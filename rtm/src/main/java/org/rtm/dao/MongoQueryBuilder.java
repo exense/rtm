@@ -2,6 +2,10 @@ package org.rtm.dao;
 
 import java.util.List;
 
+import org.rtm.requests.guiselector.NumericalFilter;
+import org.rtm.requests.guiselector.Selector;
+import org.rtm.requests.guiselector.TextFilter;
+
 public class MongoQueryBuilder {
 	
 	public static String buildMongoQuery(List<Selector> selectors) throws Exception {

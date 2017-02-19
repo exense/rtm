@@ -1,4 +1,4 @@
-package org.rtm.commons;
+package org.rtm.utils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.rtm.commons.MeasurementConstants;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;

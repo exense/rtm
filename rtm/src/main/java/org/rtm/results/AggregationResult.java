@@ -1,4 +1,4 @@
-package org.rtm.backend.results;
+package org.rtm.results;
 
 import java.util.Map;
 

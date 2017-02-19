@@ -34,62 +34,52 @@ import javax.json.stream.JsonParsingException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.rtm.queries.MongoQuery;
+import org.rtm.requests.guiselector.Selector;
+import org.rtm.requests.guiselector.TestSelectorBuilder;
 
 public class MongoQueryBuilderTest{
 
-	List<Selector> selList = new ArrayList<>();
+	List<Selector> selList;
 	List<Object> bindValues = new ArrayList<>();
 	String jongoQuery;
 	String mongoQuery;
+	String newMongoQuery;
 
 	boolean init = false;
 
 	@Before
-	public void buildJongoValueListAndInitMA() throws Exception{
+	public void buildValueListAndInitMA() throws Exception{
 		if(!init){
 
-			NumericalFilter nf = new NumericalFilter();
-			nf.setKey("numKey");
-			nf.setMinValue(1L);
-			nf.setMaxValue(10L);
-
-			TextFilter tf = new TextFilter();
-			tf.setKey("textKey");
-			tf.setValue("textVal");
-
-			TextFilter regTf = new TextFilter();
-			regTf.setKey("textKey");
-			regTf.setValue(".*");
-			regTf.setRegex(true);
-
-			Selector sel = new Selector();
-			sel.addNumericalFilter(nf);
-			sel.addTextFilter(tf);
-			sel.addTextFilter(regTf);
-
-			Selector selBis = new Selector();
-			selBis.addNumericalFilter(nf);
-			selBis.addTextFilter(tf);
-			selBis.addTextFilter(regTf);
-
-			this.selList.add(sel);
-			this.selList.add(selBis);
+			selList = TestSelectorBuilder.buildSimpleSelectorList();
 
 			this.jongoQuery = MongoQueryBuilder.buildJongoQuery(this.selList, this.bindValues);
 			this.mongoQuery = MongoQueryBuilder.buildMongoQuery(this.selList);
+			this.newMongoQuery = MongoQuery.selectorsToQuery(this.selList).toString();
+
 			//System.out.println("mongo :" + replaceOperatorsAndBinds(mongoQuery, false, true));
 			//System.out.println("jongo :" + replaceOperatorsAndBinds(jongoQuery, true, false));
+			//System.out.println("new query: " + this.newMongoQuery);
 		}
+	}
+
+	//@Test
+	public void showQueries() throws Exception{
+		System.out.println("mongo :" + replaceOperatorsAndBinds(mongoQuery, false, true, true).replace(" ",""));
+		System.out.println("jongo :" + replaceOperatorsAndBinds(jongoQuery, true, false, true).replace(" ",""));
+		System.out.println("nmong : " + replaceOperatorsAndBinds(this.newMongoQuery, false, true, false).replace(" ","").replace("Document{",""));
+
 	}
 
 	@Test
 	public void validateJsonSyntaxForMongo() throws Exception{
-		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true)));
+		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true, true)));
 	}
 
 	@Test
 	public void validateJsonSyntaxForJongo() throws Exception{
-		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(jongoQuery, true, false)));
+		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(jongoQuery, true, false, true)));
 	}
 
 	@Test
@@ -107,6 +97,12 @@ public class MongoQueryBuilderTest{
 		testOccurences(mongoQuery);
 	}
 
+	@Test
+	public void validateNumberOfOpsForNewMongo() throws Exception{
+		testOccurences(newMongoQuery);
+	}
+
+
 	private void testOccurences(String query){
 		Assert.assertEquals(1, countPatternOccurences(query,"\\$or"));
 		Assert.assertEquals(2, countPatternOccurences(query,"\\$regex"));
@@ -114,18 +110,30 @@ public class MongoQueryBuilderTest{
 		Assert.assertEquals(2, countPatternOccurences(query,"\\$gt"));
 	}
 
-	private String replaceOperatorsAndBinds(String query, boolean replaceHashasBindCharacter, boolean surroundRegexPatterns ){
-		String replacedQuery = query
+	private String replaceOperatorsAndBinds(String query, boolean replaceHashasBindCharacter, boolean surroundRegexPatterns, boolean addQuotes){
+		String replacedQuery = null;
+		if(addQuotes){
+			replacedQuery = query
 				.replace("$gte", "\"gte\"")
 				.replace("$lte", "\"lte\"")
 				.replace("$or", "\"or\"")
 				.replace("$lt", "\"lt\"")
 				.replace("$gt", "\"gt\"")
-				.replace("$regex", "\"regex\"");
-
+				.replace("$regex", "\"regex\"")
+				.replace("$and", "\"and\"");
+		}else{
+			replacedQuery = query
+					.replace("$gte", "gte")
+					.replace("$lte", "lte")
+					.replace("$or", "or")
+					.replace("$lt", "lt")
+					.replace("$gt", "gt")
+					.replace("$regex", "regex")
+					.replace("$and", "and");
+		}
 		if(replaceHashasBindCharacter)
 			replacedQuery = replacedQuery.replace("#", "\"val\"");
-		
+
 		if(surroundRegexPatterns)
 			replacedQuery = replacedQuery.replace(".*", "\"val\"");
 

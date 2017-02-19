@@ -1,4 +1,4 @@
-package org.rtm.backend.queries;
+package org.rtm.queries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,33 +6,33 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.bson.Document;
-import org.rtm.backend.db.DBClient;
-import org.rtm.backend.results.AggregationResult;
 import org.rtm.buckets.RangeBucket;
 import org.rtm.commons.MeasurementConstants;
+import org.rtm.db.DBClient;
+import org.rtm.requests.guiselector.Selector;
+import org.rtm.results.AggregationResult;
 
 import com.mongodb.BasicDBObject;
 
 public class MongoSubqueryCallable implements Callable<AggregationResult>{
 
-	private Document timelessQuery;
+	private Document query;
 	private RangeBucket<Long> bucket;
+	private Properties prop;
 
-	public MongoSubqueryCallable(Document timelessQuery, RangeBucket<Long> bucket, Properties requestProp) {
-		this.timelessQuery = timelessQuery;
+	public MongoSubqueryCallable(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
+		
 		this.bucket = bucket;
+		this.prop = requestProp;
+		this.query = new MongoQuery(MongoQuery.selectorsToQuery(sel));
 	}
 
 	@Override
 	public AggregationResult call() throws Exception {
-		
-		System.out.println("I'm in!");
-		
 		return new QueryHandler().handle(
 				new DBClient().executeQuery(
-						mergeTimelessWithTimeCriterion(timelessQuery, buildTimeCriterion(bucket))
+						mergeTimelessWithTimeCriterion(query, buildTimeCriterion(bucket))
 						));
-						
 	}
 
 	private Document mergeTimelessWithTimeCriterion(Document timelessQuery, BasicDBObject timeCriterion) {

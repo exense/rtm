@@ -26,6 +26,7 @@ import org.bson.Document;
 import org.rtm.commons.Configuration;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.commons.MeasurementDBConverter;
+import org.rtm.requests.guiselector.Selector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

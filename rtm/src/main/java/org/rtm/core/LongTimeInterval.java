@@ -19,13 +19,18 @@
 package org.rtm.core;
 
 public class LongTimeInterval {
-	
+
 	private Long begin;
 	private Long end;
-	
+
 	public LongTimeInterval(Long pBegin, long duration) {
 		this.begin = pBegin;
 		this.end = new Long(pBegin + duration);
+	}
+
+	public LongTimeInterval(Long pBegin, Long pEnd, long notAmbiguous) {
+		this.begin = pBegin;
+		this.end = pEnd;
 	}
 
 	public Long getBegin() {
@@ -44,15 +49,15 @@ public class LongTimeInterval {
 	public Long getSpan() {
 		return end - begin;
 	}
-	
+
 	public boolean belongs(Long d){
 		return ((d >= this.begin) && (d < this.end));
 	}
-	
+
 	public LongTimeInterval getNext(long granularity){
 		Long nextBegin = this.begin + granularity;
 		return new LongTimeInterval(nextBegin, granularity);
 	}
-	
+
 	public String toString(){return "BEG="+this.begin+"|END="+this.end;}
 }

@@ -1,4 +1,4 @@
-package org.rtm.backend.db;
+package org.rtm.db;
 
 import java.util.Map;
 

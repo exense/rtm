@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
+import org.rtm.utils.MeasurementUtils;
 
 public class MeasurementUtilsTest {
 

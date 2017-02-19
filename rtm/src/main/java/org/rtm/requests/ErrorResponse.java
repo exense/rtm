@@ -4,7 +4,7 @@ public class ErrorResponse extends AbstractResponse {
 
 	public ErrorResponse(String message){
 		super();
-		setType(ResponseType.ERROR);
+		setStatus(ResponseStatus.ERROR);
 		setMetaMessage(message);
 	}
 	
