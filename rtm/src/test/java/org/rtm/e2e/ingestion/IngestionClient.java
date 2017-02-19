@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,17 +19,17 @@ import org.rtm.commons.Configuration;
 import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.TestMeasurementBuilder;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
+import org.rtm.commons.TransportClient;
 import org.rtm.e2e.ingestion.load.BasicLoadDescriptor;
 import org.rtm.e2e.ingestion.load.LoadDescriptor;
 import org.rtm.e2e.ingestion.load.TransactionalProfile;
-import org.rtm.e2e.ingestion.transport.TransportClient;
 import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class E2EIngestionSimulatorTest {
+public class IngestionClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(E2EIngestionSimulatorTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(IngestionClient.class);
 
 	MeasurementAccessor ma;
 	TransportClient tc;
@@ -43,7 +44,8 @@ public class E2EIngestionSimulatorTest {
 		if(!init){
 			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
 			ma = MeasurementAccessor.getInstance();
-			tc = TransportClientBuilder.buildHttpClient(hostname, port);
+			//tc = TransportClientBuilder.buildHttpClient(hostname, port);
+			tc = TransportClientBuilder.buildAccessorClient(hostname, port);
 		}
 
 		removeAllData();
@@ -56,9 +58,7 @@ public class E2EIngestionSimulatorTest {
 
 		boolean exception = false;
 		try {
-			TransportClient tc = TransportClientBuilder.buildHttpClient(hostname, port);
-			E2EIngestionSimulator.sendStructuredMeasurement(tc, m);
-			tc.close();
+			tc.sendStructuredMeasurement(m);
 		} catch (Exception e) {
 			exception = true;
 		}
@@ -90,8 +90,8 @@ public class E2EIngestionSimulatorTest {
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	@Test
-	public synchronized void longLoadTest(){
+	//@Test
+	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
 				100,  // pauseTime
@@ -125,12 +125,14 @@ public class E2EIngestionSimulatorTest {
 		} catch (Exception e) {
 			logger.error("Test failed.", e);
 			result = false;
-		}finally{
-			tc.close();
 		}
-
 		return result;
 	}
+	
+	@After
+	public void close(){
+		tc.close();
+	} 
 
 	public synchronized void removeAllData() {
 		ma.removeManyViaPattern(new HashMap<>());

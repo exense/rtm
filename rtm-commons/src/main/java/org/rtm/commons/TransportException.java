@@ -1,4 +1,4 @@
-package org.rtm.e2e.ingestion.transport;
+package org.rtm.commons;
 
 public class TransportException extends Exception{
 
