@@ -17,6 +17,7 @@ public class RequestHandler {
 		this.ssm = ssm;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public AbstractResponse handle(AggregationRequest aggregationRequest){
 		// extract info from request
 
