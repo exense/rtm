@@ -28,5 +28,9 @@ public class StreamedSessionManager {
 		streamRegistry.put(id, streamHandle);
 		return id;
 	}
+	
+	public Stream getStream(StreamedSessionId id){
+		return this.streamRegistry.get(id);
+	}
 
 }

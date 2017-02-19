@@ -10,17 +10,17 @@ import org.rtm.buckets.RangeBucket;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.db.DBClient;
 import org.rtm.requests.guiselector.Selector;
-import org.rtm.results.AggregationResult;
+import org.rtm.struct.Dimension;
 
 import com.mongodb.BasicDBObject;
 
-public class MongoSubqueryCallable implements Callable<AggregationResult>{
+public class MongoSubqueryCallable implements Callable<Dimension>{
 
 	private Document query;
 	private RangeBucket<Long> bucket;
 	private Properties prop;
 
-	public MongoSubqueryCallable(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
+	public MongoSubqueryCallable(List<Selector> sel, RangeBucket<Long> bucket,Properties requestProp) {
 		
 		this.bucket = bucket;
 		this.prop = requestProp;
@@ -28,15 +28,14 @@ public class MongoSubqueryCallable implements Callable<AggregationResult>{
 	}
 
 	@Override
-	public AggregationResult call() throws Exception {
+	public Dimension call() throws Exception {
 		
 		Document completeQuery = mergeTimelessWithTimeCriterion(query, buildTimeCriterion(bucket));
 		DBClient db = new DBClient();
 		
 		return new CursorHandler().handle(
 										db.executeQuery(completeQuery),
-										bucket
-										);
+										bucket);
 	}
 
 	private Document mergeTimelessWithTimeCriterion(Document timelessQuery, BasicDBObject timeCriterion) {

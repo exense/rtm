@@ -22,7 +22,7 @@ public class MeasurementAggregator {
 		AggregationType(String s) {
 			shortName = s;
 		}
-		String getShort() {
+		public String getShort() {
 			return shortName;
 		} 
 	}
