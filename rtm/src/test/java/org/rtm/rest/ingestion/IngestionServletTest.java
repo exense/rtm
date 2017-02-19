@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.commons.MeasurementUtils;
+import org.rtm.utils.MeasurementUtils;
 
 public class IngestionServletTest {
 

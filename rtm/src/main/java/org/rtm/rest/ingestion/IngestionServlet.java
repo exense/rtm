@@ -31,8 +31,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.rtm.commons.MeasurementAccessor;
-import org.rtm.commons.MeasurementUtils;
 import org.rtm.rest.ingestion.SimpleResponse.STATUS;
+import org.rtm.utils.MeasurementUtils;
 
 @Path(IngestionConstants.servletPrefix)
 public class IngestionServlet {

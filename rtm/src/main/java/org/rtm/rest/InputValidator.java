@@ -20,8 +20,8 @@ package org.rtm.rest;
 
 import java.util.List;
 
-import org.rtm.dao.Selector;
 import org.rtm.exception.ValidationException;
+import org.rtm.requests.guiselector.Selector;
 import org.rtm.rest.aggregation.AggInput;
 
 public abstract class InputValidator {

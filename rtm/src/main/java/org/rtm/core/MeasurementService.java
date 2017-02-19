@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.rtm.commons.Configuration;
 import org.rtm.dao.RTMMongoClient;
-import org.rtm.dao.Selector;
+import org.rtm.requests.guiselector.Selector;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class MeasurementService{

@@ -14,11 +14,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
-import org.rtm.commons.MeasurementUtils;
 import org.rtm.commons.TransportClient;
 import org.rtm.commons.TransportException;
 import org.rtm.rest.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
+import org.rtm.utils.MeasurementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

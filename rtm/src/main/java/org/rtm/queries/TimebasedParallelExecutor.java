@@ -1,4 +1,5 @@
-package org.rtm.backend.queries;
+package org.rtm.queries;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -8,11 +9,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.bson.Document;
-import org.rtm.backend.results.AggregationResult;
-import org.rtm.backend.results.ResultHandler;
 import org.rtm.buckets.OptimisticLongPartitioner;
+import org.rtm.buckets.RangeBucket;
 import org.rtm.core.LongTimeInterval;
+import org.rtm.requests.guiselector.Selector;
+import org.rtm.results.AggregationResult;
+import org.rtm.results.ResultHandler;
 
 public class TimebasedParallelExecutor {
 
@@ -22,11 +24,22 @@ public class TimebasedParallelExecutor {
 		olp = new OptimisticLongPartitioner(global.getBegin(), global.getEnd(), bucketSize);
 	}
 
-	public void processParallel(int nbThreads, long timeoutSecs, ResultHandler rm, Document timelessQuery, Properties requestProp) throws Exception{
+	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, ResultHandler rm, List<Selector> sel, Properties requestProp) throws Exception{
 		Vector<Callable<AggregationResult>> tasks = new Vector<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).forEach(
-				i -> tasks.addElement(new MongoSubqueryCallable(new MongoQuery(timelessQuery), olp.next(),requestProp)));
+				i -> {
+					if(olp.hasNext()){
+						RangeBucket<Long> bucket = olp.next();
+						if(bucket != null){ // due to optimistic hasNext
+							tasks.addElement(
+									new MongoSubqueryCallable(
+											sel,
+											bucket,
+											requestProp));
+						}
+					}
+				});
 
 		for(Future<AggregationResult> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
 			AggregationResult r = f.get(); 
@@ -34,8 +47,7 @@ public class TimebasedParallelExecutor {
 				rm.attachResult(r);
 			}
 			else{
-				//throw new Exception("Null query result.");
-				System.out.println("awesome!");
+				throw new Exception("Null query result.");
 			}
 		}
 	}

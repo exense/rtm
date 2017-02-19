@@ -21,7 +21,7 @@ package org.rtm.rest.aggregation;
 import java.util.List;
 import java.util.Map;
 
-import org.rtm.dao.Selector;
+import org.rtm.requests.guiselector.Selector;
 
 public class AggInput {
 	
