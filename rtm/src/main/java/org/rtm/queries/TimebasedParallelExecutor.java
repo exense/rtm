@@ -9,13 +9,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.rtm.buckets.OptimisticLongPartitioner;
-import org.rtm.buckets.RangeBucket;
 import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.Selector;
-import org.rtm.results.AggregationResult;
-import org.rtm.results.ResultHandler;
-import org.rtm.struct.Dimension;
+import org.rtm.stream.TimeValue;
+import org.rtm.stream.TimebasedResultHandler;
+import org.rtm.time.OptimisticLongPartitioner;
+import org.rtm.time.RangeBucket;
 
 public class TimebasedParallelExecutor {
 
@@ -25,8 +24,8 @@ public class TimebasedParallelExecutor {
 		olp = new OptimisticLongPartitioner(global.getBegin(), global.getEnd(), bucketSize);
 	}
 
-	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, ResultHandler rm, List<Selector> sel, Properties requestProp) throws Exception{
-		Vector<Callable<Dimension>> tasks = new Vector<>();
+	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, TimebasedResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
+		Vector<Callable<TimeValue>> tasks = new Vector<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).forEach(
 				i -> {
@@ -37,15 +36,16 @@ public class TimebasedParallelExecutor {
 									new MongoSubqueryCallable(
 											sel,
 											bucket,
-											requestProp));
+											requestProp
+											));
 						}
 					}
 				});
 
-		for(Future<Dimension> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
-			Dimension r = f.get(); 
-			if(r != null){
-				rm.attachResult(r);
+		for(Future<TimeValue> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
+			TimeValue tv = f.get(); 
+			if(tv != null){
+				rh.attachResult(tv);
 			}
 			else{
 				throw new Exception("Null query result.");

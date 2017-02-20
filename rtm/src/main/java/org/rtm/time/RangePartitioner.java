@@ -1,6 +1,6 @@
-package org.rtm.buckets;
+package org.rtm.time;
 
-public abstract class RangePartitioner<T> {
+public abstract class RangePartitioner<T extends Comparable<T>> {
 	
 	protected T min;
 	protected T max;

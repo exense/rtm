@@ -1,8 +1,8 @@
 package org.rtm.requests;
 
 import org.rtm.orchestration.SplittingOrchestrator;
+import org.rtm.stream.Stream;
 import org.rtm.stream.StreamedSessionManager;
-import org.rtm.struct.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

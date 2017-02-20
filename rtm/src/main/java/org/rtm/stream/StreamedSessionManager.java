@@ -3,8 +3,6 @@ package org.rtm.stream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.rtm.struct.Stream;
-
 @SuppressWarnings("rawtypes")
 public class StreamedSessionManager {
 	/*
