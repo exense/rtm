@@ -1,39 +1,46 @@
 package org.rtm.queries;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.LongAccumulator;
+import java.util.Properties;
 
-import org.rtm.buckets.RangeBucket;
-import org.rtm.commons.MeasurementConstants;
-import org.rtm.core.MeasurementAggregator.AggregationType;
-import org.rtm.struct.Dimension;
+import org.rtm.stream.Dimension;
+import org.rtm.stream.LongAccumulationHelper;
+import org.rtm.stream.TimeValue;
+import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
 public class CursorHandler{
 
-	public Dimension handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket) {
+	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
 
-		Dimension d = new Dimension();
-		Map<String, Map<String, LongAccumulator>> acc = d.getAccumulationHelper();
+		TimeValue tv = new TimeValue(myBucket);
+		MeasurementHelper mh = new MeasurementHelper(prop);
 
 		for(Map m : iterable){
 
-			String dimensionName = (String) m.get(MeasurementConstants.NAME_KEY);
-			Map<String, LongAccumulator> dimension = acc.get(dimensionName);
-			if(dimensionName == null)
-				acc.put(dimensionName, new HashMap<>());
-
-			// we'll only do counts for now
-			LongAccumulator count = dimension.get(AggregationType.COUNT.getShort());
-			if(count == null)
-				count = new LongAccumulator((x,y) -> x+1 , 0);
-			count.accumulate(1);
+			String m_dimension = mh.getPrimaryDimensionValue(prop, m);
+			
+			if(m_dimension == null || m_dimension.isEmpty()){
+				// default fall back
+				m_dimension = "groupall";
+			}
+			
+			Dimension d = tv.getDimension(m_dimension);
+			if(d == null){
+				d = new Dimension(m_dimension);
+				tv.setDimension(d);
+			}
+			
+			LongAccumulationHelper la = d.getAccumulationHelper();
+			//TODO: we'll only do hardcoded counts for now
+			if(la.isInit("count"))
+				la.initializeAccumulatorForMetric("count", (x,y) -> x+1, 0L);
+			la.accumulateMetric("count", 1);
 		}
 		
-		d.copyAndFlush();
+		tv.values().stream().forEach(v -> v.copyAndFlush());
 		
-		return d;
+		return tv;
 	}
 
 }

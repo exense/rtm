@@ -6,15 +6,15 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 
 import org.bson.Document;
-import org.rtm.buckets.RangeBucket;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.db.DBClient;
 import org.rtm.requests.guiselector.Selector;
-import org.rtm.struct.Dimension;
+import org.rtm.stream.TimeValue;
+import org.rtm.time.RangeBucket;
 
 import com.mongodb.BasicDBObject;
 
-public class MongoSubqueryCallable implements Callable<Dimension>{
+public class MongoSubqueryCallable implements Callable<TimeValue>{
 
 	private Document query;
 	private RangeBucket<Long> bucket;
@@ -28,14 +28,15 @@ public class MongoSubqueryCallable implements Callable<Dimension>{
 	}
 
 	@Override
-	public Dimension call() throws Exception {
+	public TimeValue call() throws Exception {
 		
 		Document completeQuery = mergeTimelessWithTimeCriterion(query, buildTimeCriterion(bucket));
 		DBClient db = new DBClient();
 		
 		return new CursorHandler().handle(
 										db.executeQuery(completeQuery),
-										bucket);
+										bucket,
+										prop);
 	}
 
 	private Document mergeTimelessWithTimeCriterion(Document timelessQuery, BasicDBObject timeCriterion) {

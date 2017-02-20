@@ -1,4 +1,4 @@
-package org.rtm.buckets;
+package org.rtm.time;
 
 import java.util.concurrent.atomic.AtomicLong;
 

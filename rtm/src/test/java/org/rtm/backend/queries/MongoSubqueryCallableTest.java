@@ -2,8 +2,8 @@ package org.rtm.backend.queries;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.buckets.RangeBucket;
 import org.rtm.queries.MongoSubqueryCallable;
+import org.rtm.time.RangeBucket;
 
 import com.mongodb.BasicDBObject;
 

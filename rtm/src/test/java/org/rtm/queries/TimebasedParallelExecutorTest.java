@@ -5,14 +5,14 @@ import java.util.Date;
 import org.junit.Test;
 import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
-import org.rtm.results.ResultHandler;
-import org.rtm.struct.Stream;
+import org.rtm.stream.Stream;
+import org.rtm.stream.StreamResultHandler;
 
 public class TimebasedParallelExecutorTest {
 
 	@Test
 	public void e2eTestWithMongo() {
-		ResultHandler rh = new ResultHandler(new Stream());
+		StreamResultHandler<Long> rh = new StreamResultHandler<>(new Stream<>());
 		
 		// Simulate real request inputs
 		long begin = 0L;

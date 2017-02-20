@@ -7,8 +7,9 @@ import org.rtm.core.DateTimeInterval;
 import org.rtm.core.LongTimeInterval;
 import org.rtm.queries.TimebasedParallelExecutor;
 import org.rtm.requests.guiselector.Selector;
-import org.rtm.results.ResultHandler;
-import org.rtm.struct.Stream;
+import org.rtm.stream.TimebasedResultHandler;
+import org.rtm.stream.Stream;
+import org.rtm.stream.StreamResultHandler;
 
 public class SplittingOrchestrator extends Orchestrator{
 
@@ -19,9 +20,9 @@ public class SplittingOrchestrator extends Orchestrator{
 		tpe = new TimebasedParallelExecutor( lti, super.computeOptimalInterval(lti.getSpan(), 20));
 	}
 
-	public Stream execute(List<Selector> sel, Properties requestProp) throws Exception {
-		Stream stream = new Stream();
-		ResultHandler rh = new ResultHandler(stream);
+	public Stream<Long> execute(List<Selector> sel, Properties requestProp) throws Exception {
+		Stream<Long> stream = new Stream<>();
+		TimebasedResultHandler<Long> rh = new StreamResultHandler<Long>(stream);
 		tpe.processMongoQueryParallel(3, 30L, rh, sel, requestProp);
 		
 		return stream; 
