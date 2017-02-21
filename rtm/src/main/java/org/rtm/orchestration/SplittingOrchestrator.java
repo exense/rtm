@@ -22,8 +22,8 @@ public class SplittingOrchestrator extends Orchestrator{
 
 	public Stream<Long> execute(List<Selector> sel, Properties requestProp) throws Exception {
 		Stream<Long> stream = new Stream<>();
-		TimebasedResultHandler<Long> rh = new StreamResultHandler<Long>(stream);
-		tpe.processMongoQueryParallel(3, 30L, rh, sel, requestProp);
+		TimebasedResultHandler<Long> rh = new StreamResultHandler(stream);
+		tpe.processMongoQueryParallel(1, 60L, rh, sel, requestProp);
 		
 		return stream; 
 	}

@@ -12,15 +12,18 @@ public class TestSelectorBuilder {
 		NumericalFilter nf = new NumericalFilter();
 		nf.setKey("value");
 		nf.setMinValue(0L);
-		nf.setMaxValue(10000L);
+		nf.setMaxValue(100000000L);
 
 		TextFilter tf = new TextFilter();
 		tf.setKey("name");
-		tf.setValue("Transaction");
+		tf.setValue("Transaction.*");
+		tf.setRegex(true);
 
+		
 		TextFilter regTf = new TextFilter();
 		regTf.setKey("eId");
-		regTf.setValue("JUnit.*");
+		//regTf.setValue("JUnit.*");
+		regTf.setValue(".*");
 		regTf.setRegex(true);
 
 		Selector sel = new Selector();

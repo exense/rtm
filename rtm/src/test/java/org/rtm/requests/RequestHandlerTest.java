@@ -19,7 +19,7 @@ public class RequestHandlerTest {
 	public void basicTest() throws JsonProcessingException{
 		
 		LocalDate today = LocalDate.now();
-		LocalDate twoWeeksAgo = today.minus(2, ChronoUnit.WEEKS);
+		LocalDate twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
 		DateTimeInterval dti = new DateTimeInterval(DateUtils.asDate(twoWeeksAgo), DateUtils.asDate(today));
 		
 		AggregationRequest ar = new AggregationRequest(dti, TestSelectorBuilder.buildSimpleSelectorList(), null);
@@ -34,8 +34,7 @@ public class RequestHandlerTest {
 		
 		StreamedSessionId sId = new JSONMapper().convertObjectToType(response.getPayload(), StreamedSessionId.class);
 		
-		System.out.println(sId.getStreamedSessionId());
-		System.out.println(ssm.getStream(sId));
+		System.out.println(sId.getStreamedSessionId() + " : " +ssm.getStream(sId));
 	}
 
 }

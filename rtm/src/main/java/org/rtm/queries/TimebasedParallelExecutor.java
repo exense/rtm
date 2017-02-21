@@ -1,8 +1,9 @@
 package org.rtm.queries;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -25,14 +26,14 @@ public class TimebasedParallelExecutor {
 	}
 
 	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, TimebasedResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
-		Vector<Callable<TimeValue>> tasks = new Vector<>();
+		ConcurrentMap<Long,Callable<TimeValue>> tasks = new ConcurrentHashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
-		IntStream.rangeClosed(1, nbThreads).forEach(
+		IntStream.rangeClosed(1, nbThreads).parallel().forEach(
 				i -> {
-					if(olp.hasNext()){
+					while(olp.hasNext()){
 						RangeBucket<Long> bucket = olp.next();
 						if(bucket != null){ // due to optimistic hasNext
-							tasks.addElement(
+							tasks.put(bucket.getIdAsTypedObject(),
 									new MongoSubqueryCallable(
 											sel,
 											bucket,
@@ -41,8 +42,8 @@ public class TimebasedParallelExecutor {
 						}
 					}
 				});
-
-		for(Future<TimeValue> f : executor.invokeAll(tasks, timeoutSecs, TimeUnit.SECONDS)){
+		
+		for(Future<TimeValue> f : executor.invokeAll(tasks.values(), timeoutSecs, TimeUnit.SECONDS)){
 			TimeValue tv = f.get(); 
 			if(tv != null){
 				rh.attachResult(tv);
