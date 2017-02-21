@@ -114,6 +114,10 @@ public class MeasurementAccessor implements TransportClient{
 	public Iterable<Document> find(Bson filter){
 		return coll.find(filter);
 	}
+	
+	public Iterable<Document> find(Bson filter, Bson sortOrder){
+		return coll.find(filter).sort(sortOrder);
+	}
 
 	@Override
 	public void close() {

@@ -19,7 +19,7 @@ public class TimebasedParallelExecutorTest {
 		long end = new Date().getTime();
 		long interval = end - begin; // single bucket
 		
-		TimebasedParallelExecutor tpe = new TimebasedParallelExecutor(new LongTimeInterval(begin, end, 0L), interval);
+		TimebasedParallelExecutor tpe = new TimebasedParallelExecutor();
 		
 		try {
 			tpe.processMongoQueryParallel(
