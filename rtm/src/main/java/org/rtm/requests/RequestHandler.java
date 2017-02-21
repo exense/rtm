@@ -1,6 +1,6 @@
 package org.rtm.requests;
 
-import org.rtm.orchestration.SplittingOrchestrator;
+import org.rtm.queries.TimebasedParallelExecutor;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamedSessionManager;
 import org.slf4j.Logger;
@@ -17,14 +17,14 @@ public class RequestHandler {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public AbstractResponse handle(AggregationRequest aggregationRequest){
+	public AbstractResponse handle(AggregationRequest aggReq){
 		// extract info from request
 
-		SplittingOrchestrator mo = new SplittingOrchestrator(aggregationRequest.getDateInterval());
+		TimebasedParallelExecutor executor = new TimebasedParallelExecutor();
 
 		AbstractResponse r = null;
 		try {
-			Stream streamHandle = mo.execute(aggregationRequest.getSelectors(), aggregationRequest.getProperties());
+			Stream streamHandle = executor.getResponseStream(aggReq.getSelectors(), aggReq.getLongTimeInterval(), aggReq.getProperties());
 			r = new AggregationResponse(ssm.registerStreamSession(streamHandle));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 

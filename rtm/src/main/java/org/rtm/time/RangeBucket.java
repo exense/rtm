@@ -1,5 +1,7 @@
 package org.rtm.time;
 
+import org.rtm.core.LongTimeInterval;
+
 public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 
 	private T lowerBound;
@@ -47,6 +49,10 @@ public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 		if(this.lowerBound.compareTo(o) > 0)
 			return 1;
 		return 0;
+	}
+
+	public static LongTimeInterval toLongTimeInterval(RangeBucket<Long> bucket) {
+		return new LongTimeInterval(bucket.getLowerBound(), bucket.getUpperBound(), 0L);
 	}
 
 }

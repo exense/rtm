@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
-import org.rtm.core.DateTimeInterval;
+import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.StreamedSessionId;
 import org.rtm.stream.StreamedSessionManager;
@@ -20,9 +20,9 @@ public class RequestHandlerTest {
 		
 		LocalDate today = LocalDate.now();
 		LocalDate twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
-		DateTimeInterval dti = new DateTimeInterval(DateUtils.asDate(twoWeeksAgo), DateUtils.asDate(today));
+		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		
-		AggregationRequest ar = new AggregationRequest(dti, TestSelectorBuilder.buildSimpleSelectorList(), null);
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), null);
 		StreamedSessionManager ssm = new StreamedSessionManager();
 		RequestHandler rh = new RequestHandler(ssm);
 		

@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 
 import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.Selector;
+import org.rtm.stream.Stream;
+import org.rtm.stream.StreamResultHandler;
 import org.rtm.stream.TimeValue;
 import org.rtm.stream.TimebasedResultHandler;
 import org.rtm.time.OptimisticLongPartitioner;
@@ -21,8 +23,17 @@ public class TimebasedParallelExecutor {
 
 	private OptimisticLongPartitioner olp;
 
-	public TimebasedParallelExecutor(LongTimeInterval global, long bucketSize){
-		olp = new OptimisticLongPartitioner(global.getBegin(), global.getEnd(), bucketSize);
+	public Stream<Long> getResponseStream(List<Selector> sel, LongTimeInterval lti, Properties prop) throws Exception{
+		Stream<Long> stream = new Stream<>();
+		TimebasedResultHandler<Long> rh = new StreamResultHandler(stream);
+		
+		LongTimeInterval effective = MongoSubqueryCallable.figureEffectiveTimeBoundaries(lti, sel);
+		System.out.println(effective);
+		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), MongoSubqueryCallable.computeOptimalIntervalSize(effective.getSpan(), 20));
+		
+		processMongoQueryParallel(1, 60L, rh, sel, prop);
+		
+		return stream;
 	}
 
 	public void processMongoQueryParallel(int nbThreads, long timeoutSecs, TimebasedResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
@@ -42,7 +53,7 @@ public class TimebasedParallelExecutor {
 						}
 					}
 				});
-		
+
 		for(Future<TimeValue> f : executor.invokeAll(tasks.values(), timeoutSecs, TimeUnit.SECONDS)){
 			TimeValue tv = f.get(); 
 			if(tv != null){
