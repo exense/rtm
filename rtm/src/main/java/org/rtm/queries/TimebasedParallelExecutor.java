@@ -10,12 +10,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.Selector;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamResultHandler;
 import org.rtm.stream.TimeValue;
 import org.rtm.stream.TimebasedResultHandler;
+import org.rtm.time.LongTimeInterval;
 import org.rtm.time.OptimisticLongPartitioner;
 import org.rtm.time.RangeBucket;
 

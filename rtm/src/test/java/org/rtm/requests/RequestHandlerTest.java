@@ -4,10 +4,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
-import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.StreamedSessionId;
 import org.rtm.stream.StreamedSessionManager;
+import org.rtm.time.LongTimeInterval;
 import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 

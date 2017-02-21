@@ -1,7 +1,5 @@
 package org.rtm.time;
 
-import org.rtm.core.LongTimeInterval;
-
 public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 
 	private T lowerBound;

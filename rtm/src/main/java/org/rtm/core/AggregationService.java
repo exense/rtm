@@ -37,6 +37,7 @@ import org.rtm.exception.NoDataException;
 import org.rtm.exception.ShouldntHappenException;
 import org.rtm.rest.aggregation.AggOutput;
 import org.rtm.rest.aggregation.AggregationHelper;
+import org.rtm.time.LongTimeInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,8 +3,8 @@ package org.rtm.requests;
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.Selector;
+import org.rtm.time.LongTimeInterval;
 
 public class AggregationRequest extends Request{
 	
