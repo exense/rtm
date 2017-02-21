@@ -12,7 +12,7 @@ public class TimebasedParallelExecutorTest {
 
 	@Test
 	public void e2eTestWithMongo() {
-		StreamResultHandler<Long> rh = new StreamResultHandler<>(new Stream<>());
+		StreamResultHandler rh = new StreamResultHandler(new Stream<>());
 		
 		// Simulate real request inputs
 		long begin = 0L;

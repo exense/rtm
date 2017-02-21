@@ -1,19 +1,12 @@
 package org.rtm.struct;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.LongAccumulator;
-
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.commons.TestMeasurementBuilder;
-import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongAccumulationHelper;
 
 public class DimensionTest {
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void quicky(){
 		Dimension d = new Dimension("Transaction1");
@@ -24,10 +17,8 @@ public class DimensionTest {
 		acc.accumulateMetric("count", 1);
 		acc.accumulateMetric("count", 1);
 		
-		Assert.assertEquals(null, d.get("Transaction1"));
-		
 		d.copyAndFlush();
-		
-		Assert.assertEquals(3L,((Map)d.get("Transaction1")).get("count"));
+		 
+		Assert.assertEquals(3L, (long)d.get("count"));
 	}
 }
