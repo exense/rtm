@@ -8,10 +8,10 @@ import java.util.concurrent.Callable;
 
 import org.bson.Document;
 import org.rtm.commons.MeasurementConstants;
-import org.rtm.core.LongTimeInterval;
 import org.rtm.db.DBClient;
 import org.rtm.requests.guiselector.Selector;
 import org.rtm.stream.TimeValue;
+import org.rtm.time.LongTimeInterval;
 import org.rtm.time.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

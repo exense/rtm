@@ -3,10 +3,10 @@ package org.rtm.queries;
 import java.util.Date;
 
 import org.junit.Test;
-import org.rtm.core.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamResultHandler;
+import org.rtm.time.LongTimeInterval;
 
 public class TimebasedParallelExecutorTest {
 

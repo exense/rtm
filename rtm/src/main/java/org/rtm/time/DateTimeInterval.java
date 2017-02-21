@@ -16,48 +16,57 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.core;
+package org.rtm.time;
 
-public class LongTimeInterval {
+import java.util.Date;
 
-	private Long begin;
-	private Long end;
-
-	public LongTimeInterval(Long pBegin, long duration) {
-		this.begin = pBegin;
-		this.end = new Long(pBegin + duration);
-	}
-
-	public LongTimeInterval(Long pBegin, Long pEnd, long notAmbiguous) {
+public class DateTimeInterval {
+	
+	private Date begin;
+	private Date end;
+	
+	public DateTimeInterval(Date pBegin, Date pEnd){
 		this.begin = pBegin;
 		this.end = pEnd;
 	}
+	
+	public DateTimeInterval(Date pBegin, long pGranularity) {
+		this.begin = pBegin;
+		this.end = new Date(pBegin.getTime() + pGranularity);
+	}
 
-	public Long getBegin() {
+	public Date getBegin() {
 		return begin;
 	}
-	public void setBegin(Long begin) {
+	public void setBegin(Date begin) {
 		this.begin = begin;
 	}
-	public Long getEnd() {
+	public Date getEnd() {
 		return end;
 	}
-	public void setEnd(Long end) {
+	public void setEnd(Date end) {
 		this.end = end;
 	}	
 
-	public Long getSpan() {
-		return end - begin;
+	public boolean belongs(Date d){
+		return ((d.after(this.begin) || d.equals(this.begin)) && d.before(this.end));
 	}
-
-	public boolean belongs(Long d){
-		return ((d >= this.begin) && (d < this.end));
+	
+	public boolean belongs(long timestamp){
+		return ((timestamp >= this.begin.getTime()) && (timestamp < this.end.getTime()));
 	}
-
-	public LongTimeInterval getNext(long granularity){
-		Long nextBegin = this.begin + granularity;
-		return new LongTimeInterval(nextBegin, granularity);
+	
+	public DateTimeInterval getNext(long granularity){
+		Date nextBegin = new Date(this.begin.getTime() + granularity);
+		Date nextEnd = new Date(this.end.getTime() + granularity);
+		
+		return new DateTimeInterval(nextBegin, nextEnd);
 	}
-
+	
 	public String toString(){return "BEG="+this.begin+"|END="+this.end;}
+	
+	public LongTimeInterval toLongTime(){
+		long beginLong = this.begin.getTime();
+		return new LongTimeInterval(beginLong, this.end.getTime() - beginLong);
+	}
 }
