@@ -176,25 +176,4 @@ public class RangePartitionerTest{
 		while(validateTestManually("loopedTest", start, end, inc, res.get("count"), res.get("sum"), 1112, 5569444));
 
 	}
-	
-
-	@Test
-	public void debug(){
-		long start = 1484607600000L;
-		long end = 1487631600000L;
-		long inc = 151200000L;
-
-		OptimisticLongPartitioner lp = new OptimisticLongPartitioner(start, end, inc);
-
-		int bucketNb = 0;
-		int sum = 0;
-
-		while(lp.hasNext()){
-			RangeBucket<Long> b = lp.next();
-			System.out.println(b);
-			bucketNb++;
-			sum += b.getUpperBound();
-		}
-	}
-
 }

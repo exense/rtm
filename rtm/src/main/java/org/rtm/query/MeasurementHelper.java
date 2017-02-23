@@ -16,12 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest.aggregation;
+package org.rtm.query;
 
-/**
- * @author doriancransac
- *
- */
-public class AggregationServlet {
+import java.util.Map;
+import java.util.Properties;
 
+@SuppressWarnings("rawtypes")
+public class MeasurementHelper{
+	private String primaryDimension;
+	
+	public MeasurementHelper(Properties p){
+		//TODO: this.primaryDimension = p.getProperty(p.getProperty("properties.primaryDimension.key"))
+		this.primaryDimension = "name";
+	}
+	
+	public String getPrimaryDimensionName(Properties prop){
+		return "name";
+	}
+
+	public String getPrimaryDimensionValue(Properties prop, Map m){
+		return (String)m.get(this.primaryDimension);
+	}
+	
 }

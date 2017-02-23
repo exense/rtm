@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.rtm.requests.guiselector.Selector;
+import org.rtm.request.selection.Selector;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 
 @SuppressWarnings("unchecked")

@@ -3,6 +3,10 @@ package org.rtm.requests.guiselector;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rtm.request.selection.NumericalFilter;
+import org.rtm.request.selection.Selector;
+import org.rtm.request.selection.TextFilter;
+
 public class TestSelectorBuilder {
 
 	public static List<Selector> buildSimpleSelectorList() {
