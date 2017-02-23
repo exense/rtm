@@ -40,7 +40,7 @@ public class QueryCallable implements Callable<TimeValue>{
 
 	@Override
 	public TimeValue call() throws Exception {
-		return new MeasurementIterableHandler().handle(
+		return new IterableHelper().handle(
 										new DBClient().executeQuery(query),
 										bucket,
 										prop);

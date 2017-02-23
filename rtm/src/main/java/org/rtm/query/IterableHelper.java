@@ -9,7 +9,7 @@ import org.rtm.stream.TimeValue;
 import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
-public class MeasurementIterableHandler{
+public class IterableHelper{
 
 	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
 
