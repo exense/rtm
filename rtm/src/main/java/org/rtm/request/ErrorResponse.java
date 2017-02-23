@@ -1,4 +1,4 @@
-package org.rtm.requests;
+package org.rtm.request;
 
 public class ErrorResponse extends AbstractResponse {
 

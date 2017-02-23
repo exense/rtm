@@ -33,7 +33,6 @@ import org.rtm.commons.Configuration;
 import org.rtm.rest.aggregation.AggregationServlet;
 import org.rtm.rest.conf.ConfigurationServlet;
 import org.rtm.rest.ingestion.IngestionServlet;
-import org.rtm.rest.measurement.MeasurementServlet;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
@@ -80,7 +79,6 @@ public class JettyStarter {
 		resourceConfig.packages(AggregationServlet.class.getPackage().getName());
 		resourceConfig.register(JacksonJaxbJsonProvider.class);
 		resourceConfig.registerClasses(AggregationServlet.class);
-		resourceConfig.registerClasses(MeasurementServlet.class);
 		resourceConfig.registerClasses(ConfigurationServlet.class);
 		resourceConfig.registerClasses(IngestionServlet.class);
 

@@ -4,9 +4,12 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
+import org.rtm.request.AbstractResponse;
+import org.rtm.request.AggregationRequest;
+import org.rtm.request.RequestHandler;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
-import org.rtm.stream.StreamedSessionId;
-import org.rtm.stream.StreamedSessionManager;
+import org.rtm.stream.StreamId;
+import org.rtm.stream.StreamBroker;
 import org.rtm.time.LongTimeInterval;
 import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
@@ -23,7 +26,7 @@ public class RequestHandlerTest {
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		
 		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), null);
-		StreamedSessionManager ssm = new StreamedSessionManager();
+		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
 		
 		AbstractResponse response = rh.handle(ar);
@@ -32,7 +35,7 @@ public class RequestHandlerTest {
 		
 		// -- NETWORK ROUND TRIP --
 		
-		StreamedSessionId sId = new JSONMapper().convertObjectToType(response.getPayload(), StreamedSessionId.class);
+		StreamId sId = new JSONMapper().convertObjectToType(response.getPayload(), StreamId.class);
 		
 		System.out.println(sId.getStreamedSessionId() + " : " +ssm.getStream(sId));
 	}

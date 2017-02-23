@@ -3,7 +3,7 @@ package org.rtm.stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StreamResultHandler implements TimebasedResultHandler<Long>{
+public class StreamResultHandler implements ResultHandler<Long>{
 
 	private static final Logger logger = LoggerFactory.getLogger(StreamResultHandler.class);
 	

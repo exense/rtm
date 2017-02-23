@@ -16,28 +16,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest.aggregation;
+package org.rtm.request.selection;
 
-import org.rtm.commons.Configuration;
-import org.rtm.commons.MeasurementConstants;
-import org.rtm.exception.ValidationException;
-import org.rtm.rest.InputValidator;
-
-public class AggregateValidator extends InputValidator{
-
-	public static final String serviceDomain = Configuration.getInstance().getProperty("aggregateService.domain");
+public class TextFilter {
 	
-	@Override
-	public void validateCustom(AggInput input) throws ValidationException {		
-		if(testVal(MeasurementConstants.SESSION_KEY))
-			throw new ValidationException("No session value was found");
-		
-		if(testVal(serviceDomain + "." + Configuration.GROUPBY_KEY))
-			throw new ValidationException("No groupby value was found");
-		
-		if(testVal(serviceDomain + "." + Configuration.GRANULARITY_KEY))
-			throw new ValidationException("No granularity value was found");
-
-		
+	private boolean isRegex = false;
+	private String key;
+	private String value;
+	
+	public boolean isRegex() {
+		return isRegex;
+	}
+	public void setRegex(boolean isRegex) {
+		this.isRegex = isRegex;
+	}
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	public String toString(){
+		return "["+this.getKey()+":"+this.getValue()+", regex=" + this.isRegex()+"]";
 	}
 }

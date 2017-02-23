@@ -16,13 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.stream;
+package org.rtm.requests;
 
-/**
- * @author doriancransac
- *
- */
-public interface TimebasedResultHandler<T> {
+public class AggregationRequestTest {
 
-	public void attachResult(AggregationResult<T> tv);
 }

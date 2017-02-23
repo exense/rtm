@@ -34,17 +34,16 @@ import javax.json.stream.JsonParsingException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.rtm.queries.MongoQuery;
-import org.rtm.requests.guiselector.Selector;
+import org.rtm.query.BsonQuery;
+import org.rtm.request.selection.Selector;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 
 public class MongoQueryBuilderTest{
 
 	List<Selector> selList;
 	List<Object> bindValues = new ArrayList<>();
-	String jongoQuery;
+	
 	String mongoQuery;
-	String newMongoQuery;
 
 	boolean init = false;
 
@@ -53,24 +52,10 @@ public class MongoQueryBuilderTest{
 		if(!init){
 
 			selList = TestSelectorBuilder.buildSimpleSelectorList();
-
-			this.jongoQuery = MongoQueryBuilder.buildJongoQuery(this.selList, this.bindValues);
-			this.mongoQuery = MongoQueryBuilder.buildMongoQuery(this.selList);
-			this.newMongoQuery = MongoQuery.selectorsToQuery(this.selList).toString();
-
-			//System.out.println("mongo :" + replaceOperatorsAndBinds(mongoQuery, false, true));
-			//System.out.println("jongo :" + replaceOperatorsAndBinds(jongoQuery, true, false));
-			//System.out.println("new query: " + this.newMongoQuery);
+			this.mongoQuery = BsonQuery.selectorsToQuery(this.selList).toString();
 		}
 	}
 
-	//@Test
-	public void showQueries() throws Exception{
-		System.out.println("mongo :" + replaceOperatorsAndBinds(mongoQuery, false, true, true).replace(" ",""));
-		System.out.println("jongo :" + replaceOperatorsAndBinds(jongoQuery, true, false, true).replace(" ",""));
-		System.out.println("nmong : " + replaceOperatorsAndBinds(this.newMongoQuery, false, true, false).replace(" ","").replace("Document{",""));
-
-	}
 
 	@Test
 	public void validateJsonSyntaxForMongo() throws Exception{
@@ -78,30 +63,9 @@ public class MongoQueryBuilderTest{
 	}
 
 	@Test
-	public void validateJsonSyntaxForJongo() throws Exception{
-		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(jongoQuery, true, false, true)));
-	}
-
-	@Test
-	public void validateConsistentJongoBinds() throws Exception{
-		Assert.assertEquals(this.bindValues.size(), countPatternOccurences(this.jongoQuery,"#"));
-	}
-
-	@Test
-	public void validateNumberOfOpsForJongo() throws Exception{
-		testOccurences(jongoQuery);
-	}
-
-	@Test
 	public void validateNumberOfOpsForMongo() throws Exception{
 		testOccurences(mongoQuery);
 	}
-
-	@Test
-	public void validateNumberOfOpsForNewMongo() throws Exception{
-		testOccurences(newMongoQuery);
-	}
-
 
 	private void testOccurences(String query){
 		Assert.assertEquals(1, countPatternOccurences(query,"\\$or"));

@@ -2,11 +2,11 @@ package org.rtm.stream;
 
 import java.util.UUID;
 
-public class StreamedSessionId {
+public class StreamId {
 
 	private UUID streamedSessionId;
 	
-	public StreamedSessionId(){
+	public StreamId(){
 		this.streamedSessionId = UUID.randomUUID();
 	}
 	

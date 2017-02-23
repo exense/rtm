@@ -18,8 +18,6 @@
  *******************************************************************************/
 package org.rtm.rest.conf;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -34,57 +32,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.rtm.commons.Configuration;
-import org.rtm.dao.RTMMongoClient;
-import org.rtm.exception.RTMException;
 
 @Path("/configuration")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationServlet {
 
-	private static String version = null;
-
-	@POST
-	@Path("/reload")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response reloadPost(@Context ServletContext sc) {return reload(sc);}
-
-	@GET
-	@Path("/reload")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response reloadGet(@Context ServletContext sc) {return reload(sc);}
-
-	@SuppressWarnings("static-access")
-	public Response reload(ServletContext sc) {
-
-		try {
-
-			String hostname = Configuration.getInstance().getProperty(Configuration.DSHOST_KEY);
-			String dbname = Configuration.getInstance().getProperty(Configuration.DSNAME_KEY);
-			String measurementsColl = Configuration.getInstance().getProperty(Configuration.MEASUREMENTSCOLL_KEY);
-
-			Configuration.triggerReload();
-
-			if(Configuration.getInstance() == null)
-				throw new RTMException("Configuration reload failed somehow.");
-			else{
-				Configuration conf = Configuration.getInstance();
-				String newHostname = conf.getProperty(Configuration.DSHOST_KEY);
-				String newDbname = conf.getProperty(Configuration.DSNAME_KEY);
-				String newMeasurementsColl = conf.getProperty(Configuration.MEASUREMENTSCOLL_KEY);
-
-				if(newHostname == null || newDbname == null || newMeasurementsColl == null)
-					throw new RTMException("Reload failed due to null DB config values : host="+newHostname+", name="+newDbname+", measurementColl="+newMeasurementsColl);
-				else{
-					if(!hostname.equals(newHostname) || !dbname.equals(newDbname) || !measurementsColl.equals(newMeasurementsColl))
-						RTMMongoClient.getInstance().triggerReload();
-				}
-			}
-		} catch (RTMException e) {
-			e.printStackTrace();
-			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
-		}
-		return getConfiguration(sc); 
-	}
+	private static String version = "2.0.0";
 
 	@POST
 	@Path("/getConfiguration")
@@ -97,17 +50,6 @@ public class ConfigurationServlet {
 	public Response getConfigurationGet(@Context ServletContext sc) {return getConfiguration(sc);}
 
 	public Response getConfiguration(ServletContext sc) {
-
-		if(version == null || version.isEmpty())
-		{
-			try{
-				initVersion(sc.getResourceAsStream("/META-INF/MANIFEST.MF"));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-				return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
-			}
-		}
 
 		ConfigurationOutput response;
 		try{
@@ -168,29 +110,7 @@ public class ConfigurationServlet {
 	public Response versionPost(@Context ServletContext sc) {return version(sc);}
 
 	public Response version(ServletContext sc) {
-
-		if(version == null || version.isEmpty())
-		{
-			try{
-				initVersion(sc.getResourceAsStream("/META-INF/MANIFEST.MF"));
-			}
-			catch(Exception e){
-				e.printStackTrace();
-				return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
-			}
-		}
-
 		return Response.ok(version).build();
 	}
 
-	public synchronized void initVersion(InputStream is) throws IOException {
-		/* No more war file, so this broke...
-		//Manifest mf = new Manifest(new FileInputStream(sc.getRealPath("/META-INF/MANIFEST.MF")));
-		Manifest mf = new Manifest(is);
-		Attributes ats = mf.getMainAttributes();
-		version = ats.getValue("Implementation-Version"); */
-
-		// we need to go look into the pom instead of manifest since there's no more war file.
-		version = "1.0.0";
-	}
 }

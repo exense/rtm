@@ -16,34 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest.aggregation;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.rtm.core.AggregateResult;
+package org.rtm.stream;
 
 /**
  * @author doriancransac
  *
  */
-public class FormatHelper {
+public interface ResultHandler<T> {
 
-	public static AggOutput convertForJson(Map<String, List<Map<String,Object>>> data){
-
-		AggOutput so = new AggOutput();
-		List<AggregateResult> res = new ArrayList<AggregateResult>();
-
-		for(Entry<String, List<Map<String, Object>>> e : data.entrySet())
-		{
-			AggregateResult ar = new AggregateResult();
-			ar.setGroupby(e.getKey());
-			ar.setData(e.getValue());
-			res.add(ar);
-		}
-		so.setPayload(res);
-		return so;
-	}
+	public void attachResult(AggregationResult<T> tv);
 }

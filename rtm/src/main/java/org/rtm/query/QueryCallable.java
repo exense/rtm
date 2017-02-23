@@ -1,4 +1,4 @@
-package org.rtm.queries;
+package org.rtm.query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 import org.bson.Document;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.db.DBClient;
-import org.rtm.requests.guiselector.Selector;
+import org.rtm.request.selection.Selector;
 import org.rtm.stream.TimeValue;
 import org.rtm.time.LongTimeInterval;
 import org.rtm.time.RangeBucket;
@@ -19,28 +19,28 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCursor;
 
-public class MongoSubqueryCallable implements Callable<TimeValue>{
+public class QueryCallable implements Callable<TimeValue>{
 	
-	private static final Logger logger = LoggerFactory.getLogger(MongoSubqueryCallable.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueryCallable.class);
 
-	private MongoQuery query;
+	private BsonQuery query;
 	private RangeBucket<Long> bucket;
 	private Properties prop;
 
-	public MongoSubqueryCallable(List<Selector> sel, RangeBucket<Long> bucket,Properties requestProp) {
+	public QueryCallable(List<Selector> sel, RangeBucket<Long> bucket,Properties requestProp) {
 		this.bucket = bucket;
 		this.prop = requestProp;
 		this.query = buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
 	}
 
-	private MongoQuery buildQuery(List<Selector> sel, LongTimeInterval bucket) {
-		MongoQuery aQuery = new MongoQuery(MongoQuery.selectorsToQuery(sel));
-		return new MongoQuery(mergeTimelessWithTimeCriterion((Document)aQuery, buildTimeCriterion(bucket)));
+	private BsonQuery buildQuery(List<Selector> sel, LongTimeInterval bucket) {
+		BsonQuery aQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));
+		return new BsonQuery(mergeTimelessWithTimeCriterion((Document)aQuery, buildTimeCriterion(bucket)));
 	}
 
 	@Override
 	public TimeValue call() throws Exception {
-		return new CursorHandler().handle(
+		return new MeasurementIterableHandler().handle(
 										new DBClient().executeQuery(query),
 										bucket,
 										prop);
@@ -61,8 +61,8 @@ public class MongoSubqueryCallable implements Callable<TimeValue>{
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static LongTimeInterval figureEffectiveTimeBoundaries(LongTimeInterval lti, List<Selector> sel) throws Exception {
-		MongoQuery baseQuery = new MongoQuery(MongoQuery.selectorsToQuery(sel));
+	public static LongTimeInterval figureEffectiveTimeBoundariesViaMongoDirect(LongTimeInterval lti, List<Selector> sel) throws Exception {
+		BsonQuery baseQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 		Document completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
 		DBClient db = new DBClient();
 		

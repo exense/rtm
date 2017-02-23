@@ -1,21 +1,21 @@
-package org.rtm.queries;
+package org.rtm.query;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
-import org.rtm.requests.guiselector.NumericalFilter;
-import org.rtm.requests.guiselector.Selector;
-import org.rtm.requests.guiselector.TextFilter;
+import org.rtm.request.selection.NumericalFilter;
+import org.rtm.request.selection.Selector;
+import org.rtm.request.selection.TextFilter;
 
 import com.mongodb.BasicDBObject;
 
-public class MongoQuery extends Document {
+public class BsonQuery extends Document {
 
 	private static final long serialVersionUID = -2093436314450930059L;
 
-	public MongoQuery(Document timelessQuery) {
+	public BsonQuery(Document timelessQuery) {
 		super(timelessQuery);
 	}
 

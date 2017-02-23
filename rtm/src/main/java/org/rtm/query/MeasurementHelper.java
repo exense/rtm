@@ -16,25 +16,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.queries;
+package org.rtm.query;
 
 import java.util.Map;
 import java.util.Properties;
 
-import org.rtm.commons.Configuration;
-
-/**
- * @author doriancransac
- *
- */
 @SuppressWarnings("rawtypes")
 public class MeasurementHelper{
-	private Configuration conf;
 	private String primaryDimension;
 	
 	public MeasurementHelper(Properties p){
-		this.conf = Configuration.getInstance();
-		//TODO: this.primaryDimension = p.getProperty(conf.getProperty("properties.primaryDimension.key"))
+		//TODO: this.primaryDimension = p.getProperty(p.getProperty("properties.primaryDimension.key"))
 		this.primaryDimension = "name";
 	}
 	

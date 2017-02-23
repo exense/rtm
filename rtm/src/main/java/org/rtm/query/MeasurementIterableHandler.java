@@ -1,4 +1,4 @@
-package org.rtm.queries;
+package org.rtm.query;
 
 import java.util.Map;
 import java.util.Properties;
@@ -9,7 +9,7 @@ import org.rtm.stream.TimeValue;
 import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
-public class CursorHandler{
+public class MeasurementIterableHandler{
 
 	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
 
@@ -21,7 +21,7 @@ public class CursorHandler{
 			String m_dimension = mh.getPrimaryDimensionValue(prop, m);
 			
 			if(m_dimension == null || m_dimension.isEmpty()){
-				// default fall back
+				// default fall back TODO: get from prop/conf
 				m_dimension = "groupall";
 			}
 			

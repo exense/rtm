@@ -4,9 +4,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.rtm.time.Identifier;
 
-/*
- * Wraps a CHM which contains a representation of the data of a given dimension and time bucket (pointed by the Stream's key) 
- */
 public class TimeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
 	private static final long serialVersionUID = -2891193441467345217L;
