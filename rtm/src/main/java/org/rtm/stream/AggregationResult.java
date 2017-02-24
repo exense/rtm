@@ -18,12 +18,12 @@
  *******************************************************************************/
 package org.rtm.stream;
 
-/**
- * @author doriancransac
- *
- */
+import java.util.Map;
+
 public interface AggregationResult<T> {
 	
 	public PayloadIdentifier<T> getStreamPayloadIdentifier();
+	@SuppressWarnings("rawtypes")
+	public Map getData();
 
 }

@@ -11,10 +11,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.rtm.request.selection.Selector;
-import org.rtm.stream.Stream;
-import org.rtm.stream.StreamResultHandler;
-import org.rtm.stream.TimeValue;
 import org.rtm.stream.ResultHandler;
+import org.rtm.stream.TimeValue;
 import org.rtm.time.LongTimeInterval;
 import org.rtm.time.OptimisticLongPartitioner;
 import org.rtm.time.RangeBucket;
@@ -22,21 +20,33 @@ import org.rtm.time.RangeBucket;
 public class ParallelRangeExecutor {
 
 	private OptimisticLongPartitioner olp;
-
-	public Stream<Long> getResponseStream(List<Selector> sel, LongTimeInterval lti, Properties prop) throws Exception{
-		Stream<Long> stream = new Stream<>();
-		ResultHandler<Long> rh = new StreamResultHandler(stream);
-		
-		LongTimeInterval effective = QueryCallable.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
-		//TODO: allow for custom interval size via prop
-		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), QueryCallable.computeOptimalIntervalSize(effective.getSpan(), 20));
-		
-		processMongoQueryParallel(1, 60L, rh, sel, prop);
-		
-		return stream;
+	private long intervalSize;
+	
+	public ParallelRangeExecutor(LongTimeInterval effective, long intervalSize){
+		this.intervalSize = intervalSize;
+		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), intervalSize);
 	}
 
-	private void processMongoQueryParallel(int nbThreads, long timeoutSecs, ResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
+	public void processRangeSingleLevelBlocking(ResultHandler<Long> rh,
+			List<Selector> sel, Properties prop,
+			int threadNb, long timeout) throws Exception{
+
+		//TODO: get threading & timeout values from prop
+		executeQueryParallelBlocking(threadNb, timeout, "single", rh, sel, prop);
+	}
+	
+	public void processRangeDoubleLevelBlocking(ResultHandler<Long> rh,
+			List<Selector> sel, Properties prop,
+			int threadNb, long timeout) throws Exception{
+		//TODO: get threading & timeout values from prop
+		executeQueryParallelBlocking(threadNb, timeout, "double", rh, sel, prop);
+	}
+
+	//TODO: implement non blocking version (handle results in a different threads and return val
+	// this means a flag collection will need to be updated to share status / progress information
+	private void executeQueryParallelBlocking(int nbThreads, long timeoutSecs, String depth,
+			ResultHandler<Long> rh,
+			List<Selector> sel, Properties requestProp) throws Exception{
 		ConcurrentMap<Long,Callable<TimeValue>> tasks = new ConcurrentHashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).parallel().forEach(
@@ -44,12 +54,27 @@ public class ParallelRangeExecutor {
 					while(olp.hasNext()){
 						RangeBucket<Long> bucket = olp.next();
 						if(bucket != null){ // due to optimistic hasNext
-							tasks.put(bucket.getIdAsTypedObject(),
-									new QueryCallable(
-											sel,
-											bucket,
-											requestProp
-											));
+							switch(depth){
+							case "single":
+								tasks.put(bucket.getIdAsTypedObject(),
+										new QueryCallable(
+												sel,
+												bucket,
+												requestProp
+												));
+								break;
+							case "double": //TODO: get ratio from prop
+								tasks.put(bucket.getIdAsTypedObject(),
+										new SubQueryCallable(
+												sel,
+												bucket,
+												requestProp,
+												intervalSize,
+												Math.abs(intervalSize / 10)
+												));
+								break;
+							}
+
 						}
 					}
 				});

@@ -9,7 +9,7 @@ import org.rtm.stream.TimeValue;
 import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
-public class IterableHelper{
+public class IterableHandler{
 
 	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
 
@@ -31,16 +31,19 @@ public class IterableHelper{
 				tv.setDimension(d);
 			}
 			
-			LongAccumulationHelper la = d.getAccumulationHelper();
-			//TODO: we'll only do hardcoded counts for now
-			if(la.isInit("count"))
-				la.initializeAccumulatorForMetric("count", (x,y) -> x+1, 0L);
-			la.accumulateMetric("count", 1);
+			accumulateStats(d);
 		}
 		
 		tv.values().stream().forEach(v -> v.copyAndFlush());
 		
 		return tv;
 	}
+
+	private void accumulateStats(Dimension d) {
+		LongAccumulationHelper la = d.getAccumulationHelper();
+		//TODO: we'll only do hardcoded counts for now
+		if(la.isInit("count"))
+			la.initializeAccumulatorForMetric("count", (x,y) -> x+1, 0L);
+		la.accumulateMetric("count", 1);	}
 
 }
