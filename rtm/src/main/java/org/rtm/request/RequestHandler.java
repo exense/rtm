@@ -1,8 +1,16 @@
 package org.rtm.request;
 
+import java.util.List;
+import java.util.Properties;
+
+import org.rtm.db.DBClient;
 import org.rtm.query.ParallelRangeExecutor;
+import org.rtm.request.selection.Selector;
+import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
+import org.rtm.stream.StreamResultHandler;
+import org.rtm.time.LongTimeInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,16 +24,33 @@ public class RequestHandler {
 		this.ssm = ssm;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public AbstractResponse handle(AggregationRequest aggReq){
-		// extract info from request
-
-		ParallelRangeExecutor executor = new ParallelRangeExecutor();
+		
+		List<Selector> sel = aggReq.getSelectors();
+		LongTimeInterval lti = aggReq.getTimeWindow();
+		Properties prop = aggReq.getProperties();
 
 		AbstractResponse r = null;
+
+		int threadNb = 5;
+		long timeout = 10L;
+		
 		try {
-			Stream streamHandle = executor.getResponseStream(aggReq.getSelectors(), aggReq.getTimeWindow(), aggReq.getProperties());
-			r = new AggregationResponse(ssm.registerStreamSession(streamHandle));
+			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
+			//TODO: allow for custom interval size via prop
+			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
+			ParallelRangeExecutor executor = new ParallelRangeExecutor(effective, optimalSize);
+			
+			Stream<Long> stream = new Stream<>();
+			ResultHandler<Long> rh = new StreamResultHandler(stream);
+			
+			//TODO: move to unblocking version
+			executor.processRangeDoubleLevelBlocking(rh,
+					sel, prop,
+					threadNb, timeout);
+			
+			r = new AggregationResponse(ssm.registerStreamSession(stream));
+			
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
 			logger.error(message, e);

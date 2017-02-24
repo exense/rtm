@@ -1,5 +1,6 @@
 package org.rtm.stream;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rtm.time.Identifier;
@@ -52,5 +53,11 @@ public class TimeValue extends ConcurrentHashMap<String, Dimension> implements A
 			return this.id.compareTo(o);
 		}
 
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Map getData() {
+		return this;
 	}
 }
