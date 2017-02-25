@@ -32,15 +32,15 @@ public class RequestHandler {
 
 		AbstractResponse r = null;
 
-		int threadNb = 2;
-		long timeout = 60L;
+		int threadNb = 10;
+		long timeout = 10L;
 		
 		try {
 			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
 			//TODO: allow for custom interval size via prop
-			logger.debug("effective: " + effective);
-			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
-			logger.debug("optimal: " + optimalSize);
+			//logger.debug("effective: " + effective);
+			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 30);
+			//logger.debug("optimal: " + optimalSize);
 			ParallelRangeExecutor executor = new ParallelRangeExecutor(effective, optimalSize);
 			
 			Stream<Long> stream = new Stream<>();

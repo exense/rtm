@@ -68,7 +68,7 @@ public class ParallelRangeExecutor {
 						RangeBucket<Long> bucket = olp.next();
 						if(bucket != null){ // due to optimistic hasNext
 
-							Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);							
+							Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);
 							tasks.put(bucket.getIdAsTypedObject(), task);
 						}
 					}
@@ -96,11 +96,12 @@ public class ParallelRangeExecutor {
 		switch(this.el){
 		case SINGLE:
 			task = new QueryCallable(sel, bucket, requestProp);
+			//logger.debug("Built QueryTask for bucket="+bucket+";");
 			break;
 		case DOUBLE: //TODO: get ratio from prop
 			long subsize = Math.abs(this.intervalSize / 10);
 			task = new SubQueryCallable(sel, bucket, requestProp, subsize);
-			logger.debug("Built task with sub-interval size= " + subsize);
+			//logger.debug("Built SubQueryTask for bucket="+bucket+"; with sub-interval size= " + subsize);
 			break;
 		}
 

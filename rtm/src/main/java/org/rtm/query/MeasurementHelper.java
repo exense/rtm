@@ -31,7 +31,7 @@ public class MeasurementHelper{
 	}
 	
 	public String getPrimaryDimensionName(Properties prop){
-		return "name";
+		return this.primaryDimension;
 	}
 
 	public String getPrimaryDimensionValue(Properties prop, Map m){
