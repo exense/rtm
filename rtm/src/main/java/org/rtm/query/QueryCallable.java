@@ -33,10 +33,12 @@ public class QueryCallable implements Callable<TimeValue>{
 		return produceValueForRange();
 	}
 	
+	// Pass accumulators through context to reduce memory footprint
 	public TimeValue produceValueForRange(){
 		return new IterableHandler().handle(
 				new DBClient().executeQuery(query),
 				bucket,
-				prop);
+				prop,
+				null);
 	}
 }

@@ -24,7 +24,6 @@ public class RequestHandlerTest {
 		LocalDate today = LocalDate.now();
 		LocalDate twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
-		
 		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), null);
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);

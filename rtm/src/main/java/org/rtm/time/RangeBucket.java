@@ -50,7 +50,7 @@ public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 	}
 
 	public static LongTimeInterval toLongTimeInterval(RangeBucket<Long> bucket) {
-		return new LongTimeInterval(bucket.getLowerBound(), bucket.getUpperBound(), 0L);
+		return new LongTimeInterval(bucket.getLowerBound(), bucket.getUpperBound());
 	}
 
 }
