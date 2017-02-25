@@ -2,14 +2,17 @@ package org.rtm.requests;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.RequestHandler;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
-import org.rtm.stream.StreamId;
 import org.rtm.stream.StreamBroker;
+import org.rtm.stream.StreamId;
 import org.rtm.time.LongTimeInterval;
 import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
@@ -30,13 +33,34 @@ public class RequestHandlerTest {
 		
 		AbstractResponse response = rh.handle(ar);
 		
-		System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
+		//System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
 		
 		// -- NETWORK ROUND TRIP --
 		
 		StreamId sId = new JSONMapper().convertObjectToType(response.getPayload(), StreamId.class);
 		
-		System.out.println(sId.getStreamedSessionId() + " : " +ssm.getStream(sId));
+		String result = ssm.getStream(sId).toString();
+		System.out.println("result=" + result);
+		
+		Pattern p = Pattern.compile("count=(.+?),");
+		Matcher m = p.matcher(result);
+		int countTotal = 0;
+		while(m.find()){
+			String countVal = m.group(1);
+			countTotal += Integer.parseInt(countVal);
+		}
+		
+		Pattern pSum = Pattern.compile("sum=(.+?)}");
+		Matcher mSum = pSum.matcher(result);
+		int sumCount = 0;
+		while(mSum.find()){
+			String sumVal = mSum.group(1);
+			sumCount += Integer.parseInt(sumVal);
+		}
+		System.out.println("sum=" +sumCount);
+		System.out.println("count=" +countTotal);
+		Assert.assertEquals(1084541, sumCount);
+		Assert.assertEquals(543, countTotal);
 	}
 
 }

@@ -20,13 +20,14 @@ package org.rtm.query;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Dimension;
+import org.rtm.stream.LongRangeValue;
 import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamResultHandler;
-import org.rtm.stream.LongRangeValue;
 import org.rtm.time.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,34 +38,40 @@ public class SubQueryCallable extends QueryCallable {
 	
 	private Stream<Long> subResults;
 	private ParallelRangeExecutor pre;
+	private UUID taskId;
 	
 	public SubQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
 			Properties requestProp, long subRangeSize) {
 		super(sel, bucket, requestProp);
+		this.taskId = UUID.randomUUID();
 		this.subRangeSize = subRangeSize;
 		pre = new ParallelRangeExecutor(RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize);
-		logger.debug("Creating Callable for bucket="+ super.bucket+ "; with subrange=" + this.subRangeSize);
+		//logger.debug("Creating Callable for bucket="+ super.bucket+ "; with subbucket=" + this.subRangeSize);
 		this.subResults = new Stream<>();
 	}
 	
 	@Override
 	public LongRangeValue call() throws Exception {
 		produceAllValuesForRange();
-		return mergeSubResults();
+		//TODO:Figure out why parallel merge on concurrent hash map fails (forgets results)
+		LongRangeValue lrv = mergeSubResults();
+		//logger.debug("[" + this.taskId.toString() + "] Merged data for " + lrv.getStreamPayloadIdentifier().getIdAsTypedObject().toString().substring(7, 13) + " = " +lrv);
+		return lrv;
 	}
 	
 	@SuppressWarnings("unchecked")
 	private LongRangeValue mergeSubResults() {
 		LongRangeValue result = new LongRangeValue(super.bucket);
-		subResults.values().stream().parallel().forEach(tv -> {
+		subResults.values().stream().forEach(tv -> {
 			tv.getData().values().stream().forEach(d -> {
 				Dimension dim = (Dimension)d;
 				String dimensionValue = dim.getDimensionValue();
 				Dimension resDim = result.get(dimensionValue);
-				if(resDim == null)
-					result.put(dimensionValue, dim);
-				else
-					mergeMetricsForDimension(resDim, dim);
+				if(resDim == null){
+					resDim = new Dimension(dimensionValue);
+					result.put(dimensionValue, resDim);
+				}
+				mergeMetricsForDimension(resDim, dim);
 			});
 		});
 		return result;
@@ -73,11 +80,13 @@ public class SubQueryCallable extends QueryCallable {
 	private void mergeMetricsForDimension(Dimension resDim, Dimension dim) {
 		// TODO: implement and use single point of accumulation (MeasurementHelper?)
 		// merging by "generally" adding for right now
-		dim.entrySet().stream().parallel().forEach(m -> {
+		dim.entrySet().stream().forEach(m -> {
 			String metricName = (String) m.getKey();
 			Long value = resDim.get(metricName);
-			if(value == null)
-				resDim.put(metricName, m.getValue());
+			if(value == null){
+				value = new Long(m.getValue().longValue());
+				resDim.put(metricName, value);
+			}
 			else{
 				long save = value.longValue();
 				resDim.remove(metricName);
@@ -90,11 +99,11 @@ public class SubQueryCallable extends QueryCallable {
 	public void produceAllValuesForRange() throws Exception{
 		
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
-		
+		//logger.debug("[" + this.taskId.toString() + "] Producing values now..");
 		//TODO: move to unblocking version, get nb threads & timeout from prop
 		pre.processRangeSingleLevelBlocking(subHandler, 
 				super.sel, prop,
-				2, 60L);
+				10, 5L);
 	}
 	
 

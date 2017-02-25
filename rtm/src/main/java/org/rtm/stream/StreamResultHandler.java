@@ -14,9 +14,10 @@ public class StreamResultHandler implements ResultHandler<Long>{
 	}
 
 	public void attachResult(AggregationResult<Long> tv) {
+		//logger.debug("Result from " + tv.getStreamPayloadIdentifier().getIdAsTypedObject().toString().substring(7, 13) + " = "+ tv);
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
 		if(stream.get(id) != null)
-			logger.warn("There's already a result for id=" + id);
+			logger.error("There's already a result for id=" + id);
 		stream.put(id.getIdAsTypedObject(), tv);
 	}
 

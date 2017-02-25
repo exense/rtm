@@ -68,11 +68,11 @@ public class DBClient {
 		Map min = (Map) naturalIt.iterator().next();
 		Map max = (Map) reverseIt.iterator().next();
 
-		Long maxVal = (Long)max.get(MeasurementConstants.BEGIN_KEY); 
+		Long maxVal = (Long)max.get(MeasurementConstants.BEGIN_KEY) +1; // $lt operator 
 		Long minVal = (Long)min.get(MeasurementConstants.BEGIN_KEY);
 		
 		long result = maxVal - minVal;
-		logger.debug("time window : " + maxVal + " - " + minVal + " = " + result);
+		//logger.debug("time window : " + maxVal + " - " + minVal + " = " + result);
 		
 		if(result < 1L)
 			throw new Exception("Could not compute auto-granularity : result="+result);
@@ -84,8 +84,7 @@ public class DBClient {
 	}
 
 	public static long computeOptimalIntervalSize(long timeWindow, int targetSeriesDots){
-		long result = Math.abs(timeWindow / targetSeriesDots);
-		return result;
+		return Math.abs(timeWindow / targetSeriesDots) + 1;
 	}
 
 }

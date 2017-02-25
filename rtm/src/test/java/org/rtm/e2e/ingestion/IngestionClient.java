@@ -37,15 +37,16 @@ public class IngestionClient {
 	String hostname = "localhost";
 	int port = 8099;
 
-	boolean init = false;
+	static boolean init = false;
 
 	@Before
-	public void init(){
+	public synchronized void init(){
 		if(!init){
 			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
 			ma = MeasurementAccessor.getInstance();
 			//tc = TransportClientBuilder.buildHttpClient(hostname, port);
 			tc = TransportClientBuilder.buildAccessorClient(hostname, port);
+			init = true;
 		}
 
 		removeAllData();
@@ -90,7 +91,7 @@ public class IngestionClient {
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	//@Test
+	@Test
 	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
