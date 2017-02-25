@@ -80,7 +80,7 @@ public class DBClient {
 		((MongoCursor) naturalIt.iterator()).close();
 		((MongoCursor) reverseIt.iterator()).close();
 	
-		return new LongTimeInterval(minVal, maxVal, 0L);
+		return new LongTimeInterval(minVal, maxVal);
 	}
 
 	public static long computeOptimalIntervalSize(long timeWindow, int targetSeriesDots){

@@ -23,12 +23,13 @@ public class LongTimeInterval {
 	private Long begin;
 	private Long end;
 
+	/*
 	public LongTimeInterval(Long pBegin, long duration) {
 		this.begin = pBegin;
 		this.end = new Long(pBegin + duration);
 	}
-
-	public LongTimeInterval(Long pBegin, Long pEnd, long notAmbiguous) {
+	 */
+	public LongTimeInterval(Long pBegin, Long pEnd) {
 		this.begin = pBegin;
 		this.end = pEnd;
 	}

@@ -28,18 +28,22 @@ import org.rtm.stream.Stream;
 import org.rtm.stream.StreamResultHandler;
 import org.rtm.stream.TimeValue;
 import org.rtm.time.RangeBucket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SubQueryCallable extends QueryCallable {
-	private long originalRangeSize;
+	private static final Logger logger = LoggerFactory.getLogger(SubQueryCallable.class);
 	private long subRangeSize;
 	
 	private Stream<Long> subResults;
 	private ParallelRangeExecutor pre;
 	
 	public SubQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
-			Properties requestProp, long originalRangeSize, long subRangeSize) {
+			Properties requestProp, long subRangeSize) {
 		super(sel, bucket, requestProp);
+		this.subRangeSize = subRangeSize;
 		pre = new ParallelRangeExecutor(RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize);
+		logger.debug("Creating Callable for bucket="+ super.bucket+ "; with subrange=" + this.subRangeSize);
 		this.subResults = new Stream<>();
 	}
 	
@@ -90,7 +94,7 @@ public class SubQueryCallable extends QueryCallable {
 		//TODO: move to unblocking version, get nb threads & timeout from prop
 		pre.processRangeSingleLevelBlocking(subHandler, 
 				super.sel, prop,
-				5, 5L);
+				2, 60L);
 	}
 	
 

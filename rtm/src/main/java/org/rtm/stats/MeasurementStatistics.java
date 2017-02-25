@@ -1,3 +1,5 @@
+package org.rtm.stats;
+
 public class MeasurementStatistics {
 
 		public enum AggregationType {

@@ -11,7 +11,7 @@ import org.rtm.time.RangeBucket;
 @SuppressWarnings("rawtypes")
 public class IterableHandler{
 
-	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
+	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop, AccumulationContext sc) {
 
 		TimeValue tv = new TimeValue(myBucket);
 		MeasurementHelper mh = new MeasurementHelper(prop);
