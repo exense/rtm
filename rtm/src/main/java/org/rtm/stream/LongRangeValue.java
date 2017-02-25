@@ -5,13 +5,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.rtm.time.Identifier;
 
-public class TimeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
+public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
 	private static final long serialVersionUID = -2891193441467345217L;
 
 	private Identifier<Long> ti;
 
-	public TimeValue(Identifier<Long> ti){
+	public LongRangeValue(Identifier<Long> ti){
 		super();
 		this.ti = ti;
 	}

@@ -6,13 +6,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.rtm.request.selection.Selector;
+import org.rtm.stream.LongRangeValue;
 import org.rtm.stream.ResultHandler;
-import org.rtm.stream.TimeValue;
 import org.rtm.time.LongTimeInterval;
 import org.rtm.time.OptimisticLongPartitioner;
 import org.rtm.time.RangeBucket;
@@ -24,12 +23,15 @@ public class ParallelRangeExecutor {
 	public enum ExecutionLevel{
 		SINGLE, DOUBLE;
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ParallelRangeExecutor.class);
 
 	private OptimisticLongPartitioner olp;
 	private long intervalSize;
 	private ExecutionLevel el = null;
+
+	@SuppressWarnings("unused")
+	private Exception potentialException = null;
 
 	public ParallelRangeExecutor(LongTimeInterval effective, long intervalSize){
 		this.intervalSize = intervalSize;
@@ -42,7 +44,7 @@ public class ParallelRangeExecutor {
 
 		this.el = ExecutionLevel.SINGLE;
 		//TODO: get threading & timeout values from prop
-		executeQueryParallelBlocking(threadNb, timeout, rh, sel, prop);
+		executeQueryParallel(threadNb, timeout, rh, sel, prop);
 	}
 
 	public void processRangeDoubleLevelBlocking(ResultHandler<Long> rh,
@@ -51,14 +53,14 @@ public class ParallelRangeExecutor {
 
 		this.el = ExecutionLevel.DOUBLE;
 		//TODO: get threading & timeout values from prop
-		executeQueryParallelBlocking(threadNb, timeout, rh, sel, prop);
+		executeQueryParallel(threadNb, timeout, rh, sel, prop);
 	}
 
 	//TODO: implement non blocking version (handle results in a different threads and return val
 	// this means a flag collection will need to be updated to share status / progress information
-	private void executeQueryParallelBlocking(int nbThreads, long timeoutSecs,
+	private void executeQueryParallel(int nbThreads, long timeoutSecs,
 			ResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
-		ConcurrentMap<Long,Callable<TimeValue>> tasks = new ConcurrentHashMap<>();
+		ConcurrentMap<Long,Callable<LongRangeValue>> tasks = new ConcurrentHashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
 		IntStream.rangeClosed(1, nbThreads).parallel().forEach(
 				i -> {
@@ -66,26 +68,30 @@ public class ParallelRangeExecutor {
 						RangeBucket<Long> bucket = olp.next();
 						if(bucket != null){ // due to optimistic hasNext
 
-							Callable<TimeValue> task = buildTask(sel, bucket, requestProp);							
+							Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);							
 							tasks.put(bucket.getIdAsTypedObject(), task);
 						}
 					}
 				});
 
-		for(Future<TimeValue> f : executor.invokeAll(tasks.values(), timeoutSecs, TimeUnit.SECONDS)){
-			TimeValue tv = f.get(); 
-			if(tv != null){
-				rh.attachResult(tv);
-			}
-			else{
-				throw new Exception("Null query result.");
-			}
-		}
+		executor.invokeAll(tasks.values(), timeoutSecs, TimeUnit.SECONDS).stream().parallel().forEach(f -> {
+			LongRangeValue tv = null;
+			try {
+				tv = f.get();
+				if(tv != null){
+					rh.attachResult(tv);
+				}else{
+					this.potentialException = new Exception("Null result.");
+				}
+			} catch (Exception e) {
+				potentialException = e;
+			} 
+		});
 	}
 
-	private Callable<TimeValue> buildTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
+	private Callable<LongRangeValue> buildTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
 
-		Callable<TimeValue> task = null;
+		Callable<LongRangeValue> task = null;
 
 		switch(this.el){
 		case SINGLE:

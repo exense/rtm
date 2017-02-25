@@ -5,15 +5,15 @@ import java.util.Properties;
 
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongAccumulationHelper;
-import org.rtm.stream.TimeValue;
+import org.rtm.stream.LongRangeValue;
 import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
 public class IterableHandler{
 
-	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop, AccumulationContext sc) {
+	public LongRangeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop, AccumulationContext sc) {
 
-		TimeValue tv = new TimeValue(myBucket);
+		LongRangeValue tv = new LongRangeValue(myBucket);
 		MeasurementHelper mh = new MeasurementHelper(prop);
 
 		for(Map m : iterable){

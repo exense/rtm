@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 
 import org.rtm.db.DBClient;
 import org.rtm.request.selection.Selector;
-import org.rtm.stream.TimeValue;
+import org.rtm.stream.LongRangeValue;
 import org.rtm.time.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryCallable implements Callable<TimeValue>{
+public class QueryCallable implements Callable<LongRangeValue>{
 	
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(QueryCallable.class);
@@ -29,12 +29,12 @@ public class QueryCallable implements Callable<TimeValue>{
 	}
 
 	@Override
-	public TimeValue call() throws Exception {
+	public LongRangeValue call() throws Exception {
 		return produceValueForRange();
 	}
 	
 	// Pass accumulators through context to reduce memory footprint
-	public TimeValue produceValueForRange(){
+	public LongRangeValue produceValueForRange(){
 		return new IterableHandler().handle(
 				new DBClient().executeQuery(query),
 				bucket,
