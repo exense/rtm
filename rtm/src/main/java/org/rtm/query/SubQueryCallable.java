@@ -26,7 +26,7 @@ import org.rtm.stream.Dimension;
 import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamResultHandler;
-import org.rtm.stream.TimeValue;
+import org.rtm.stream.LongRangeValue;
 import org.rtm.time.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +48,14 @@ public class SubQueryCallable extends QueryCallable {
 	}
 	
 	@Override
-	public TimeValue call() throws Exception {
+	public LongRangeValue call() throws Exception {
 		produceAllValuesForRange();
 		return mergeSubResults();
 	}
 	
 	@SuppressWarnings("unchecked")
-	private TimeValue mergeSubResults() {
-		TimeValue result = new TimeValue(super.bucket);
+	private LongRangeValue mergeSubResults() {
+		LongRangeValue result = new LongRangeValue(super.bucket);
 		subResults.values().stream().parallel().forEach(tv -> {
 			tv.getData().values().stream().forEach(d -> {
 				Dimension dim = (Dimension)d;
