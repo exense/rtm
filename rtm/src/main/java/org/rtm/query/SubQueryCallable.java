@@ -32,6 +32,7 @@ import org.rtm.time.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("unused")
 public class SubQueryCallable extends QueryCallable {
 	private static final Logger logger = LoggerFactory.getLogger(SubQueryCallable.class);
 	private long subRangeSize;
@@ -39,19 +40,25 @@ public class SubQueryCallable extends QueryCallable {
 	private Stream<Long> subResults;
 	private ParallelRangeExecutor pre;
 	private UUID taskId;
+	private Properties prop;
 	
 	public SubQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
 			Properties requestProp, long subRangeSize) {
 		super(sel, bucket, requestProp);
 		this.taskId = UUID.randomUUID();
 		this.subRangeSize = subRangeSize;
-		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize);
-		//logger.debug("Creating Callable for bucket="+ super.bucket+ "; with subbucket=" + this.subRangeSize);
+		this.prop = requestProp;
+		
 		this.subResults = new Stream<>();
+		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
+		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
+		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
+				10, 5L, subHandler, super.sel, requestProp);
 	}
 	
 	@Override
 	public LongRangeValue call() throws Exception {
+		//logger.debug("SubQueryCallable executing.");
 		produceAllValuesForRange();
 		//TODO:Figure out why parallel merge on concurrent hash map fails (forgets results)
 		LongRangeValue lrv = mergeSubResults();
@@ -97,13 +104,8 @@ public class SubQueryCallable extends QueryCallable {
 	}
 
 	public void produceAllValuesForRange() throws Exception{
-		
-		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//logger.debug("[" + this.taskId.toString() + "] Producing values now..");
-		//TODO: move to unblocking version, get nb threads & timeout from prop
-		pre.processRangeSingleLevelBlocking(subHandler, 
-				super.sel, prop,
-				10, 5L);
+		pre.processRangeSingleLevelBlocking();
 	}
 	
 

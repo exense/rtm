@@ -39,17 +39,17 @@ public class RequestHandler {
 			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
 			//TODO: allow for custom interval size via prop
 			//logger.debug("effective: " + effective);
-			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 30);
+			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
 			//logger.debug("optimal: " + optimalSize);
-			ParallelRangeExecutor executor = new ParallelRangeExecutor("requestExecutor", effective, optimalSize);
 			
+
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
+			ParallelRangeExecutor executor = new ParallelRangeExecutor("requestExecutor", effective, optimalSize,
+					threadNb, timeout, rh, sel, prop);
 			
 			//TODO: move to unblocking version
-			executor.processRangeDoubleLevelBlocking(rh,
-					sel, prop,
-					threadNb, timeout);
+			executor.processRangeDoubleLevelBlocking();
 			
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 			

@@ -24,13 +24,14 @@ public class ParallelRangeExecutorTest {
 		
 		long optimalSize = DBClient.computeOptimalIntervalSize(lti.getSpan(), 20);
 		
-		ParallelRangeExecutor tpe = new ParallelRangeExecutor("e2etest", lti, optimalSize);
-		
 		Stream<Long> stream = new Stream<Long>();
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
+
+		ParallelRangeExecutor tpe = new ParallelRangeExecutor("e2etest", lti, optimalSize, 5,
+				10L, rh, TestSelectorBuilder.buildSimpleSelectorList(),null);
+		
 		try {
-			tpe.processRangeDoubleLevelBlocking(rh, TestSelectorBuilder.buildSimpleSelectorList(),
-					null, 5, 10L);
+			tpe.processRangeDoubleLevelBlocking();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

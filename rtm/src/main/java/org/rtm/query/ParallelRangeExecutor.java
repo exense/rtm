@@ -1,4 +1,5 @@
 package org.rtm.query;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -28,64 +29,60 @@ public class ParallelRangeExecutor {
 	private long intervalSize;
 	private ExecutionLevel el = null;
 	private String id;
+	private int nbThreads;
+	private long timeoutSecs;
+	private ResultHandler<Long> rh;
+	private List<Selector> sel;
+	private Properties requestProp;
+	private Exception potentialException;
 
-	@SuppressWarnings("unused")
-	private Exception potentialException = null;
-
-	public ParallelRangeExecutor(String id, LongTimeInterval effective, long intervalSize){
+	public ParallelRangeExecutor(String id, LongTimeInterval effective, long intervalSize,
+			int nbThreads, long timeoutSecs,
+			ResultHandler<Long> rh, List<Selector> sel, Properties requestProp){
 		this.id = id;
+		this.nbThreads = nbThreads;
+		this.timeoutSecs = timeoutSecs;
+		this.rh = rh;
+		this.sel = sel;
+		this.requestProp = requestProp;
 		this.intervalSize = intervalSize;
 		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), intervalSize);
 	}
 
-	public void processRangeSingleLevelBlocking(ResultHandler<Long> rh,
-			List<Selector> sel, Properties prop,
-			int threadNb, long timeout) throws Exception{
+	public void processRangeSingleLevelBlocking() throws Exception{
 
 		this.el = ExecutionLevel.SINGLE;
 		//TODO: get threading & timeout values from prop
-		executeQueryParallel(threadNb, timeout, rh, sel, prop);
+		executeQueryParallelBlocking();
 	}
 
-	public void processRangeDoubleLevelBlocking(ResultHandler<Long> rh,
-			List<Selector> sel, Properties prop,
-			int threadNb, long timeout) throws Exception{
+	public void processRangeDoubleLevelBlocking() throws Exception{
 
 		this.el = ExecutionLevel.DOUBLE;
 		//TODO: get threading & timeout values from prop
-		executeQueryParallel(threadNb, timeout, rh, sel, prop);
+		executeQueryParallelBlocking();
 	}
 
-	//TODO: implement non blocking version (handle results in a different threads and return val
-	// this means a flag collection will need to be updated to share status / progress information
-	private void executeQueryParallel(int nbThreads, long timeoutSecs,
-			ResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
+	private void executeQueryParallelBlocking() throws Exception{
 
-		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
-		IntStream.rangeClosed(1, nbThreads).forEach(
-				i -> {
-					System.out.println(this.id + "; Thread " + Thread.currentThread() + "; Iteration " + i);
-					while(olp.hasNext()){
-						RangeBucket<Long> bucket = olp.next();
-						if(bucket != null){ // due to optimistic hasNext
+		ExecutorService taskCreators = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService rangeExecutors = Executors.newFixedThreadPool(nbThreads);
 
-							Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);
-							LongRangeValue lrv = null;
-							try {
-								lrv = executor.submit(task).get(timeoutSecs, TimeUnit.SECONDS);
-								if(lrv != null)
-									rh.attachResult(lrv);
-								else
-									throw new Exception("Null result.");
-							} catch (Exception e) {
-								logger.error(this.id + "; Failed to process task for bucket: " + bucket, e);
-								this.potentialException = e;
-							}
-						}
-					}
-				});
+		List<RangeTaskCreator> creatorsList = new ArrayList<>();
+		
+		IntStream.rangeClosed(1, nbThreads).forEach(i -> {
+			creatorsList.add(new RangeTaskCreator(rangeExecutors));
+		});
+		
+		taskCreators.invokeAll(creatorsList);
+		taskCreators.shutdown();
+		taskCreators.awaitTermination(30, TimeUnit.SECONDS);
 
-		executor.shutdown();
+		rangeExecutors.shutdown();
+		rangeExecutors.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
+		
+		if(this.potentialException != null)
+			throw this.potentialException;
 	}
 
 	private Callable<LongRangeValue> buildTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
@@ -105,6 +102,41 @@ public class ParallelRangeExecutor {
 		}
 
 		return task;
+	}
+	
+	private class RangeTaskCreator implements Callable<Boolean>{
+		
+		private ExecutorService executor;
+		
+		protected RangeTaskCreator(ExecutorService executor){
+			this.executor = executor;
+		}
+
+		@Override
+		public Boolean call() {
+			//logger.debug("RangeTaskCreator executing.");
+			while(olp.hasNext()){
+				RangeBucket<Long> bucket = olp.next();
+				if(bucket != null){ // due to optimistic hasNext
+
+					Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);
+					LongRangeValue lrv = null;
+					try {
+						lrv = executor.submit(task).get(timeoutSecs, TimeUnit.SECONDS);
+						if(lrv != null)
+							rh.attachResult(lrv);
+						else
+							throw new Exception("Null result.");
+					} catch (Exception e) {
+						logger.error(id + "; Failed to process task for bucket: " + bucket, e);
+						potentialException = e;
+					}
+				}
+			}
+			return true;
+			
+		}
+		
 	}
 
 }
