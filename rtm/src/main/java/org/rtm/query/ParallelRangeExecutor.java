@@ -69,35 +69,27 @@ public class ParallelRangeExecutor {
 
 		ExecutorService splitterPool = Executors.newFixedThreadPool(nbThreads);
 		ExecutorService executionPool = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService resultPool = Executors.newFixedThreadPool(nbThreads);
 		ConcurrentMap<Long, Future<LongRangeValue>> results = new ConcurrentHashMap<>();
 
 		List<RangeTaskCreator> creatorsList = new ArrayList<>();
-		
+
 		IntStream.rangeClosed(1, nbThreads).forEach(i -> {
 			creatorsList.add(new RangeTaskCreator(executionPool, results));
 		});
-		
+
 		splitterPool.invokeAll(creatorsList);
 		splitterPool.shutdown();
 		splitterPool.awaitTermination(30, TimeUnit.SECONDS);
-	
-		results.values().stream().parallel().forEach(f -> {
-			logger.debug(Thread.currentThread().toString());
-			try {
-				LongRangeValue lrv = f.get();
-				if(lrv != null)
-					rh.attachResult(lrv);
-				else
-					throw new Exception("Null result.");
-			} catch (Exception e) {
-				logger.error("Exception while processing task.");
-				this.potentialException = e;
-			}
+
+		results.values().stream().forEach(future -> {
+			resultPool.submit(new ResultHandlerCallable(future));
 		});
-	
+
 		executionPool.shutdown();
-		executionPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
-		
+		executionPool.awaitTermination(30, TimeUnit.SECONDS);
+		resultPool.shutdown();
+
 		if(this.potentialException != null)
 			throw this.potentialException;
 	}
@@ -113,7 +105,8 @@ public class ParallelRangeExecutor {
 			break;
 		case DOUBLE: //TODO: get ratio & threads from prop
 			int parallelizationLevel = 3;
-			long subsize = Math.abs(this.intervalSize / parallelizationLevel);
+			long projected = Math.abs(this.intervalSize / parallelizationLevel);
+			long subsize =  projected > 0?projected:1L;
 			task = new SubQueryCallable(sel, bucket, requestProp, subsize, parallelizationLevel);
 			//logger.debug("Built SubQueryTask for bucket="+bucket+"; with sub-interval size= " + subsize);
 			break;
@@ -121,13 +114,13 @@ public class ParallelRangeExecutor {
 
 		return task;
 	}
-	
+
 	private class RangeTaskCreator implements Callable<Boolean>{
-		
+
 		private ExecutorService executor;
 		private ConcurrentMap<Long, Future<LongRangeValue>> results;
 		private String id = ((Long)UUID.randomUUID().getMostSignificantBits()).toString();
-		
+
 		protected RangeTaskCreator(ExecutorService executor, ConcurrentMap<Long, Future<LongRangeValue>> results){
 			this.executor = executor;
 			this.results = results;
@@ -151,13 +144,33 @@ public class ParallelRangeExecutor {
 				}
 				submissions++;
 			}
-			
+
 			//logger.debug("Task #" + this.id + " submitted " + submissions + " tasks.");
 			return true;
-			
+
 		}
-		
+
 	}
 
-}
+	private class ResultHandlerCallable implements Callable<Boolean>{
 
+		private Future<LongRangeValue> future;
+
+		public ResultHandlerCallable(Future<LongRangeValue> future){
+			this.future = future;
+		}
+
+		@Override
+		public Boolean call() throws Exception {
+
+			LongRangeValue lrv = future.get(timeoutSecs, TimeUnit.SECONDS);
+			if(lrv != null)
+				rh.attachResult(lrv);
+			else
+				throw new Exception("Null result.");
+
+			return true;
+		}
+
+	}
+}

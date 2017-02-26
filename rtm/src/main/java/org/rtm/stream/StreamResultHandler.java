@@ -1,5 +1,7 @@
 package org.rtm.stream;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,7 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		if(stream.get(id) != null)
 			logger.error("There's already a result for id=" + id);
 		stream.put(id.getIdAsTypedObject(), tv);
+
 	}
 
 	public Stream<Long> getStream() {

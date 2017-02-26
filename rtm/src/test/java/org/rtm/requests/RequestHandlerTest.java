@@ -2,6 +2,7 @@ package org.rtm.requests;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,14 @@ public class RequestHandlerTest {
 		
 		StreamId sId = new JSONMapper().convertObjectToType(response.getPayload(), StreamId.class);
 		
+		System.out.println("sleeping...");
+		try {
+			TimeUnit.MILLISECONDS.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Done sleeping.");
 		String result = ssm.getStream(sId).toString();
 		System.out.println("result=" + result);
 		

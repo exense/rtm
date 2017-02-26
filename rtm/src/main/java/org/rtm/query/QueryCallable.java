@@ -3,6 +3,7 @@ package org.rtm.query;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import org.rtm.db.DBClient;
 import org.rtm.request.selection.Selector;
@@ -12,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class QueryCallable implements Callable<LongRangeValue>{
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(QueryCallable.class);
 
@@ -29,11 +30,11 @@ public class QueryCallable implements Callable<LongRangeValue>{
 	}
 
 	@Override
-	public LongRangeValue call() throws Exception {
+	public LongRangeValue call() throws Exception{
 		//logger.debug("Executing QueryCallable for bucket="+ bucket);
 		return produceValueForRange();
 	}
-	
+
 	// Pass accumulators through context to reduce memory footprint
 	public LongRangeValue produceValueForRange(){
 		return new IterableHandler().handle(
