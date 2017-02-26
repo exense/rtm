@@ -56,36 +56,33 @@ public class ParallelRangeExecutor {
 	public void processRangeSingleLevelBlocking() throws Exception{
 
 		this.el = ExecutionLevel.SINGLE;
-		//TODO: get threading & timeout values from prop
 		executeQueryParallelBlocking();
 	}
 
 	public void processRangeDoubleLevelBlocking() throws Exception{
 
 		this.el = ExecutionLevel.DOUBLE;
-		//TODO: get threading & timeout values from prop
 		executeQueryParallelBlocking();
 	}
 
 	private void executeQueryParallelBlocking() throws Exception{
 
-		ExecutorService taskCreatorPool = Executors.newFixedThreadPool(nbThreads);
-		ExecutorService queryExecutorPool = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService splitterPool = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService executionPool = Executors.newFixedThreadPool(nbThreads);
 		ConcurrentMap<Long, Future<LongRangeValue>> results = new ConcurrentHashMap<>();
 
 		List<RangeTaskCreator> creatorsList = new ArrayList<>();
 		
 		IntStream.rangeClosed(1, nbThreads).forEach(i -> {
-			creatorsList.add(new RangeTaskCreator(queryExecutorPool, results));
+			creatorsList.add(new RangeTaskCreator(executionPool, results));
 		});
 		
-		taskCreatorPool.invokeAll(creatorsList);
-		taskCreatorPool.shutdown();
-		taskCreatorPool.awaitTermination(30, TimeUnit.SECONDS);
-
-		//logger.debug( this.id + ": Result size: " + results.size());
-		
-		results.values().stream().forEach(f -> {
+		splitterPool.invokeAll(creatorsList);
+		splitterPool.shutdown();
+		splitterPool.awaitTermination(30, TimeUnit.SECONDS);
+	
+		results.values().stream().parallel().forEach(f -> {
+			logger.debug(Thread.currentThread().toString());
 			try {
 				LongRangeValue lrv = f.get();
 				if(lrv != null)
@@ -98,8 +95,8 @@ public class ParallelRangeExecutor {
 			}
 		});
 	
-		queryExecutorPool.shutdown();
-		queryExecutorPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
+		executionPool.shutdown();
+		executionPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
 		
 		if(this.potentialException != null)
 			throw this.potentialException;
