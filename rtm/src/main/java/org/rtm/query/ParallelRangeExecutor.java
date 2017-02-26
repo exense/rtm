@@ -2,8 +2,6 @@ package org.rtm.query;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,11 +27,13 @@ public class ParallelRangeExecutor {
 	private OptimisticLongPartitioner olp;
 	private long intervalSize;
 	private ExecutionLevel el = null;
+	private String id;
 
 	@SuppressWarnings("unused")
 	private Exception potentialException = null;
 
-	public ParallelRangeExecutor(LongTimeInterval effective, long intervalSize){
+	public ParallelRangeExecutor(String id, LongTimeInterval effective, long intervalSize){
+		this.id = id;
 		this.intervalSize = intervalSize;
 		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), intervalSize);
 	}
@@ -60,33 +60,32 @@ public class ParallelRangeExecutor {
 	// this means a flag collection will need to be updated to share status / progress information
 	private void executeQueryParallel(int nbThreads, long timeoutSecs,
 			ResultHandler<Long> rh, List<Selector> sel, Properties requestProp) throws Exception{
-		ConcurrentMap<Long,Callable<LongRangeValue>> tasks = new ConcurrentHashMap<>();
+
 		ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
-		IntStream.rangeClosed(1, nbThreads).parallel().forEach(
+		IntStream.rangeClosed(1, nbThreads).forEach(
 				i -> {
+					System.out.println(this.id + "; Thread " + Thread.currentThread() + "; Iteration " + i);
 					while(olp.hasNext()){
 						RangeBucket<Long> bucket = olp.next();
 						if(bucket != null){ // due to optimistic hasNext
 
 							Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);
-							tasks.put(bucket.getIdAsTypedObject(), task);
+							LongRangeValue lrv = null;
+							try {
+								lrv = executor.submit(task).get(timeoutSecs, TimeUnit.SECONDS);
+								if(lrv != null)
+									rh.attachResult(lrv);
+								else
+									throw new Exception("Null result.");
+							} catch (Exception e) {
+								logger.error(this.id + "; Failed to process task for bucket: " + bucket, e);
+								this.potentialException = e;
+							}
 						}
 					}
 				});
 
-		executor.invokeAll(tasks.values(), timeoutSecs, TimeUnit.SECONDS).stream().parallel().forEach(f -> {
-			LongRangeValue tv = null;
-			try {
-				tv = f.get();
-				if(tv != null){
-					rh.attachResult(tv);
-				}else{
-					this.potentialException = new Exception("Null result.");
-				}
-			} catch (Exception e) {
-				potentialException = e;
-			} 
-		});
+		executor.shutdown();
 	}
 
 	private Callable<LongRangeValue> buildTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {

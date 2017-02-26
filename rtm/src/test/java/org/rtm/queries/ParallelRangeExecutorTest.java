@@ -24,7 +24,7 @@ public class ParallelRangeExecutorTest {
 		
 		long optimalSize = DBClient.computeOptimalIntervalSize(lti.getSpan(), 20);
 		
-		ParallelRangeExecutor tpe = new ParallelRangeExecutor(lti, optimalSize);
+		ParallelRangeExecutor tpe = new ParallelRangeExecutor("e2etest", lti, optimalSize);
 		
 		Stream<Long> stream = new Stream<Long>();
 		ResultHandler<Long> rh = new StreamResultHandler(stream);

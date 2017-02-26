@@ -45,7 +45,7 @@ public class SubQueryCallable extends QueryCallable {
 		super(sel, bucket, requestProp);
 		this.taskId = UUID.randomUUID();
 		this.subRangeSize = subRangeSize;
-		pre = new ParallelRangeExecutor(RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize);
+		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize);
 		//logger.debug("Creating Callable for bucket="+ super.bucket+ "; with subbucket=" + this.subRangeSize);
 		this.subResults = new Stream<>();
 	}
