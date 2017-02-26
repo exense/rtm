@@ -2,9 +2,13 @@ package org.rtm.query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -65,27 +69,43 @@ public class ParallelRangeExecutor {
 
 	private void executeQueryParallelBlocking() throws Exception{
 
-		ExecutorService taskCreators = Executors.newFixedThreadPool(nbThreads);
-		ExecutorService rangeExecutors = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService taskCreatorPool = Executors.newFixedThreadPool(nbThreads);
+		ExecutorService queryExecutorPool = Executors.newFixedThreadPool(nbThreads);
+		ConcurrentMap<Long, Future<LongRangeValue>> results = new ConcurrentHashMap<>();
 
 		List<RangeTaskCreator> creatorsList = new ArrayList<>();
 		
 		IntStream.rangeClosed(1, nbThreads).forEach(i -> {
-			creatorsList.add(new RangeTaskCreator(rangeExecutors));
+			creatorsList.add(new RangeTaskCreator(queryExecutorPool, results));
 		});
 		
-		taskCreators.invokeAll(creatorsList);
-		taskCreators.shutdown();
-		taskCreators.awaitTermination(30, TimeUnit.SECONDS);
+		taskCreatorPool.invokeAll(creatorsList);
+		taskCreatorPool.shutdown();
+		taskCreatorPool.awaitTermination(30, TimeUnit.SECONDS);
 
-		rangeExecutors.shutdown();
-		rangeExecutors.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
+		//logger.debug( this.id + ": Result size: " + results.size());
+		
+		results.values().stream().forEach(f -> {
+			try {
+				LongRangeValue lrv = f.get();
+				if(lrv != null)
+					rh.attachResult(lrv);
+				else
+					throw new Exception("Null result.");
+			} catch (Exception e) {
+				logger.error("Exception while processing task.");
+				this.potentialException = e;
+			}
+		});
+	
+		queryExecutorPool.shutdown();
+		queryExecutorPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
 		
 		if(this.potentialException != null)
 			throw this.potentialException;
 	}
 
-	private Callable<LongRangeValue> buildTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
+	private Callable<LongRangeValue> buildQueryTask(List<Selector> sel, RangeBucket<Long> bucket, Properties requestProp) {
 
 		Callable<LongRangeValue> task = null;
 
@@ -94,9 +114,10 @@ public class ParallelRangeExecutor {
 			task = new QueryCallable(sel, bucket, requestProp);
 			//logger.debug("Built QueryTask for bucket="+bucket+";");
 			break;
-		case DOUBLE: //TODO: get ratio from prop
-			long subsize = Math.abs(this.intervalSize / 10);
-			task = new SubQueryCallable(sel, bucket, requestProp, subsize);
+		case DOUBLE: //TODO: get ratio & threads from prop
+			int parallelizationLevel = 3;
+			long subsize = Math.abs(this.intervalSize / parallelizationLevel);
+			task = new SubQueryCallable(sel, bucket, requestProp, subsize, parallelizationLevel);
 			//logger.debug("Built SubQueryTask for bucket="+bucket+"; with sub-interval size= " + subsize);
 			break;
 		}
@@ -107,32 +128,34 @@ public class ParallelRangeExecutor {
 	private class RangeTaskCreator implements Callable<Boolean>{
 		
 		private ExecutorService executor;
+		private ConcurrentMap<Long, Future<LongRangeValue>> results;
+		private String id = ((Long)UUID.randomUUID().getMostSignificantBits()).toString();
 		
-		protected RangeTaskCreator(ExecutorService executor){
+		protected RangeTaskCreator(ExecutorService executor, ConcurrentMap<Long, Future<LongRangeValue>> results){
 			this.executor = executor;
+			this.results = results;
 		}
 
 		@Override
 		public Boolean call() {
 			//logger.debug("RangeTaskCreator executing.");
+			int submissions = 0;
 			while(olp.hasNext()){
 				RangeBucket<Long> bucket = olp.next();
 				if(bucket != null){ // due to optimistic hasNext
 
-					Callable<LongRangeValue> task = buildTask(sel, bucket, requestProp);
-					LongRangeValue lrv = null;
+					Callable<LongRangeValue> task = buildQueryTask(sel, bucket, requestProp);
 					try {
-						lrv = executor.submit(task).get(timeoutSecs, TimeUnit.SECONDS);
-						if(lrv != null)
-							rh.attachResult(lrv);
-						else
-							throw new Exception("Null result.");
+						results.put(bucket.getLowerBound(),  executor.submit(task));
 					} catch (Exception e) {
 						logger.error(id + "; Failed to process task for bucket: " + bucket, e);
 						potentialException = e;
 					}
 				}
+				submissions++;
 			}
+			
+			//logger.debug("Task #" + this.id + " submitted " + submissions + " tasks.");
 			return true;
 			
 		}

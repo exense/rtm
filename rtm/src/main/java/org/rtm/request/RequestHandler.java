@@ -32,15 +32,15 @@ public class RequestHandler {
 
 		AbstractResponse r = null;
 
-		int threadNb = 10;
+		int threadNb = 3;
 		long timeout = 10L;
 		
 		try {
 			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
 			//TODO: allow for custom interval size via prop
-			//logger.debug("effective: " + effective);
+			logger.debug("effective: " + effective + "; span=" + effective.getSpan());
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
-			//logger.debug("optimal: " + optimalSize);
+			logger.debug("optimal: " + optimalSize);
 			
 
 			Stream<Long> stream = new Stream<>();
@@ -49,7 +49,7 @@ public class RequestHandler {
 					threadNb, timeout, rh, sel, prop);
 			
 			//TODO: move to unblocking version
-			executor.processRangeDoubleLevelBlocking();
+			executor.processRangeSingleLevelBlocking();
 			
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 			
