@@ -144,7 +144,7 @@ public class RangePartitionerTest{
 	@Test
 	public void longLoopTest()throws InterruptedException, ExecutionException{
 		
-		int duration = 30; // SECONDS
+		int duration = 10; // SECONDS
 		
 		ExecutorService executor = Executors.newFixedThreadPool(1);
 		Future<?> f = executor.submit(()->{try {

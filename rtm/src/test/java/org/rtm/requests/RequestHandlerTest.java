@@ -33,7 +33,7 @@ public class RequestHandlerTest {
 		
 		AbstractResponse response = rh.handle(ar);
 		
-		//System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
+		System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
 		
 		// -- NETWORK ROUND TRIP --
 		

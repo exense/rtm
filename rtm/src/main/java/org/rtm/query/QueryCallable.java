@@ -31,6 +31,7 @@ public class QueryCallable implements Callable<LongRangeValue>{
 
 	@Override
 	public LongRangeValue call() throws Exception {
+		//logger.debug("QueryCallable executing.");
 		return produceValueForRange();
 	}
 	
