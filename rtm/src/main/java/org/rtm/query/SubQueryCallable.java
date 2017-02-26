@@ -54,12 +54,12 @@ public class SubQueryCallable extends QueryCallable {
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
 		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
-				this.parallelizationLevel, 5L, subHandler, super.sel, requestProp);
+				this.parallelizationLevel, 60L, subHandler, super.sel, requestProp);
 	}
 	
 	@Override
 	public LongRangeValue call() throws Exception {
-		logger.debug("Executing SubQueryCallable for bucket="+ bucket);
+		//logger.debug("Executing SubQueryCallable for bucket="+ bucket);
 		produceAllValuesForRange();
 		//TODO:Figure out why parallel merge on concurrent hash map fails (forgets results)
 		LongRangeValue lrv = mergeSubResults();

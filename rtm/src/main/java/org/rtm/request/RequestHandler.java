@@ -33,7 +33,7 @@ public class RequestHandler {
 		AbstractResponse r = null;
 
 		int threadNb = 3;
-		long timeout = 10L;
+		long timeout = 60L;
 		
 		try {
 			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
@@ -49,7 +49,7 @@ public class RequestHandler {
 					threadNb, timeout, rh, sel, prop);
 			
 			//TODO: move to unblocking version
-			executor.processRangeSingleLevelBlocking();
+			executor.processRangeDoubleLevelBlocking();
 			
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 			
