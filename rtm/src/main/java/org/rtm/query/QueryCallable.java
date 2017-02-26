@@ -26,12 +26,11 @@ public class QueryCallable implements Callable<LongRangeValue>{
 		this.prop = requestProp;
 		this.sel = sel;
 		this.query = DBClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
-		//logger.debug("Creating Callable for bucket="+ bucket);
 	}
 
 	@Override
 	public LongRangeValue call() throws Exception {
-		//logger.debug("QueryCallable executing.");
+		//logger.debug("Executing QueryCallable for bucket="+ bucket);
 		return produceValueForRange();
 	}
 	

@@ -41,24 +41,25 @@ public class SubQueryCallable extends QueryCallable {
 	private ParallelRangeExecutor pre;
 	private UUID taskId;
 	private Properties prop;
+	private int parallelizationLevel;
 	
 	public SubQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
-			Properties requestProp, long subRangeSize) {
+			Properties requestProp, long subRangeSize, int parallelizationLevel) {
 		super(sel, bucket, requestProp);
 		this.taskId = UUID.randomUUID();
 		this.subRangeSize = subRangeSize;
 		this.prop = requestProp;
-		
+		this.parallelizationLevel = parallelizationLevel;
 		this.subResults = new Stream<>();
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
 		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
-				10, 5L, subHandler, super.sel, requestProp);
+				this.parallelizationLevel, 5L, subHandler, super.sel, requestProp);
 	}
 	
 	@Override
 	public LongRangeValue call() throws Exception {
-		//logger.debug("SubQueryCallable executing.");
+		logger.debug("Executing SubQueryCallable for bucket="+ bucket);
 		produceAllValuesForRange();
 		//TODO:Figure out why parallel merge on concurrent hash map fails (forgets results)
 		LongRangeValue lrv = mergeSubResults();
