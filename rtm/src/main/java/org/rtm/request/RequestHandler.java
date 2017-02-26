@@ -41,7 +41,7 @@ public class RequestHandler {
 			//logger.debug("effective: " + effective);
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 30);
 			//logger.debug("optimal: " + optimalSize);
-			ParallelRangeExecutor executor = new ParallelRangeExecutor(effective, optimalSize);
+			ParallelRangeExecutor executor = new ParallelRangeExecutor("requestExecutor", effective, optimalSize);
 			
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
