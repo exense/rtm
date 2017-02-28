@@ -14,7 +14,6 @@ import org.rtm.stream.result.ResultHandler;
 public abstract class SEHCallableBuilder{
 
 	public abstract SplitCallable buildSplitCallable(ExecutorService in, ConcurrentMap<Long, Future> out);
-	
 	public abstract ExecuteCallable buildExecuteCallable(RangeBucket<Long> bucket);
 	public abstract HarvestCallable buildHarvestCallable(ResultHandler rh, Future f);
 }

@@ -6,7 +6,7 @@ import java.util.Properties;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.seh.SplitExecHarvestPipeline;
 import org.rtm.pipeline.seh.SplitExecHarvestPipeline.BlockingMode;
-import org.rtm.pipeline.seh.builders.SingleLevelMongoBuilder;
+import org.rtm.pipeline.seh.builders.SubpartitionedMongoBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 public class RequestHandler {
 
 	private StreamBroker ssm;
-
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
 	public RequestHandler(StreamBroker ssm){
@@ -27,39 +26,28 @@ public class RequestHandler {
 	}
 
 	public AbstractResponse handle(AggregationRequest aggReq){
-		
 		List<Selector> sel = aggReq.getSelectors();
 		LongTimeInterval lti = aggReq.getTimeWindow();
 		Properties prop = aggReq.getProperties();
-
 		AbstractResponse r = null;
 
-		int threadNb = 3;
-		long timeout = 60L;
-		
 		try {
 			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
-			//TODO: allow for custom interval size via prop
-			logger.debug("effective: " + effective + "; span=" + effective.getSpan());
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
-			logger.debug("optimal: " + optimalSize);
-			
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
-			
-			SingleLevelMongoBuilder builder = new SingleLevelMongoBuilder(
+
+			SubpartitionedMongoBuilder builder = new SubpartitionedMongoBuilder(
 					effective.getBegin(),
 					effective.getEnd(),
 					optimalSize,
 					sel,
-					prop);
+					prop,
+					3,
+					3);
 					
-			SplitExecHarvestPipeline pipeline = new SplitExecHarvestPipeline(builder, 3, rh, BlockingMode.BLOCKING);
-			
-			pipeline.processRange();
-			
+			new SplitExecHarvestPipeline(builder, 3, rh, BlockingMode.NON_BLOCKING).processRange();
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
-			
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
 			logger.error(message, e);
