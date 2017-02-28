@@ -4,12 +4,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.DBClient;
-import org.rtm.measurement.MergingAccumulator;
 import org.rtm.pipeline.SplitExecHarvestPipeline;
 import org.rtm.pipeline.SplitExecHarvestPipeline.BlockingMode;
-import org.rtm.pipeline.builders.MergingSubpartitionedMongoBuilder;
-import org.rtm.pipeline.builders.SharingSubpartitionedMongoBuilder;
-import org.rtm.pipeline.builders.SimpleMongoBuilder;
+import org.rtm.pipeline.builders.SubpartitionedMongoBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -39,25 +36,19 @@ public class RequestHandler {
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
-
-			SimpleMongoBuilder builder = new SimpleMongoBuilder(
-					effective.getBegin(),
-					effective.getEnd(),
-					optimalSize,
-					sel,
-					new MergingAccumulator(prop));
-			/*
-			MergingSubpartitionedMongoBuilder builder = new MergingSubpartitionedMongoBuilder(
+			
+			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
+			SubpartitionedMongoBuilder builder = new SubpartitionedMongoBuilder(
 					effective.getBegin(),
 					effective.getEnd(),
 					optimalSize,
 					sel,
 					prop,
-					2,
-					1);*/
+					3,
+					3);
 
 					
-			new SplitExecHarvestPipeline(builder, 1, rh, BlockingMode.NON_BLOCKING).processRange();
+			new SplitExecHarvestPipeline(builder, 3, rh, BlockingMode.NON_BLOCKING).processRange();
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 

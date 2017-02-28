@@ -34,4 +34,8 @@ public class SharingAccumulator extends MeasurementAccumulator{
 		//this handle is not supposed to be used (signature compliance)
 		return this.sc;
 	}
+	
+	public String toString(){
+		return sc.getStreamPayloadIdentifier().getIdAsTypedObject().toString();
+	}
 }
