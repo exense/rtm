@@ -1,4 +1,4 @@
-package org.rtm.stats;
+package org.rtm.measurement;
 
 public class MeasurementStatistics {
 

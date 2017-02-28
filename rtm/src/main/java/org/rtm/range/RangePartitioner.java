@@ -1,4 +1,4 @@
-package org.rtm.time;
+package org.rtm.range;
 
 public abstract class RangePartitioner<T extends Comparable<T>> {
 	

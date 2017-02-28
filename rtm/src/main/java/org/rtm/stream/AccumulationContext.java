@@ -16,17 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.time;
+package org.rtm.stream;
 
-/**
- * @author doriancransac
- *
- */
+import org.rtm.range.Identifier;
 
-public interface Identifier<T> extends Comparable<T>{
+public class AccumulationContext extends LongRangeValue{
+
+	private static final long serialVersionUID = -1234819766224267981L;
 	
-	public Identifier<T> getId();
-	public T getIdAsTypedObject();
-	//TODO: getIdAsHash();
-
+	public AccumulationContext(Identifier<Long> id){
+		super(id);
+	}
+	
+	public Dimension getAccHelperForDimension(String dimensionName){
+		return super.getDimension(dimensionName);
+	}
+	
+	public void outerMerge(){
+		this.values().stream().forEach(d -> {
+			d.copyAndFlush();
+		});
+	} 
+	
 }

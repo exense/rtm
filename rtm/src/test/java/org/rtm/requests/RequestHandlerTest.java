@@ -7,13 +7,13 @@ import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.RequestHandler;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
-import org.rtm.time.LongTimeInterval;
 import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 

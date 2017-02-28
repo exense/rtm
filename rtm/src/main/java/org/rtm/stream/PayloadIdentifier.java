@@ -18,7 +18,7 @@
  *******************************************************************************/
 package org.rtm.stream;
 
-import org.rtm.time.Identifier;
+import org.rtm.range.Identifier;
 
 /**
  * @author doriancransac

@@ -1,11 +1,11 @@
-package org.rtm.query;
+package org.rtm.pipeline.callable;
 
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.time.RangeBucket;
 
 public class SharedParallelQueryCallable extends ParallelQueryCallable {
 

@@ -7,9 +7,8 @@ import java.util.Map;
 import org.bson.Document;
 import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.MeasurementConstants;
-import org.rtm.query.BsonQuery;
+import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
-import org.rtm.time.LongTimeInterval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

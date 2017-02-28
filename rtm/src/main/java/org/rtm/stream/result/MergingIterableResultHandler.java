@@ -1,12 +1,12 @@
-package org.rtm.query;
+package org.rtm.stream.result;
 
 import java.util.Map;
 import java.util.Properties;
 
 import org.rtm.commons.MeasurementConstants;
+import org.rtm.range.RangeBucket;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.time.RangeBucket;
 
 @SuppressWarnings("rawtypes")
 public class MergingIterableResultHandler extends IterableResultHandler{

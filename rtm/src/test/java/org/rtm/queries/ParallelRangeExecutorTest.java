@@ -5,14 +5,14 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 import org.rtm.db.DBClient;
-import org.rtm.query.ParallelRangeExecutor;
-import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
-import org.rtm.query.ParallelRangeExecutor.ExecutionType;
+import org.rtm.pipeline.RangeSplittingPipeline;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionLevel;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionType;
+import org.rtm.range.time.LongTimeInterval;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
-import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
-import org.rtm.stream.StreamResultHandler;
-import org.rtm.time.LongTimeInterval;
+import org.rtm.stream.result.ResultHandler;
+import org.rtm.stream.result.StreamResultHandler;
 import org.rtm.utils.DateUtils;
 
 public class ParallelRangeExecutorTest {
@@ -29,7 +29,7 @@ public class ParallelRangeExecutorTest {
 		Stream<Long> stream = new Stream<Long>();
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-		ParallelRangeExecutor tpe = new ParallelRangeExecutor("e2etest", lti, optimalSize, 5,
+		RangeSplittingPipeline tpe = new RangeSplittingPipeline("e2etest", lti, optimalSize, 5,
 				10L, rh, TestSelectorBuilder.buildSimpleSelectorList(),
 				ExecutionLevel.DOUBLE, ExecutionType.NON_BLOCKING,
 				null);
