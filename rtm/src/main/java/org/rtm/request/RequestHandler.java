@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import org.rtm.db.DBClient;
 import org.rtm.query.ParallelRangeExecutor;
+import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
+import org.rtm.query.ParallelRangeExecutor.ExecutionType;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
@@ -46,10 +48,12 @@ public class RequestHandler {
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			ParallelRangeExecutor executor = new ParallelRangeExecutor("requestExecutor", effective, optimalSize,
-					threadNb, timeout, rh, sel, prop);
+					threadNb, timeout, rh, sel,
+					ExecutionLevel.DOUBLE, ExecutionType.NON_BLOCKING,
+					prop);
 			
 			//TODO: move to unblocking version
-			executor.processRangeDoubleLevelBlocking();
+			executor.processRange();
 			
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 			

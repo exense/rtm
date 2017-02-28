@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
+import org.rtm.query.ParallelRangeExecutor.ExecutionType;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
@@ -54,7 +56,9 @@ public class SubQueryCallable extends QueryCallable {
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
 		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
-				this.parallelizationLevel, 60L, subHandler, super.sel, requestProp);
+				this.parallelizationLevel, 60L, subHandler, super.sel,
+				ExecutionLevel.SINGLE, ExecutionType.BLOCKING,
+				requestProp);
 	}
 	
 	@Override
@@ -106,7 +110,7 @@ public class SubQueryCallable extends QueryCallable {
 
 	public void produceAllValuesForRange() throws Exception{
 		//logger.debug("[" + this.taskId.toString() + "] Producing values now..");
-		pre.processRangeSingleLevelBlocking();
+		pre.processRange();
 	}
 	
 

@@ -6,6 +6,8 @@ import java.time.temporal.ChronoUnit;
 import org.junit.Test;
 import org.rtm.db.DBClient;
 import org.rtm.query.ParallelRangeExecutor;
+import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
+import org.rtm.query.ParallelRangeExecutor.ExecutionType;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
@@ -28,10 +30,12 @@ public class ParallelRangeExecutorTest {
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 		ParallelRangeExecutor tpe = new ParallelRangeExecutor("e2etest", lti, optimalSize, 5,
-				10L, rh, TestSelectorBuilder.buildSimpleSelectorList(),null);
+				10L, rh, TestSelectorBuilder.buildSimpleSelectorList(),
+				ExecutionLevel.DOUBLE, ExecutionType.NON_BLOCKING,
+				null);
 		
 		try {
-			tpe.processRangeDoubleLevelBlocking();
+			tpe.processRange();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

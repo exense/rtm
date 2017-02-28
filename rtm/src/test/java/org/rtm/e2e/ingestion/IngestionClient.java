@@ -31,11 +31,11 @@ public class IngestionClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(IngestionClient.class);
 
-	MeasurementAccessor ma;
-	TransportClient tc;
+	static MeasurementAccessor ma;
+	static TransportClient tc;
 
-	String hostname = "localhost";
-	int port = 8099;
+	static String hostname = "localhost";
+	static int port = 8099;
 
 	static boolean init = false;
 
