@@ -2,6 +2,7 @@ package org.rtm.stream;
 
 import java.util.HashMap;
 
+import org.rtm.measurement.LongAccumulationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

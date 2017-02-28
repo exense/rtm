@@ -1,4 +1,4 @@
-package org.rtm.pipeline.split.callable;
+package org.rtm.pipeline.split;
 
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.rtm.pipeline.seh.builders.SEHCallableBuilder;
+import org.rtm.pipeline.builders.SEHCallableBuilder;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;

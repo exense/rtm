@@ -1,21 +1,19 @@
-package org.rtm.stream.result;
+package org.rtm.measurement;
 
 import java.util.Map;
 import java.util.Properties;
 
-import org.rtm.measurement.MeasurementHelper;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.Dimension;
-import org.rtm.stream.LongAccumulationHelper;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public abstract class IterableMeasurementHandler {
+public abstract class MeasurementAccumulator {
 	
 	private MeasurementHelper mh;
 	private Properties prop;
 	
-	public IterableMeasurementHandler(Properties prop){
+	public MeasurementAccumulator(Properties prop){
 		this.prop = prop;
 		this.mh = new MeasurementHelper(this.prop);
 	}

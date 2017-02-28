@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 @SuppressWarnings("rawtypes")
 public class StreamBroker {
 	/*
-	 * streamRregistry(ConcurrentMap<StreamedSessionId, _stream_>)
+	 * streamRegistry(ConcurrentMap<StreamedSessionId, _stream_>)
 	 * 			-> stream(ConcurrentMap<Long, _time_>)
 	 *					-> time(ConcurrentMap<String, _dimension_>)
 	 *							-> dimension(Map<String, _data_>)

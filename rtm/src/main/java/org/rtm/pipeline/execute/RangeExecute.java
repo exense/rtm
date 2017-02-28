@@ -1,6 +1,6 @@
-package org.rtm.pipeline.execute.callable;
+package org.rtm.pipeline.execute;
 
-import org.rtm.pipeline.execute.task.RangeTask;
+import org.rtm.pipeline.task.RangeTask;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;
 import org.slf4j.Logger;

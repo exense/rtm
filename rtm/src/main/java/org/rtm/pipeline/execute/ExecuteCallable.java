@@ -1,4 +1,4 @@
-package org.rtm.pipeline.execute.callable;
+package org.rtm.pipeline.execute;
 
 import java.util.concurrent.Callable;
 
