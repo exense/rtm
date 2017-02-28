@@ -1,13 +1,12 @@
 package org.rtm.pipeline.seh.builders;
 
-import java.util.Properties;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.rtm.pipeline.execute.callable.ExecuteCallable;
 import org.rtm.pipeline.execute.callable.RangeExecute;
-import org.rtm.pipeline.execute.task.IterableTask;
+import org.rtm.pipeline.execute.task.RangeTask;
 import org.rtm.pipeline.harvest.callable.HarvestCallable;
 import org.rtm.pipeline.harvest.callable.HarvestCallableImpl;
 import org.rtm.pipeline.split.callable.SplitCallable;
@@ -15,19 +14,15 @@ import org.rtm.pipeline.split.callable.SplitCallableImpl;
 import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
-import org.rtm.stream.result.IterableMeasurementHandler;
-import org.rtm.stream.result.MergingIterableResultHandler;
 import org.rtm.stream.result.ResultHandler;
 
 @SuppressWarnings({"rawtypes","unchecked"})
-public abstract class SingleLevelPartitionedBuilder extends SEHCallableBuilder{
+public abstract class PartitionedBuilder extends SEHCallableBuilder{
 
 	private OptimisticRangePartitioner<Long> orp;
-	private IterableMeasurementHandler handler;
 
-	public SingleLevelPartitionedBuilder(Long start, Long end, Long increment, Properties prop){
+	public PartitionedBuilder(Long start, Long end, Long increment){
 		this.orp = new OptimisticLongPartitioner(start, end, increment);
-		this.handler = new MergingIterableResultHandler(prop);
 	}
 
 	@Override
@@ -37,10 +32,10 @@ public abstract class SingleLevelPartitionedBuilder extends SEHCallableBuilder{
 	
 	@Override
 	public ExecuteCallable buildExecuteCallable(RangeBucket<Long> bucket) {
-		return new RangeExecute(bucket, createTask(), handler);
+		return new RangeExecute(bucket, createTask());
 	}
 
-	protected abstract IterableTask createTask();
+	protected abstract RangeTask createTask();
 
 	@Override
 	public HarvestCallable buildHarvestCallable(ResultHandler rh, Future f) {

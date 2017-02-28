@@ -33,7 +33,7 @@ public class RequestHandlerTest {
 		
 		AbstractResponse response = rh.handle(ar);
 		
-		long sleepTime = 500;
+		long sleepTime = 1000;
 		System.out.println("Intentional delay for main thread : " + sleepTime +" ms.");
 		try {
 			Thread.sleep(sleepTime);
