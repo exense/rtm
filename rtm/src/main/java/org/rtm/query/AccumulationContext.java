@@ -18,6 +18,26 @@
  *******************************************************************************/
 package org.rtm.query;
 
-public class AccumulationContext {
+import org.rtm.stream.Dimension;
+import org.rtm.stream.LongRangeValue;
+import org.rtm.time.Identifier;
 
+public class AccumulationContext extends LongRangeValue{
+
+	private static final long serialVersionUID = -1234819766224267981L;
+	
+	public AccumulationContext(Identifier<Long> id){
+		super(id);
+	}
+	
+	public Dimension getAccHelperForDimension(String dimensionName){
+		return super.getDimension(dimensionName);
+	}
+	
+	public void outerMerge(){
+		this.values().stream().forEach(d -> {
+			d.copyAndFlush();
+		});
+	} 
+	
 }

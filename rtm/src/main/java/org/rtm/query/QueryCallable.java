@@ -3,7 +3,6 @@ package org.rtm.query;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import org.rtm.db.DBClient;
 import org.rtm.request.selection.Selector;
@@ -31,25 +30,8 @@ public class QueryCallable implements Callable<LongRangeValue>{
 
 	@Override
 	public LongRangeValue call() throws Exception{
-		//logger.debug("Executing QueryCallable for bucket="+ bucket);
-		return produceValueForRange();
-	}
-
-	// Pass accumulators through context to reduce memory footprint
-	public LongRangeValue produceValueForRange(){
-
-		long sleepTime = 50;
-		System.out.println("QueryCallable sleeping for : " + sleepTime +" ms.");
-		try {
-			Thread.sleep(sleepTime);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new IterableHandler().handle(
+		return new MergingIterableResultHandler(prop).handle(
 				new DBClient().executeQuery(query),
-				bucket,
-				prop,
-				null);
+				bucket);
 	}
 }
