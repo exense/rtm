@@ -1,16 +1,16 @@
-package org.rtm.pipeline.seh.builders;
+package org.rtm.pipeline.builders;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.rtm.pipeline.execute.callable.ExecuteCallable;
-import org.rtm.pipeline.execute.callable.RangeExecute;
-import org.rtm.pipeline.execute.task.RangeTask;
-import org.rtm.pipeline.harvest.callable.HarvestCallable;
-import org.rtm.pipeline.harvest.callable.HarvestCallableImpl;
-import org.rtm.pipeline.split.callable.SplitCallable;
-import org.rtm.pipeline.split.callable.SplitCallableImpl;
+import org.rtm.pipeline.execute.ExecuteCallable;
+import org.rtm.pipeline.execute.RangeExecute;
+import org.rtm.pipeline.harvest.HarvestCallable;
+import org.rtm.pipeline.harvest.HarvestCallableImpl;
+import org.rtm.pipeline.split.SplitCallable;
+import org.rtm.pipeline.split.SplitCallableImpl;
+import org.rtm.pipeline.task.RangeTask;
 import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
@@ -39,6 +39,6 @@ public abstract class PartitionedBuilder extends SEHCallableBuilder{
 
 	@Override
 	public HarvestCallable buildHarvestCallable(ResultHandler rh, Future f) {
-		return new HarvestCallableImpl(rh, f, 3); //TODO: get timeout from props
+		return new HarvestCallableImpl(rh, f, 30); //TODO: get timeout from props
 	}
 }

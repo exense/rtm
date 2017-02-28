@@ -1,4 +1,4 @@
-package org.rtm.pipeline.harvest.callable;
+package org.rtm.pipeline.harvest;
 
 import java.util.concurrent.Callable;
 

@@ -1,32 +1,37 @@
-package org.rtm.stream.result;
+package org.rtm.measurement;
 
 import java.util.Map;
 import java.util.Properties;
 
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.range.RangeBucket;
-import org.rtm.stream.AccumulationContext;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public class SharingIterableResultHandler extends IterableMeasurementHandler{
+public class SharingAccumulator extends MeasurementAccumulator{
 
 	private AccumulationContext sc;
 	
-	public SharingIterableResultHandler(Properties prop, AccumulationContext sc){
+	public SharingAccumulator(Properties prop, RangeBucket<Long> myBucket){
 		super(prop);
-		this.sc = sc;
+		sc = new AccumulationContext(myBucket);
+	}
+
+	public AccumulationContext getAccumulationContext() {
+		return sc;
 	}
 
 	public LongRangeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket) {
+		
 		for(Map m : iterable){
+			//TODO: get value key from prop
 			Long accValue = (Long)m.get(MeasurementConstants.VALUE_KEY);
-			Dimension d = getOrInitDimension(sc, m);
+			Dimension d = getOrInitDimension(this.sc, m);
 			accumulateStats(d, accValue);
 		}
 		
 		//this handle is not supposed to be used (signature compliance)
-		return sc;
+		return this.sc;
 	}
 }

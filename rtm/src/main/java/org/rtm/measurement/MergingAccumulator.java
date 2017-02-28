@@ -1,4 +1,4 @@
-package org.rtm.stream.result;
+package org.rtm.measurement;
 
 import java.util.Map;
 import java.util.Properties;
@@ -9,9 +9,9 @@ import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public class MergingIterableResultHandler extends IterableMeasurementHandler{
+public class MergingAccumulator extends MeasurementAccumulator{
 	
-	public MergingIterableResultHandler(Properties prop){
+	public MergingAccumulator(Properties prop){
 		super(prop);
 	}
 

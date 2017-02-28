@@ -1,7 +1,5 @@
 package org.rtm.stream.result;
 
-import java.util.concurrent.TimeUnit;
-
 import org.rtm.stream.AggregationResult;
 import org.rtm.stream.PayloadIdentifier;
 import org.rtm.stream.Stream;
@@ -22,7 +20,7 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		//logger.debug("Result from " + tv.getStreamPayloadIdentifier().getIdAsTypedObject().toString().substring(7, 13) + " = "+ tv);
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
 		if(stream.get(id) != null)
-			logger.error("There's already a result for id=" + id);
+			logger.error("There's already a result for id=" + id.getIdAsTypedObject());
 		stream.put(id.getIdAsTypedObject(), tv);
 
 	}

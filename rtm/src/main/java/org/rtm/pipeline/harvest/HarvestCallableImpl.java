@@ -1,4 +1,4 @@
-package org.rtm.pipeline.harvest.callable;
+package org.rtm.pipeline.harvest;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;

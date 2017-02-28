@@ -1,4 +1,4 @@
-package org.rtm.pipeline.seh;
+package org.rtm.pipeline;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,8 +9,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.rtm.pipeline.seh.builders.SEHCallableBuilder;
-import org.rtm.pipeline.split.callable.SplitCallable;
+import org.rtm.pipeline.builders.SEHCallableBuilder;
+import org.rtm.pipeline.split.SplitCallable;
 import org.rtm.stream.result.ResultHandler;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
