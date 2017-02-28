@@ -10,7 +10,7 @@ import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public class SharingIterableResultHandler extends IterableResultHandler{
+public class SharingIterableResultHandler extends IterableMeasurementHandler{
 
 	private AccumulationContext sc;
 	

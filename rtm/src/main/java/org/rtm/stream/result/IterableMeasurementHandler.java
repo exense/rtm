@@ -10,12 +10,12 @@ import org.rtm.stream.LongAccumulationHelper;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public abstract class IterableResultHandler {
+public abstract class IterableMeasurementHandler {
 	
 	private MeasurementHelper mh;
 	private Properties prop;
 	
-	public IterableResultHandler(Properties prop){
+	public IterableMeasurementHandler(Properties prop){
 		this.prop = prop;
 		this.mh = new MeasurementHelper(this.prop);
 	}

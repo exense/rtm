@@ -9,7 +9,7 @@ import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public class MergingIterableResultHandler extends IterableResultHandler{
+public class MergingIterableResultHandler extends IterableMeasurementHandler{
 	
 	public MergingIterableResultHandler(Properties prop){
 		super(prop);

@@ -2,7 +2,7 @@ package org.rtm.range;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class OptimisticLongPartitioner extends RangePartitioner<Long>{
+public class OptimisticLongPartitioner extends OptimisticRangePartitioner<Long>{
 	
 	private AtomicLong al;
 
