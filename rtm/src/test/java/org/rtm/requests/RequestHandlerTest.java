@@ -1,9 +1,7 @@
 package org.rtm.requests;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +32,15 @@ public class RequestHandlerTest {
 		RequestHandler rh = new RequestHandler(ssm);
 		
 		AbstractResponse response = rh.handle(ar);
+		
+		long sleepTime = 3000;
+		System.out.println("Intentional delay for main thread : " + sleepTime +" ms.");
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
 		

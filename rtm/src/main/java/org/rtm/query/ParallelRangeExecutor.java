@@ -84,12 +84,27 @@ public class ParallelRangeExecutor {
 		});
 
 		executionPool.shutdown();
-		executionPool.awaitTermination(30, TimeUnit.SECONDS);
+		if(this.et.equals(ExecutionType.BLOCKING)){
+			long start = System.currentTimeMillis();
+			logger.debug(id + ": [ExecutionPool] Blocking now.");
+			executionPool.awaitTermination(30, TimeUnit.SECONDS);
+			logger.debug(id + ": [ExecutionPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
+		}
+		else
+			logger.debug(id + ": [ExecutionPool] Not blocking.");
+
+
 
 		resultPool.shutdown();
-		if(this.et.equals(ExecutionType.BLOCKING))
+		if(this.et.equals(ExecutionType.BLOCKING)){
+			long start = System.currentTimeMillis();
+			logger.debug(id + ": [ResultPool] Blocking now.");
 			resultPool.awaitTermination(30, TimeUnit.SECONDS);
-
+			logger.debug(id + ": [ResultPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
+		}
+		else
+			logger.debug(id + ": Not blocking.");
+			
 		if(this.potentialException != null)
 			throw this.potentialException;
 	}

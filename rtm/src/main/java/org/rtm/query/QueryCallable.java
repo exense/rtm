@@ -37,6 +37,15 @@ public class QueryCallable implements Callable<LongRangeValue>{
 
 	// Pass accumulators through context to reduce memory footprint
 	public LongRangeValue produceValueForRange(){
+
+		long sleepTime = 50;
+		System.out.println("QueryCallable sleeping for : " + sleepTime +" ms.");
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new IterableHandler().handle(
 				new DBClient().executeQuery(query),
 				bucket,
