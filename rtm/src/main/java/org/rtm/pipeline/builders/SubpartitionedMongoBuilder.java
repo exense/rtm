@@ -3,18 +3,18 @@ package org.rtm.pipeline.builders;
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.pipeline.task.PartitionedQueryTask;
 import org.rtm.pipeline.task.RangeTask;
-import org.rtm.pipeline.task.SharingPartitionedQueryTask;
 import org.rtm.request.selection.Selector;
 
-public class SharingSubpartitionedMongoBuilder extends PartitionedBuilder {
+public class SubpartitionedMongoBuilder extends PartitionedBuilder {
 
 	private List<Selector> selectors;
 	private Properties prop;
 	private long partitioningFactor;
-	private int poolSize;
+	private int poolSize;	
 	
-	public SharingSubpartitionedMongoBuilder(Long start, Long end, Long increment, List<Selector> selectors, Properties prop,
+	public SubpartitionedMongoBuilder(Long start, Long end, Long increment, List<Selector> selectors, Properties prop,
 			long partitioningFactor, int poolSize){
 		super(start, end, increment);
 		this.selectors = selectors;
@@ -25,7 +25,7 @@ public class SharingSubpartitionedMongoBuilder extends PartitionedBuilder {
 
 	@Override
 	protected RangeTask createTask() {
-		return new SharingPartitionedQueryTask(this.selectors, this.prop, this.partitioningFactor, this.poolSize);
+		return new PartitionedQueryTask(this.selectors, this.prop, this.partitioningFactor, this.poolSize);
 	}
 
 }

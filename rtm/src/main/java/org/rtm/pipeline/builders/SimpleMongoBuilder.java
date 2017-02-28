@@ -21,7 +21,6 @@ public class SimpleMongoBuilder extends PartitionedBuilder {
 
 	@Override
 	protected RangeTask createTask() {
-		System.out.println("Task executing with accumulator tagged with:" + ((SharingAccumulator)this.accumulator).getAccumulationContext().getStreamPayloadIdentifier().getIdAsTypedObject());
 		return new SimpleQueryTask(this.selectors, this.accumulator);
 	}
 

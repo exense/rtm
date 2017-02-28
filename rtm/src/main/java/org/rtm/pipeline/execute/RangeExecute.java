@@ -24,7 +24,7 @@ public class RangeExecute extends ExecuteCallable {
 		
 		/**///For test purposes
 		
-		long sleepTime = 10;
+		long sleepTime = 50;
 		System.out.println("QueryCallable sleeping for : " + sleepTime +" ms.");
 		try {
 			Thread.sleep(sleepTime);
