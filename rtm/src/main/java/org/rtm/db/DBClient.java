@@ -62,6 +62,7 @@ public class DBClient {
 		DBClient db = new DBClient();
 		
 		//TODO: get Time key from request Properties
+		//logger.debug(completeQuery.toString());
 		Iterable naturalIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, 1);
 		Iterable reverseIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, -1);
 		

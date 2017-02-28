@@ -1,6 +1,7 @@
 package org.rtm.requests;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -25,8 +26,8 @@ public class RequestHandlerTest {
 	@Test
 	public void basicTest() throws JsonProcessingException{
 		
-		LocalDate today = LocalDate.now();
-		LocalDate twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
+		LocalDateTime today = LocalDateTime.now();
+		LocalDateTime twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), null);
 		StreamBroker ssm = new StreamBroker();
@@ -60,8 +61,8 @@ public class RequestHandlerTest {
 		}
 		System.out.println("sum=" +sumCount);
 		System.out.println("count=" +countTotal);
-		Assert.assertEquals(1084541, sumCount);
-		Assert.assertEquals(543, countTotal);
+		Assert.assertEquals(560124, sumCount);
+		Assert.assertEquals(100, countTotal);
 	}
 
 }

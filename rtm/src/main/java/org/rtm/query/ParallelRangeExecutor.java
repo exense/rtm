@@ -26,12 +26,17 @@ public class ParallelRangeExecutor {
 	public enum ExecutionLevel{
 		SINGLE, DOUBLE;
 	}
+	
+	public enum ExecutionType{
+		BLOCKING, NON_BLOCKING;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ParallelRangeExecutor.class);
 
 	private OptimisticLongPartitioner olp;
 	private long intervalSize;
 	private ExecutionLevel el = null;
+	private ExecutionType et = null;
 	private String id;
 	private int nbThreads;
 	private long timeoutSecs;
@@ -42,7 +47,9 @@ public class ParallelRangeExecutor {
 
 	public ParallelRangeExecutor(String id, LongTimeInterval effective, long intervalSize,
 			int nbThreads, long timeoutSecs,
-			ResultHandler<Long> rh, List<Selector> sel, Properties requestProp){
+			ResultHandler<Long> rh, List<Selector> sel,
+			ExecutionLevel el, ExecutionType et,
+			Properties requestProp){
 		this.id = id;
 		this.nbThreads = nbThreads;
 		this.timeoutSecs = timeoutSecs;
@@ -50,23 +57,12 @@ public class ParallelRangeExecutor {
 		this.sel = sel;
 		this.requestProp = requestProp;
 		this.intervalSize = intervalSize;
+		this.el = el;
+		this.et = et;
 		olp = new OptimisticLongPartitioner(effective.getBegin(), effective.getEnd(), intervalSize);
 	}
 
-	public void processRangeSingleLevelBlocking() throws Exception{
-
-		this.el = ExecutionLevel.SINGLE;
-		executeQueryParallelBlocking();
-	}
-
-	public void processRangeDoubleLevelBlocking() throws Exception{
-
-		this.el = ExecutionLevel.DOUBLE;
-		executeQueryParallelBlocking();
-	}
-
-	//TODO: blocking for QueryCallable, non-blocking for SubQueryCallable?
-	private void executeQueryParallelBlocking() throws Exception{
+	public void processRange() throws Exception{
 
 		ExecutorService splitterPool = Executors.newFixedThreadPool(nbThreads);
 		ExecutorService executionPool = Executors.newFixedThreadPool(nbThreads);
@@ -82,30 +78,17 @@ public class ParallelRangeExecutor {
 		splitterPool.invokeAll(creatorsList);
 		splitterPool.shutdown();
 		splitterPool.awaitTermination(30, TimeUnit.SECONDS);
-/*
+
 		results.values().stream().forEach(future -> {
 			resultPool.submit(new ResultHandlerCallable(future));
 		});
-/*
-/**/
-		results.values().stream().parallel().forEach(f -> {
-			//logger.debug(Thread.currentThread().toString());
-			try {
-				LongRangeValue lrv = f.get();
-				if(lrv != null)
-					rh.attachResult(lrv);
-				else
-					throw new Exception("Null result.");
-			} catch (Exception e) {
-				logger.error("Exception while processing task.");
-				this.potentialException = e;
-			}
-		});
-/**/
+
 		executionPool.shutdown();
-		
 		executionPool.awaitTermination(30, TimeUnit.SECONDS);
+
 		resultPool.shutdown();
+		if(this.et.equals(ExecutionType.BLOCKING))
+			resultPool.awaitTermination(30, TimeUnit.SECONDS);
 
 		if(this.potentialException != null)
 			throw this.potentialException;
