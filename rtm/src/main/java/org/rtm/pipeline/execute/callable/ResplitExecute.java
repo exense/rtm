@@ -16,37 +16,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.pipeline.callable;
+package org.rtm.pipeline.execute.callable;
 
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
-import org.rtm.pipeline.RangeSplittingPipeline;
-import org.rtm.pipeline.RangeSplittingPipeline.ExecutionLevel;
-import org.rtm.pipeline.RangeSplittingPipeline.ExecutionType;
-import org.rtm.range.RangeBucket;
-import org.rtm.request.selection.Selector;
-import org.rtm.stream.Dimension;
-import org.rtm.stream.LongRangeValue;
-import org.rtm.stream.Stream;
-import org.rtm.stream.result.ResultHandler;
-import org.rtm.stream.result.StreamResultHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+public class ResplitExecute {}/*
 @SuppressWarnings("unused")
-public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
-	private static final Logger logger = LoggerFactory.getLogger(ParallelQueryCallable.class);
+public class ResplitExecute extends AbstractProduceMergeExecute {
+	private static final Logger logger = LoggerFactory.getLogger(ResplitExecute.class);
 	private long subRangeSize;
 	
 	private Stream<Long> subResults;
-	private RangeSplittingPipeline pre;
+	private SplitExecHarvestPipeline pre;
 	private UUID taskId;
 	private Properties prop;
 	private int parallelizationLevel;
 	
-	public ParallelQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
+	public ResplitExecute(List<Selector> sel, RangeBucket<Long> bucket,
 			Properties requestProp, long subRangeSize, int parallelizationLevel) {
 		super(sel, bucket, requestProp);
 		this.taskId = UUID.randomUUID();
@@ -56,9 +40,9 @@ public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
 		this.subResults = new Stream<>();
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
-		pre = new RangeSplittingPipeline("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
+		pre = new SplitExecHarvestPipeline("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
 				this.parallelizationLevel, 60L, subHandler, super.sel,
-				ExecutionLevel.SINGLE, ExecutionType.BLOCKING,
+				ExecutionLevel.SINGLE, BlockingMode.BLOCKING,
 				requestProp);
 	}
 	
@@ -105,4 +89,4 @@ public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
 	}
 	
 
-}
+}*/

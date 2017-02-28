@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.DBClient;
-import org.rtm.pipeline.RangeSplittingPipeline;
-import org.rtm.pipeline.RangeSplittingPipeline.ExecutionLevel;
-import org.rtm.pipeline.RangeSplittingPipeline.ExecutionType;
+import org.rtm.pipeline.seh.SplitExecHarvestPipeline;
+import org.rtm.pipeline.seh.SplitExecHarvestPipeline.BlockingMode;
+import org.rtm.pipeline.seh.builders.SingleLevelMongoBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -44,16 +44,19 @@ public class RequestHandler {
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
 			logger.debug("optimal: " + optimalSize);
 			
-
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
-			RangeSplittingPipeline executor = new RangeSplittingPipeline("requestExecutor", effective, optimalSize,
-					threadNb, timeout, rh, sel,
-					ExecutionLevel.DOUBLE, ExecutionType.NON_BLOCKING,
-					prop);
 			
-			//TODO: move to unblocking version
-			executor.processRange();
+			SingleLevelMongoBuilder builder = new SingleLevelMongoBuilder(
+					effective.getBegin(),
+					effective.getEnd(),
+					optimalSize,
+					sel,
+					prop);
+					
+			SplitExecHarvestPipeline pipeline = new SplitExecHarvestPipeline(builder, 3, rh, BlockingMode.BLOCKING);
+			
+			pipeline.processRange();
 			
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 			
