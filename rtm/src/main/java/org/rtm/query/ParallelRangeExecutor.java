@@ -65,6 +65,7 @@ public class ParallelRangeExecutor {
 		executeQueryParallelBlocking();
 	}
 
+	//TODO: blocking for QueryCallable, non-blocking for SubQueryCallable?
 	private void executeQueryParallelBlocking() throws Exception{
 
 		ExecutorService splitterPool = Executors.newFixedThreadPool(nbThreads);
@@ -81,12 +82,28 @@ public class ParallelRangeExecutor {
 		splitterPool.invokeAll(creatorsList);
 		splitterPool.shutdown();
 		splitterPool.awaitTermination(30, TimeUnit.SECONDS);
-
+/*
 		results.values().stream().forEach(future -> {
 			resultPool.submit(new ResultHandlerCallable(future));
 		});
-
+/*
+/**/
+		results.values().stream().parallel().forEach(f -> {
+			//logger.debug(Thread.currentThread().toString());
+			try {
+				LongRangeValue lrv = f.get();
+				if(lrv != null)
+					rh.attachResult(lrv);
+				else
+					throw new Exception("Null result.");
+			} catch (Exception e) {
+				logger.error("Exception while processing task.");
+				this.potentialException = e;
+			}
+		});
+/**/
 		executionPool.shutdown();
+		
 		executionPool.awaitTermination(30, TimeUnit.SECONDS);
 		resultPool.shutdown();
 
