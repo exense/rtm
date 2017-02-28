@@ -86,24 +86,24 @@ public class ParallelRangeExecutor {
 		executionPool.shutdown();
 		if(this.et.equals(ExecutionType.BLOCKING)){
 			long start = System.currentTimeMillis();
-			logger.debug(id + ": [ExecutionPool] Blocking now.");
+			//logger.debug(id + ": [ExecutionPool] Blocking now.");
 			executionPool.awaitTermination(30, TimeUnit.SECONDS);
-			logger.debug(id + ": [ExecutionPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
+			//logger.debug(id + ": [ExecutionPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
 		}
-		else
-			logger.debug(id + ": [ExecutionPool] Not blocking.");
-
-
+		else{
+			//logger.debug(id + ": [ExecutionPool] Not blocking.");
+		}
 
 		resultPool.shutdown();
 		if(this.et.equals(ExecutionType.BLOCKING)){
 			long start = System.currentTimeMillis();
-			logger.debug(id + ": [ResultPool] Blocking now.");
+			//logger.debug(id + ": [ResultPool] Blocking now.");
 			resultPool.awaitTermination(30, TimeUnit.SECONDS);
-			logger.debug(id + ": [ResultPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
+			//logger.debug(id + ": [ResultPool] Finished blocking. Elapse=" + (System.currentTimeMillis() - start));
 		}
-		else
-			logger.debug(id + ": Not blocking.");
+		else{
+			//logger.debug(id + ": Not blocking.");
+		}
 			
 		if(this.potentialException != null)
 			throw this.potentialException;
@@ -122,7 +122,7 @@ public class ParallelRangeExecutor {
 			int parallelizationLevel = 3;
 			long projected = Math.abs(this.intervalSize / parallelizationLevel);
 			long subsize =  projected > 0?projected:1L;
-			task = new SubQueryCallable(sel, bucket, requestProp, subsize, parallelizationLevel);
+			task = new ParallelQueryCallable(sel, bucket, requestProp, subsize, parallelizationLevel);
 			//logger.debug("Built SubQueryTask for bucket="+bucket+"; with sub-interval size= " + subsize);
 			break;
 		}
@@ -144,7 +144,7 @@ public class ParallelRangeExecutor {
 		@Override
 		public Boolean call() {
 			//logger.debug("RangeTaskCreator executing.");
-			int submissions = 0;
+			//int submissions = 0;
 			while(olp.hasNext()){
 				RangeBucket<Long> bucket = olp.next();
 				if(bucket != null){ // due to optimistic hasNext
@@ -157,7 +157,7 @@ public class ParallelRangeExecutor {
 						potentialException = e;
 					}
 				}
-				submissions++;
+				//submissions++;
 			}
 
 			//logger.debug("Task #" + this.id + " submitted " + submissions + " tasks.");

@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused")
-public class SubQueryCallable extends QueryCallable {
-	private static final Logger logger = LoggerFactory.getLogger(SubQueryCallable.class);
+public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
+	private static final Logger logger = LoggerFactory.getLogger(ParallelQueryCallable.class);
 	private long subRangeSize;
 	
 	private Stream<Long> subResults;
@@ -45,7 +45,7 @@ public class SubQueryCallable extends QueryCallable {
 	private Properties prop;
 	private int parallelizationLevel;
 	
-	public SubQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
+	public ParallelQueryCallable(List<Selector> sel, RangeBucket<Long> bucket,
 			Properties requestProp, long subRangeSize, int parallelizationLevel) {
 		super(sel, bucket, requestProp);
 		this.taskId = UUID.randomUUID();
@@ -61,18 +61,8 @@ public class SubQueryCallable extends QueryCallable {
 				requestProp);
 	}
 	
-	@Override
-	public LongRangeValue call() throws Exception {
-		//logger.debug("Executing SubQueryCallable for bucket="+ bucket);
-		produceAllValuesForRange();
-		//TODO:Figure out why parallel merge on concurrent hash map fails (forgets results)
-		LongRangeValue lrv = mergeSubResults();
-		//logger.debug("[" + this.taskId.toString() + "] Merged data for " + lrv.getStreamPayloadIdentifier().getIdAsTypedObject().toString().substring(7, 13) + " = " +lrv);
-		return lrv;
-	}
-	
 	@SuppressWarnings("unchecked")
-	private LongRangeValue mergeSubResults() {
+	protected LongRangeValue merge() {
 		LongRangeValue result = new LongRangeValue(super.bucket);
 		subResults.values().stream().forEach(tv -> {
 			tv.getData().values().stream().forEach(d -> {
@@ -108,7 +98,7 @@ public class SubQueryCallable extends QueryCallable {
 		
 	}
 
-	public void produceAllValuesForRange() throws Exception{
+	protected void produce() throws Exception{
 		//logger.debug("[" + this.taskId.toString() + "] Producing values now..");
 		pre.processRange();
 	}
