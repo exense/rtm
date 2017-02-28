@@ -1,12 +1,14 @@
-package org.rtm.query;
+package org.rtm.pipeline.callable;
 
 import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.DBClient;
+import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
+import org.rtm.stream.AccumulationContext;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.time.RangeBucket;
+import org.rtm.stream.result.SharingIterableResultHandler;
 
 public class SharedAccQueryCallable extends QueryCallable {
 

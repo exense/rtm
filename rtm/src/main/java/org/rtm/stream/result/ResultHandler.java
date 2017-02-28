@@ -16,28 +16,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.query;
+package org.rtm.stream.result;
 
-import org.rtm.stream.Dimension;
-import org.rtm.stream.LongRangeValue;
-import org.rtm.time.Identifier;
+import org.rtm.stream.AggregationResult;
 
-public class AccumulationContext extends LongRangeValue{
+/**
+ * @author doriancransac
+ *
+ */
+public interface ResultHandler<T> {
 
-	private static final long serialVersionUID = -1234819766224267981L;
-	
-	public AccumulationContext(Identifier<Long> id){
-		super(id);
-	}
-	
-	public Dimension getAccHelperForDimension(String dimensionName){
-		return super.getDimension(dimensionName);
-	}
-	
-	public void outerMerge(){
-		this.values().stream().forEach(d -> {
-			d.copyAndFlush();
-		});
-	} 
-	
+	public void attachResult(AggregationResult<T> tv);
 }

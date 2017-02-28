@@ -1,4 +1,4 @@
-package org.rtm.query;
+package org.rtm.pipeline;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -12,16 +12,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import org.rtm.pipeline.callable.ParallelQueryCallable;
+import org.rtm.pipeline.callable.QueryCallable;
+import org.rtm.range.OptimisticLongPartitioner;
+import org.rtm.range.RangeBucket;
+import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.stream.ResultHandler;
-import org.rtm.time.LongTimeInterval;
-import org.rtm.time.OptimisticLongPartitioner;
-import org.rtm.time.RangeBucket;
+import org.rtm.stream.result.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ParallelRangeExecutor {
+public class RangeSplittingPipeline {
 
 	public enum ExecutionLevel{
 		SINGLE, DOUBLE;
@@ -31,7 +33,7 @@ public class ParallelRangeExecutor {
 		BLOCKING, NON_BLOCKING;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ParallelRangeExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(RangeSplittingPipeline.class);
 
 	private OptimisticLongPartitioner olp;
 	private long intervalSize;
@@ -45,7 +47,7 @@ public class ParallelRangeExecutor {
 	private Properties requestProp;
 	private Exception potentialException;
 
-	public ParallelRangeExecutor(String id, LongTimeInterval effective, long intervalSize,
+	public RangeSplittingPipeline(String id, LongTimeInterval effective, long intervalSize,
 			int nbThreads, long timeoutSecs,
 			ResultHandler<Long> rh, List<Selector> sel,
 			ExecutionLevel el, ExecutionType et,

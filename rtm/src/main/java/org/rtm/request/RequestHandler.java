@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.DBClient;
-import org.rtm.query.ParallelRangeExecutor;
-import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
-import org.rtm.query.ParallelRangeExecutor.ExecutionType;
+import org.rtm.pipeline.RangeSplittingPipeline;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionLevel;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionType;
+import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
-import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
-import org.rtm.stream.StreamResultHandler;
-import org.rtm.time.LongTimeInterval;
+import org.rtm.stream.result.ResultHandler;
+import org.rtm.stream.result.StreamResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class RequestHandler {
 
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
-			ParallelRangeExecutor executor = new ParallelRangeExecutor("requestExecutor", effective, optimalSize,
+			RangeSplittingPipeline executor = new RangeSplittingPipeline("requestExecutor", effective, optimalSize,
 					threadNb, timeout, rh, sel,
 					ExecutionLevel.DOUBLE, ExecutionType.NON_BLOCKING,
 					prop);

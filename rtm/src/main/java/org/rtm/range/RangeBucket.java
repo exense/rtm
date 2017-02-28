@@ -1,4 +1,6 @@
-package org.rtm.time;
+package org.rtm.range;
+
+import org.rtm.range.time.LongTimeInterval;
 
 public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 

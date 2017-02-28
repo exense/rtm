@@ -16,21 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.query;
+package org.rtm.pipeline.callable;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.rtm.query.ParallelRangeExecutor.ExecutionLevel;
-import org.rtm.query.ParallelRangeExecutor.ExecutionType;
+import org.rtm.pipeline.RangeSplittingPipeline;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionLevel;
+import org.rtm.pipeline.RangeSplittingPipeline.ExecutionType;
+import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.stream.ResultHandler;
 import org.rtm.stream.Stream;
-import org.rtm.stream.StreamResultHandler;
-import org.rtm.time.RangeBucket;
+import org.rtm.stream.result.ResultHandler;
+import org.rtm.stream.result.StreamResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
 	private long subRangeSize;
 	
 	private Stream<Long> subResults;
-	private ParallelRangeExecutor pre;
+	private RangeSplittingPipeline pre;
 	private UUID taskId;
 	private Properties prop;
 	private int parallelizationLevel;
@@ -55,7 +56,7 @@ public class ParallelQueryCallable extends AbstractProduceMergeQueryCallable {
 		this.subResults = new Stream<>();
 		ResultHandler<Long> subHandler = new StreamResultHandler(subResults);
 		//TODO: move to unblocking version, get nb threads & timeout from prop or constructor
-		pre = new ParallelRangeExecutor("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
+		pre = new RangeSplittingPipeline("subQueryExecutor", RangeBucket.toLongTimeInterval(super.bucket), this.subRangeSize,
 				this.parallelizationLevel, 60L, subHandler, super.sel,
 				ExecutionLevel.SINGLE, ExecutionType.BLOCKING,
 				requestProp);

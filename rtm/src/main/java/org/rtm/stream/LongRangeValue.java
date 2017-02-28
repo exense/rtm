@@ -3,7 +3,7 @@ package org.rtm.stream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.rtm.time.Identifier;
+import org.rtm.range.Identifier;
 
 public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 

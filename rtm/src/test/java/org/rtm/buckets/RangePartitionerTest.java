@@ -16,8 +16,8 @@ import java.util.stream.IntStream;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.time.OptimisticLongPartitioner;
-import org.rtm.time.RangeBucket;
+import org.rtm.range.OptimisticLongPartitioner;
+import org.rtm.range.RangeBucket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -34,9 +34,9 @@ import javax.json.stream.JsonParsingException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.rtm.query.BsonQuery;
 import org.rtm.request.selection.Selector;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
+import org.rtm.task.BsonQuery;
 
 public class MongoQueryBuilderTest{
 

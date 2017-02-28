@@ -1,4 +1,4 @@
-package org.rtm.query;
+package org.rtm.db;
 
 import java.util.ArrayList;
 import java.util.List;

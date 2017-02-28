@@ -1,13 +1,15 @@
-package org.rtm.query;
+package org.rtm.pipeline.callable;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
+import org.rtm.db.BsonQuery;
 import org.rtm.db.DBClient;
+import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
-import org.rtm.time.RangeBucket;
+import org.rtm.stream.result.MergingIterableResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

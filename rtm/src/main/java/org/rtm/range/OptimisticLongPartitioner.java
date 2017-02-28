@@ -1,4 +1,4 @@
-package org.rtm.time;
+package org.rtm.range;
 
 import java.util.concurrent.atomic.AtomicLong;
 
