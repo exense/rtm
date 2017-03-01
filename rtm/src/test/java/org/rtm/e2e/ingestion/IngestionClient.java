@@ -49,7 +49,7 @@ public class IngestionClient {
 			init = true;
 		}
 
-		removeAllData();
+		//removeAllData();
 	}
 
 	@Test
@@ -95,10 +95,10 @@ public class IngestionClient {
 	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
-				100,  // pauseTime
-				1000, // nbIterations
-				3,    // nbTasks
-				120,  // timeOut
+				5,  // pauseTime
+				50000, // nbIterations
+				20,    // nbTasks
+				300,  // timeOut
 				1000, // skewFactor
 				200); // stdFactor
 

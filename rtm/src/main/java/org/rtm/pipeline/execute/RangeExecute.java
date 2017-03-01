@@ -21,18 +21,6 @@ public class RangeExecute extends ExecuteCallable {
 
 	@Override
 	public LongRangeValue call() throws Exception{
-		
-		/**///For test purposes
-		
-		long sleepTime = 50;
-		System.out.println("QueryCallable sleeping for : " + sleepTime +" ms.");
-		try {
-			Thread.sleep(sleepTime);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}/**/
-		
 		return task.perform(this.bucket);
 	}
 }
