@@ -33,7 +33,7 @@ public class RequestHandler {
 
 		try {
 			int poolSize = 2;
-			int subPartitioning = 4;
+			int subPartitioning = 10;
 			int subPoolSize = 16;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
@@ -41,7 +41,7 @@ public class RequestHandler {
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			
-			//logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
+			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
 			SubpartitionedMongoBuilder builder = new SubpartitionedMongoBuilder(
 					effective.getBegin(),
 					effective.getEnd(),
