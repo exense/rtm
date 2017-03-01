@@ -39,14 +39,23 @@ public class SplitExecHarvestPipeline{
 	public void processRange() throws Exception{
 
 		//TODO: create pools as we go and handle executor-related exceptions with proper finally blocks
-		ExecutorService splitterPool = Executors.newFixedThreadPool(poolSize);
+		
+		int creatorPoolSize = 2;
+		// Don't need that many
+		ExecutorService splitterPool = Executors.newFixedThreadPool(creatorPoolSize);
+		
+		// Need a lot
 		ExecutorService executionPool = Executors.newFixedThreadPool(poolSize);
-		ExecutorService resultPool = Executors.newFixedThreadPool(poolSize);
+		
+		// Don't need that many
+		ExecutorService resultPool = Executors.newFixedThreadPool(2);
+		
 		ConcurrentMap<Long, Future> results = new ConcurrentHashMap<>();
 
 		Collection<SplitCallable> creatorsList = new ArrayList<>();
 
-		IntStream.rangeClosed(1, poolSize).forEach(i -> {
+		// Don't need that many
+		IntStream.rangeClosed(1, creatorPoolSize).forEach(i -> {
 			creatorsList.add(cb.buildSplitCallable(executionPool, results));
 		});
 

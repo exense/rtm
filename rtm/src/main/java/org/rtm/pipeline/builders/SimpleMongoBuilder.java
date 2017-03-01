@@ -3,7 +3,6 @@ package org.rtm.pipeline.builders;
 import java.util.List;
 
 import org.rtm.measurement.MeasurementAccumulator;
-import org.rtm.measurement.SharingAccumulator;
 import org.rtm.pipeline.task.RangeTask;
 import org.rtm.pipeline.task.SimpleQueryTask;
 import org.rtm.request.selection.Selector;

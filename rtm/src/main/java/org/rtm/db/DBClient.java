@@ -9,15 +9,13 @@ import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCursor;
 
 public class DBClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
+	//private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
 	
 	MeasurementAccessor ma = MeasurementAccessor.getInstance();
 	
@@ -55,7 +53,7 @@ public class DBClient {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static LongTimeInterval figureEffectiveTimeBoundariesViaMongoDirect(LongTimeInterval lti, List<Selector> sel) throws Exception {
+	public static LongTimeInterval findEffectiveBoundariesViaMongo(LongTimeInterval lti, List<Selector> sel) throws Exception {
 		BsonQuery baseQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 		Document completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
 		DBClient db = new DBClient();

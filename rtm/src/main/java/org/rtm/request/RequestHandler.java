@@ -32,23 +32,35 @@ public class RequestHandler {
 		AbstractResponse r = null;
 
 		try {
-			LongTimeInterval effective = DBClient.figureEffectiveTimeBoundariesViaMongoDirect(lti, sel);
+			int poolSize = 2;
+			int subPartitioning = 4;
+			int subPoolSize = 16;
+			
+			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			
-			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
+			//logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
 			SubpartitionedMongoBuilder builder = new SubpartitionedMongoBuilder(
 					effective.getBegin(),
 					effective.getEnd(),
 					optimalSize,
 					sel,
 					prop,
-					3,
-					3);
-
-					
-			new SplitExecHarvestPipeline(builder, 3, rh, BlockingMode.NON_BLOCKING).processRange();
+					subPartitioning,
+					subPoolSize);
+			
+			/*
+			SimpleMongoBuilder builder = new SimpleMongoBuilder(
+					effective.getBegin(),
+					effective.getEnd(),
+					optimalSize,
+					sel,
+					new MergingAccumulator(prop));
+			*/
+			
+			new SplitExecHarvestPipeline(builder, poolSize, rh, BlockingMode.NON_BLOCKING).processRange();
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
