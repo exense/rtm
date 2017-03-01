@@ -47,8 +47,8 @@ public class SplitExecHarvestPipeline{
 		// Need a lot
 		ExecutorService executionPool = Executors.newFixedThreadPool(poolSize);
 		
-		// Don't need that many
-		ExecutorService resultPool = Executors.newFixedThreadPool(2);
+		// Actually we do need a lot
+		ExecutorService resultPool = Executors.newFixedThreadPool(10);
 		
 		ConcurrentMap<Long, Future> results = new ConcurrentHashMap<>();
 
