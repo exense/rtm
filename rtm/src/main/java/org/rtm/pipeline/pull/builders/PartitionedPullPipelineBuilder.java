@@ -6,12 +6,12 @@ import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.stream.result.ResultHandler;
 
-@SuppressWarnings("rawtypes")
-public class PartitionedPullPipelineBuilder implements PullPipelineBuilder{
+@SuppressWarnings({"rawtypes", "unused"})
+public abstract class PartitionedPullPipelineBuilder implements PullPipelineBuilder{
 
-	private OptimisticRangePartitioner<Long> orp;
-	private ResultHandler rh;
-	private PullTaskBuilder tb;
+	protected OptimisticRangePartitioner<Long> orp;
+	protected ResultHandler rh;
+	protected PullTaskBuilder tb;
 	 
 	public PartitionedPullPipelineBuilder(Long start, Long end, Long increment, ResultHandler rh, PullTaskBuilder tb){
 		this.orp = new OptimisticLongPartitioner(start, end, increment);
@@ -19,7 +19,4 @@ public class PartitionedPullPipelineBuilder implements PullPipelineBuilder{
 		this.tb = tb;
 	}
 
-	public Runnable buildRunnable() {
-		return new PullCallable(this.orp, rh, tb);
-	}
 }
