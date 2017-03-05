@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class PartitionedQueryTask extends AbstractProduceMergeTask{
+public abstract class SharingPartitionedQueryTask extends AbstractProduceMergeTask{
 
-	private static final Logger logger = LoggerFactory.getLogger(PartitionedQueryTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(SharingPartitionedQueryTask.class);
 
 	protected List<Selector> sel;
 	protected Properties prop;
@@ -29,7 +29,7 @@ public abstract class PartitionedQueryTask extends AbstractProduceMergeTask{
 	protected long subsize; 
 	protected long timeoutSecs;
 
-	public PartitionedQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize, long timeoutSecs){
+	public SharingPartitionedQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize, long timeoutSecs){
 		this.sel = sel;
 		this.prop = prop;
 		this.partitioningFactor = partitioningFactor;
