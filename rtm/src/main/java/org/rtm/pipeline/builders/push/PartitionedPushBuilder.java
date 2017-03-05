@@ -1,15 +1,15 @@
-package org.rtm.pipeline.builders;
+package org.rtm.pipeline.builders.push;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.rtm.pipeline.execute.ExecuteCallable;
-import org.rtm.pipeline.execute.RangeExecute;
-import org.rtm.pipeline.harvest.HarvestCallable;
-import org.rtm.pipeline.harvest.HarvestCallableImpl;
-import org.rtm.pipeline.split.SplitCallable;
-import org.rtm.pipeline.split.SplitCallableImpl;
+import org.rtm.pipeline.callables.push.execute.ExecuteCallable;
+import org.rtm.pipeline.callables.push.execute.RangeExecute;
+import org.rtm.pipeline.callables.push.harvest.HarvestCallable;
+import org.rtm.pipeline.callables.push.harvest.HarvestCallableImpl;
+import org.rtm.pipeline.callables.push.split.SplitCallable;
+import org.rtm.pipeline.callables.push.split.SplitCallableImpl;
 import org.rtm.pipeline.task.RangeTask;
 import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;
@@ -17,11 +17,11 @@ import org.rtm.range.RangeBucket;
 import org.rtm.stream.result.ResultHandler;
 
 @SuppressWarnings({"rawtypes","unchecked"})
-public abstract class PartitionedBuilder extends SEHCallableBuilder{
+public abstract class PartitionedPushBuilder extends PushCallableBuilder{
 
 	private OptimisticRangePartitioner<Long> orp;
 
-	public PartitionedBuilder(Long start, Long end, Long increment){
+	public PartitionedPushBuilder(Long start, Long end, Long increment){
 		this.orp = new OptimisticLongPartitioner(start, end, increment);
 	}
 

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.DBClient;
-import org.rtm.pipeline.SplitExecHarvestPipeline;
-import org.rtm.pipeline.SplitExecHarvestPipeline.BlockingMode;
-import org.rtm.pipeline.builders.SubpartitionedMongoBuilder;
+import org.rtm.pipeline.PushPipeline;
+import org.rtm.pipeline.PushPipeline.BlockingMode;
+import org.rtm.pipeline.builders.push.SubpartitionedQueryPushBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -42,7 +42,7 @@ public class RequestHandler {
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			
 			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);		
-			SubpartitionedMongoBuilder builder = new SubpartitionedMongoBuilder(
+			SubpartitionedQueryPushBuilder builder = new SubpartitionedQueryPushBuilder(
 					effective.getBegin(),
 					effective.getEnd(),
 					optimalSize,
@@ -60,7 +60,7 @@ public class RequestHandler {
 					new MergingAccumulator(prop));
 			*/
 			
-			new SplitExecHarvestPipeline(builder, poolSize, rh, BlockingMode.NON_BLOCKING).processRange();
+			new PushPipeline(builder, poolSize, rh, BlockingMode.NON_BLOCKING).processRange();
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 

@@ -55,7 +55,7 @@ public class RequestHandlerTest {
 			long firstByte = System.currentTimeMillis();
 			System.out.println("TimeToFirstByte=" + (firstByte - start) + " ms.");
 
-			while(stream.size() < 18){
+			while(stream.size() != 20){
 				try {
 					Thread.sleep(500);
 					System.out.println("Size = " + stream.size());

@@ -9,14 +9,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.rtm.pipeline.builders.SEHCallableBuilder;
-import org.rtm.pipeline.split.SplitCallable;
+import org.rtm.pipeline.builders.push.PushCallableBuilder;
+import org.rtm.pipeline.callables.push.split.SplitCallable;
 import org.rtm.stream.result.ResultHandler;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes"})
-public class SplitExecHarvestPipeline{
+public class PushPipeline{
 
 	public enum BlockingMode{
 		BLOCKING, NON_BLOCKING;
@@ -24,12 +24,12 @@ public class SplitExecHarvestPipeline{
 	
 	//private static final Logger logger = LoggerFactory.getLogger(SplitExecHarvestPipeline.class);
 
-	private SEHCallableBuilder cb;
+	private PushCallableBuilder cb;
 	private int poolSize;
 	private ResultHandler rh;
 	private BlockingMode mode;
 
-	public SplitExecHarvestPipeline(SEHCallableBuilder cb, int poolSize, ResultHandler rh, BlockingMode mode){
+	public PushPipeline(PushCallableBuilder cb, int poolSize, ResultHandler rh, BlockingMode mode){
 		this.cb = cb;
 		this.poolSize = poolSize;
 		this.rh = rh;
