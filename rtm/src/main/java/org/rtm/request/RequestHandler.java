@@ -5,11 +5,9 @@ import java.util.Properties;
 
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
-import org.rtm.pipeline.pull.PullPipeline;
-import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
-import org.rtm.pipeline.pull.builders.SimplePipelineBuilder;
-import org.rtm.pipeline.pull.builders.tasks.PartitionedPullQueryBuilder;
-import org.rtm.pipeline.pull.builders.tasks.PullTaskBuilder;
+import org.rtm.pipeline.push.PushPipeline;
+import org.rtm.pipeline.push.builders.PushCallableBuilder;
+import org.rtm.pipeline.push.builders.SubpartitionedPushBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -35,10 +33,10 @@ public class RequestHandler {
 		AbstractResponse r = null;
 
 		try {
-			int poolSize = 1;
+			int poolSize = 4;
 			long timeout = 120;
-			int subPartitioning = 4;
-			int subPoolSize = 2;
+			int subPartitioning = 1;
+			int subPoolSize = 1;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 10);
@@ -47,12 +45,28 @@ public class RequestHandler {
 			
 			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);
 
+			PushCallableBuilder builder = new SubpartitionedPushBuilder(
+					effective.getBegin(),
+					effective.getEnd(),
+					optimalSize,
+					sel,
+					prop,
+					subPartitioning,
+					subPoolSize,
+					timeout);
+
+			new PushPipeline(
+					builder,
+					poolSize,
+					rh,
+					BlockingMode.NON_BLOCKING).execute();
+						
 /*			
 			PullTaskBuilder tb = new PullQueryBuilder(sel, new MergingAccumulator(prop));
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
 					optimalSize, rh, tb);
-	*/
+	
 			
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
@@ -62,7 +76,7 @@ public class RequestHandler {
 			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.NON_BLOCKING);
 				
 			pp.execute();
-
+*/
 			r = new AggregationResponse(ssm.registerStreamSession(stream));
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
