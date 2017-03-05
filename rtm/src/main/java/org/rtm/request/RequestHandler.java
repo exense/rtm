@@ -38,7 +38,7 @@ public class RequestHandler {
 			int poolSize = 1;
 			long timeout = 120;
 			int subPartitioning = 4;
-			int subPoolSize = 2;
+			int subPoolSize = 4;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 10);
