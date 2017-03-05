@@ -35,6 +35,8 @@ public class PullPipeline{
 		ExecutorService singlePullPool = Executors.newFixedThreadPool(this.poolSize);
 		IntStream.rangeClosed(1, poolSize).forEach( i -> singlePullPool.submit(pb.buildRunnable()));
 
+		logger.debug("Started Pool execution with " + this.poolSize + " threads.");
+		
 		singlePullPool.shutdown();
 		if(this.mode.equals(BlockingMode.BLOCKING))
 			singlePullPool.awaitTermination(30, TimeUnit.SECONDS);

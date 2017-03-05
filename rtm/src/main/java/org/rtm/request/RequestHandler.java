@@ -35,13 +35,13 @@ public class RequestHandler {
 		AbstractResponse r = null;
 
 		try {
-			int poolSize = 3;
+			int poolSize = 1;
 			long timeout = 120;
-			int subPartitioning = 2;
+			int subPartitioning = 4;
 			int subPoolSize = 2;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
-			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
+			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 10);
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			

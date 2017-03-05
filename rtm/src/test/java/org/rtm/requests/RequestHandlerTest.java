@@ -1,5 +1,6 @@
 package org.rtm.requests;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.regex.Matcher;
@@ -34,7 +35,7 @@ public class RequestHandlerTest {
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
 
-		IntStream.rangeClosed(1, 100).forEach(i -> {
+		IntStream.rangeClosed(1, 1).forEach(i -> {
 
 			System.out.println("-- iteration " + i + "--");
 
@@ -55,7 +56,7 @@ public class RequestHandlerTest {
 			long firstByte = System.currentTimeMillis();
 			System.out.println("TimeToFirstByte=" + (firstByte - start) + " ms.");
 
-			while(stream.size() != 20){
+			while(stream.size() != 10){
 				try {
 					Thread.sleep(500);
 					System.out.println("Size = " + stream.size());
@@ -66,7 +67,7 @@ public class RequestHandlerTest {
 			}
 			long end = System.currentTimeMillis();
 			System.out.println("Done. Elapse=" + (end - start) + " ms.");
-			//System.out.println("stream=" + stream);
+			System.out.println("stream=" + stream);
 
 
 			//System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
@@ -86,23 +87,28 @@ public class RequestHandlerTest {
 
 			Pattern p = Pattern.compile("count=(.+?),");
 			Matcher m = p.matcher(result);
-			int countTotal = 0;
+			BigInteger countTotal = new BigInteger("0");
 			while(m.find()){
 				String countVal = m.group(1);
-				countTotal += Integer.parseInt(countVal);
+				countTotal = countTotal.add(new BigInteger(countVal));
 			}
-
+			System.out.println("count=" +countTotal);
+			
 			Pattern pSum = Pattern.compile("sum=(.+?)}");
 			Matcher mSum = pSum.matcher(result);
-			int sumCount = 0;
+			BigInteger sumCount = new BigInteger("0");
 			while(mSum.find()){
 				String sumVal = mSum.group(1);
-				sumCount += Integer.parseInt(sumVal);
+				try{
+				sumCount = sumCount.add(new BigInteger(sumVal));
+				}catch(NumberFormatException e){
+					System.err.println("Failed to parse " + sumVal + " in string " + result);
+				}
 			}
 			System.out.println("sum=" +sumCount);
-			System.out.println("count=" +countTotal);
-			//Assert.assertEquals(359892570, sumCount);
-			Assert.assertEquals(12791151, countTotal);
+
+			Assert.assertEquals("133753001249", sumCount.toString());
+			Assert.assertEquals("12791151", countTotal.toString());
 
 		});
 	}
