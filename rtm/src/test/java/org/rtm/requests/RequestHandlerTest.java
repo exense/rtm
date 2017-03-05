@@ -3,6 +3,7 @@ package org.rtm.requests;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -31,11 +32,14 @@ public class RequestHandlerTest {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
-		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), null);
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), new Properties());
+		
+		Integer targetDots = 10;
+		ar.getProperties().put("targetChartDots", targetDots.toString());
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
 
-		IntStream.rangeClosed(1, 1).forEach(i -> {
+		IntStream.rangeClosed(1, 2).forEach(i -> {
 
 			System.out.println("-- iteration " + i + "--");
 
@@ -56,7 +60,7 @@ public class RequestHandlerTest {
 			long firstByte = System.currentTimeMillis();
 			System.out.println("TimeToFirstByte=" + (firstByte - start) + " ms.");
 
-			while(stream.size() != 10){
+			while(stream.size() != targetDots){
 				try {
 					Thread.sleep(500);
 					System.out.println("Size = " + stream.size());

@@ -37,30 +37,30 @@ public class RequestHandler {
 		try {
 			int poolSize = 1;
 			long timeout = 120;
-			int subPartitioning = 4;
+			int subPartitioning = 32;
 			int subPoolSize = 4;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
-			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 10);
+			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(prop.getProperty("targetChartDots")));
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			
 			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);
 
-/*			
+			/*
 			PullTaskBuilder tb = new PullQueryBuilder(sel, new MergingAccumulator(prop));
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
 					optimalSize, rh, tb);
-	*/
-			
+			*/	
+
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
 					optimalSize, rh, tb);
-			
+
 			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.NON_BLOCKING);
-				
+
 			pp.execute();
 
 			r = new AggregationResponse(ssm.registerStreamSession(stream));

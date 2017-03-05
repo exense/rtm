@@ -17,7 +17,7 @@ public class StreamResultHandler implements ResultHandler<Long>{
 	}
 
 	public void attachResult(AggregationResult<Long> tv) {
-		logger.debug("Attaching result for bucket " + tv.getStreamPayloadIdentifier().getIdAsTypedObject());
+		//logger.debug("Attaching result for bucket " + tv.getStreamPayloadIdentifier().getIdAsTypedObject());
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
 		/* Check only relevant for MergeAccumulator*/
 		//if(stream.get(id) != null)

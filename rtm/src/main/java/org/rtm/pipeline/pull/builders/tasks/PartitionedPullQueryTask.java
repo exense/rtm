@@ -27,7 +27,7 @@ public class PartitionedPullQueryTask extends MergingPartitionedQueryTask{
 
 		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator);
 
-		logger.debug("Booting new pipe for bucket " + bucket + " with subsize " + super.subsize);
+		//logger.debug("Booting new pipe for bucket " + bucket + " with subsize " + super.subsize);
 
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
 				bucket.getLowerBound(),

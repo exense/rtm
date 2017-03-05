@@ -33,13 +33,16 @@ public class PullPipeline{
 	public void execute() throws Exception{
 
 		ExecutorService singlePullPool = Executors.newFixedThreadPool(this.poolSize);
+		
+		//logger.debug("Starting Pool execution with " + this.poolSize + " threads.");
 		IntStream.rangeClosed(1, poolSize).forEach( i -> singlePullPool.submit(pb.buildRunnable()));
 
-		logger.debug("Started Pool execution with " + this.poolSize + " threads.");
-		
 		singlePullPool.shutdown();
-		if(this.mode.equals(BlockingMode.BLOCKING))
-			singlePullPool.awaitTermination(30, TimeUnit.SECONDS);
+		if(this.mode.equals(BlockingMode.BLOCKING)){
+			long start = System.currentTimeMillis();
+			singlePullPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);
+			//logger.debug(Thread.currentThread() +" waited " + (System.currentTimeMillis() - start) + " ms.");
+		}
 	}
 
 
