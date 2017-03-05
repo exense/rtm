@@ -25,15 +25,20 @@ public class PullCallable implements Runnable{
 
 	@Override
 	public final void run() {
+		int loopCount = 0;
+		long start = System.currentTimeMillis();
 		try {
 			RangeBucket bucket;
 			while((bucket = splitRange()) != null){
-				logger.debug(Thread.currentThread() + " -> " + bucket);
+				loopCount++;
+				//logger.debug(Thread.currentThread() + " -> " + bucket);
 				harvestRange(processRange(bucket));
 			}
 		} catch (Exception e) {
 			logger.debug("Problem during pipeline execution.", e );
 		}
+		
+		//logger.debug(Thread.currentThread() + " did " + loopCount + " iterations, and took " + (System.currentTimeMillis() - start) +" ms.");
 	}
 
 	public RangeBucket splitRange(){
@@ -43,7 +48,7 @@ public class PullCallable implements Runnable{
 	public LongRangeValue processRange(RangeBucket bucket) throws Exception{
 		if(bucket != null){ // due to optimistic hasNext
 			try {
-				logger.debug("Processing bucket " + bucket);
+				//logger.debug("Processing bucket " + bucket);
 				return tb.build().perform(bucket);
 			} catch (Exception e) {
 				logger.debug("Execution failed for bucket: " + bucket, e);

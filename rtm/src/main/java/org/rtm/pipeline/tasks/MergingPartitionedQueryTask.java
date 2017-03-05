@@ -45,7 +45,7 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 	protected void produce(RangeBucket<Long> bucket) throws Exception {
 
 		long projected = Math.abs((bucket.getUpperBound() - bucket.getLowerBound()) / this.partitioningFactor) +1;
-		logger.debug("projected= Math.abs(" + bucket.getUpperBound() + " - " + bucket.getLowerBound() + " / "+ this.partitioningFactor +" = " + projected);
+		//logger.debug("projected= Math.abs(" + bucket.getUpperBound() + " - " + bucket.getLowerBound() + " / "+ this.partitioningFactor +" = " + projected);
 		this.subsize = projected > 0?projected:1L;
 
 		executeParallel(bucket);
