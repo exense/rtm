@@ -1,13 +1,14 @@
-package org.rtm.pipeline.task;
+package org.rtm.pipeline.task.push;
 
 import java.util.List;
 import java.util.Properties;
 
 import org.rtm.measurement.AccumulationContext;
 import org.rtm.measurement.SharingAccumulator;
-import org.rtm.pipeline.SplitExecHarvestPipeline;
-import org.rtm.pipeline.SplitExecHarvestPipeline.BlockingMode;
-import org.rtm.pipeline.builders.SimpleMongoBuilder;
+import org.rtm.pipeline.PushPipeline;
+import org.rtm.pipeline.PushPipeline.BlockingMode;
+import org.rtm.pipeline.builders.push.PushQueryBuilder;
+import org.rtm.pipeline.task.AbstractProduceMergeTask;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
@@ -15,7 +16,7 @@ import org.rtm.stream.Stream;
 import org.rtm.stream.result.ResultHandler;
 import org.rtm.stream.result.StreamResultHandler;
 
-public class PartitionedQueryTask extends AbstractProduceMergeTask{
+public class PartitionedPushQueryTask extends AbstractProduceMergeTask{
 
 		protected List<Selector> sel;
 		protected Properties prop;
@@ -25,7 +26,7 @@ public class PartitionedQueryTask extends AbstractProduceMergeTask{
 		private ResultHandler<Long> resultHandler;
 		protected SharingAccumulator accumulator; 
 
-		public PartitionedQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize){
+		public PartitionedPushQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize){
 			this.sel = sel;
 			this.prop = prop;
 			this.partitioningFactor = partitioningFactor;
@@ -42,14 +43,14 @@ public class PartitionedQueryTask extends AbstractProduceMergeTask{
 			long projected = Math.abs(bucket.getUpperBound() - bucket.getLowerBound() / this.partitioningFactor);
 			long subsize = projected > 0?projected:1L;
 			
-			SimpleMongoBuilder builder = new SimpleMongoBuilder(
+			PushQueryBuilder builder = new PushQueryBuilder(
 					bucket.getLowerBound(),
 					bucket.getUpperBound(),
 					subsize,
 					sel,
 					this.accumulator);
 					
-			new SplitExecHarvestPipeline(
+			new PushPipeline(
 					builder,
 					this.poolSize,
 					this.resultHandler,

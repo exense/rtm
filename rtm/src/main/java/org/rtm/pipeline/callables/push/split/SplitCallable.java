@@ -1,4 +1,4 @@
-package org.rtm.pipeline.split;
+package org.rtm.pipeline.callables.push.split;
 
 import java.util.concurrent.Callable;
 

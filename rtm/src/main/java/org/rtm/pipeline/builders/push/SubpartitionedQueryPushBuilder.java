@@ -1,20 +1,20 @@
-package org.rtm.pipeline.builders;
+package org.rtm.pipeline.builders.push;
 
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.pipeline.task.PartitionedQueryTask;
 import org.rtm.pipeline.task.RangeTask;
+import org.rtm.pipeline.task.push.PartitionedPushQueryTask;
 import org.rtm.request.selection.Selector;
 
-public class SubpartitionedMongoBuilder extends PartitionedBuilder {
+public class SubpartitionedQueryPushBuilder extends PartitionedPushBuilder {
 
 	private List<Selector> selectors;
 	private Properties prop;
 	private long partitioningFactor;
 	private int poolSize;	
 	
-	public SubpartitionedMongoBuilder(Long start, Long end, Long increment, List<Selector> selectors, Properties prop,
+	public SubpartitionedQueryPushBuilder(Long start, Long end, Long increment, List<Selector> selectors, Properties prop,
 			long partitioningFactor, int poolSize){
 		super(start, end, increment);
 		this.selectors = selectors;
@@ -25,7 +25,7 @@ public class SubpartitionedMongoBuilder extends PartitionedBuilder {
 
 	@Override
 	protected RangeTask createTask() {
-		return new PartitionedQueryTask(this.selectors, this.prop, this.partitioningFactor, this.poolSize);
+		return new PartitionedPushQueryTask(this.selectors, this.prop, this.partitioningFactor, this.poolSize);
 	}
 
 }

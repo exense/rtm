@@ -1,4 +1,4 @@
-package org.rtm.pipeline.split;
+package org.rtm.pipeline.callables.push.split;
 
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import org.rtm.pipeline.builders.SEHCallableBuilder;
+import org.rtm.pipeline.builders.push.PushCallableBuilder;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;
@@ -22,11 +22,11 @@ public class SplitCallableImpl implements SplitCallable{
 	private ConcurrentMap<Long, Future> results;
 	private String id = ((Long)UUID.randomUUID().getMostSignificantBits()).toString();
 	private OptimisticRangePartitioner<Long> orp;
-	private SEHCallableBuilder taskBuilder;
+	private PushCallableBuilder taskBuilder;
 
 	public SplitCallableImpl(ExecutorService executor, 
 								ConcurrentMap<Long, Future> results,
-								SEHCallableBuilder taskBuilder,
+								PushCallableBuilder taskBuilder,
 								OptimisticRangePartitioner<Long> orp){
 		this.executor = executor;
 		this.results = results;
