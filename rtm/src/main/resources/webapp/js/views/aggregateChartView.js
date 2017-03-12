@@ -209,10 +209,14 @@ var tnode = lsvg.append("text")
 							.attr("y", "20px")
 							.attr("text-anchor", "middle");
 
+var containerWidth = $(".panel").width();
 var tDy = 20;
+
 var ty = 0;
-var tDx = 150;
-var origin = $("#legendSVG").position().left;
+var tDx = (containerWidth -20) / Math.abs(this.svgLegendFactor +1);
+//var origin = $("#legendSVG").position().left + 20;
+var origin = margin.left + 50;
+console.log(origin);
 var tx = origin;
 var factor = this.svgLegendFactor;
 	var lser = tnode.selectAll(".lser")
