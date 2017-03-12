@@ -60,7 +60,8 @@ var AggregateChartView = Backbone.View.extend({
 	renderChart: function () {
 
 		var that = this;
-		this.seriesCount = this.collection.models[0].get('payload').length;
+		if(this.collection.models.length > 0){
+				this.seriesCount = this.collection.models[0].get('payload').length;
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
 			that.$el.append(template);
@@ -71,7 +72,6 @@ var AggregateChartView = Backbone.View.extend({
 		.success(function(){
 
 			if(that.collection.models.length > 0){
-				/* // D3 */
 				that.drawD3Chart(that.collection.models[0].get('payload'),
 				{
 					metric : that.currentChartMetricChoice,
@@ -82,6 +82,7 @@ var AggregateChartView = Backbone.View.extend({
 				});
 			}
 		});
+	}
 },
 
 isNumeric: function(n) {
@@ -201,6 +202,7 @@ var line = d3.line()
 */
 
 var tooltipDiv = d3.select(".divToolTip");
+	tooltipDiv.style("opacity", 0);
 // Dots
 g.selectAll("g.dot")
     .data(Sdata)

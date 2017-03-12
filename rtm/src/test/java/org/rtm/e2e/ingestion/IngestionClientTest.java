@@ -34,7 +34,7 @@ public class IngestionClientTest {
 	TransportClient tc;
 
 	String hostname = "localhost";
-	int port = 8099;
+	int port = 8080;
 
 	boolean init = false;
 
@@ -96,7 +96,7 @@ public class IngestionClientTest {
 		LoadDescriptor ld = new TransactionalProfile(
 				100,  // pauseTime
 				1000, // nbIterations
-				34,    // nbTasks
+				3,    // nbTasks
 				120,  // timeOut
 				1000, // skewFactor
 				200); // stdFactor
