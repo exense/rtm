@@ -25,3 +25,17 @@ body {
     padding: 2px;
     padding-left: 15px;
 }
+
+.divToolTip {
+    position: absolute;
+    text-align: left;
+    width: 200px;
+    height: 60px;
+    padding: 2px;
+    padding-left: 20px;
+    font: 12px sans-serif;
+    background: goldenrod;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}

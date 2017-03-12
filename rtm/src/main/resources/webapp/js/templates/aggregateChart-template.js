@@ -28,6 +28,7 @@
 </div> <!-- /dropdown-menu -->
   <svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg>
   <svg id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></svg>
+	<div class="divToolTip">
 </div> <!-- /panel-body -->
 </div> <!-- /panel-collapse -->
 </div> <!-- /panel -->

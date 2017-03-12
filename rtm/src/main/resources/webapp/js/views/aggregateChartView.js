@@ -199,22 +199,52 @@ var line = d3.line()
 				console.log("Tdata");
 				console.log(JSON.stringify(Tdata));
 */
+
+var tooltipDiv = d3.select(".divToolTip");
 // Dots
 g.selectAll("g.dot")
     .data(Sdata)
     .enter().append("g")
-    .attr("class", "dot")
-    .selectAll("circle")
-    .data(function(d) { return d.values; })
-    .enter().append("circle")
-    .attr("r", 2)
-    .attr("cx", function(d,i) {  return x(d.date); })
-    .attr("cy", function(d,i) { return y(d.metricVal); })
-		.style("stroke", function(d) {
-    	return z(this.parentNode.__data__.id);
-		})
-		.style("stroke-width","2")
-		.style("fill","none");
+    	.attr("class", "dotSer")
+    	.selectAll("circle")
+    	.data(function(d) { return d.values; })
+    	.enter()
+				.append("circle")
+    		.attr("r", 2)
+    		.attr("cx", function(d,i) {  return x(d.date); })
+    		.attr("cy", function(d,i) { return y(d.metricVal); })
+				.style("stroke", function(d) {
+    			return z(this.parentNode.__data__.id);
+				})
+				.style("stroke-width","2")
+				.style("fill","none")
+				.attr("class", "dot")
+				.attr("date", function(d){
+					return getPrintableDate(d.date);
+				})
+				.attr("serName", function(d){
+					return this.parentNode.__data__.id;
+				})
+				.attr("value", function(d){
+					return d.metricVal;
+				})
+				.on("mouseover", function(d, i, f){
+					var ser_g = d3.select(this.parentNode);
+					var circ = d3.select(this);
+					//console.log("series=" + circ.attr("serName") + "; date=" + circ.attr("date") + "; value=" + circ.attr("value"));
+
+					tooltipDiv.transition()
+							.duration(200)
+							.style("opacity", .85);
+					tooltipDiv.html("series="+circ.attr("serName") + "<br/> date=" + circ.attr("date") + "<br/> value=" + circ.attr("value"))
+							.style("left", (d3.event.pageX) + "px")
+							.style("top", (d3.event.pageY - 28) + "px");
+				})
+				.on("mouseout", function(d) {
+					tooltipDiv.transition()
+					.duration(500)
+					.style("opacity", 0);
+});;
 
 // Legend
 var lsvg = d3.select("#legendSVG"),
