@@ -295,13 +295,11 @@ var factor = this.svgLegendFactor;
 
 										var newActive;
 										if(thisSeries.attr("active") == "true"){
-											console.log("Active!");
 											path.style(originalStrokeStyle);
 											path.style("stroke-width", originalWidth);
 											newActive = "false";
 										}
 										if(thisSeries.attr("active") == "false"){
-											console.log("Not Active!");
 											path.style(originalStrokeStyle);
 											path.style("stroke-width", activeWidth);
 											newActive = "true";
