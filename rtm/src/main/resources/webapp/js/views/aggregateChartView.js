@@ -225,7 +225,7 @@ var factor = this.svgLegendFactor;
 								  .enter()
 									.append("tspan")
 									.attr('x', function(d, i){
-										if((i+1) % factor <1)
+										if(i % factor <1)
 											tx = origin;
 										else {
 											tx += tDx;
