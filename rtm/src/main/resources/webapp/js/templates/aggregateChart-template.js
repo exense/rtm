@@ -23,7 +23,7 @@
 <% var pWidth = $(".panel").width() -20 %>
 <% var pChartHeight = pWidth * 0.5 %>
 <!-- //TODO:  compute dynamically based on the number of series -->
-<% var pLegendHeight = 50 %>
+<% var pLegendHeight = (20 * (Math.abs(nbSeries / factor))) %>
 
 </div> <!-- /dropdown-menu -->
   <svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg>

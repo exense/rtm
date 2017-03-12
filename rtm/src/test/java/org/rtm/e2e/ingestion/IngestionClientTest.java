@@ -96,7 +96,7 @@ public class IngestionClientTest {
 		LoadDescriptor ld = new TransactionalProfile(
 				100,  // pauseTime
 				1000, // nbIterations
-				3,    // nbTasks
+				20,    // nbTasks
 				120,  // timeOut
 				1000, // skewFactor
 				200); // stdFactor
