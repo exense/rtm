@@ -179,8 +179,7 @@ var line = d3.line()
     				 .data(Sdata)
     		 		 .enter().append("g")
       			 .attr("class", "ser")
-						 .attr("style","opacity: 1;")
-						 .attr("active", "true")
+						 .attr("active", "false")
 						 .attr("id",function(d, i) {
 			        	//console.log("iteration " + i + " : " + JSON.stringify(d));
 			        	return d.id;
@@ -195,7 +194,10 @@ var line = d3.line()
         //console.log('d.values = ');
         //console.log(d.values)
         return line(d.values); })
-      .style("stroke", function(d) { return z(d.id); });
+      	.style("stroke", function(d) { return z(d.id); })
+				.attr("originalStyle", function(d) { return z(d.id); })
+				.attr("originalWidth", "2")
+				.attr("activeWidth", "4");
 
 // Legend
 var lsvg = d3.select("#legendSVG"),
@@ -216,7 +218,6 @@ var ty = 0;
 var tDx = (containerWidth -20) / Math.abs(this.svgLegendFactor +1);
 //var origin = $("#legendSVG").position().left + 20;
 var origin = margin.left + 50;
-console.log(origin);
 var tx = origin;
 var factor = this.svgLegendFactor;
 	var lser = tnode.selectAll(".lser")
@@ -238,18 +239,25 @@ var factor = this.svgLegendFactor;
 									})
 									.on("click", function(d, i){
 										var thisSeries = d3.select("#" + d.id);
-										var newOpacity;
+										var path = thisSeries.select("path");
+										var originalStrokeStyle = path.attr("originalStyle");
+										var originalWidth = path.attr("originalWidth");
+										var activeWidth = path.attr("activeWidth");
+
 										var newActive;
 										if(thisSeries.attr("active") == "true"){
-											newOpacity = "opacity: 0;";
+											console.log("Active!");
+											path.style(originalStrokeStyle);
+											path.style("stroke-width", originalWidth);
 											newActive = "false";
 										}
 										if(thisSeries.attr("active") == "false"){
-											newOpacity = "opacity: 1;";
+											console.log("Not Active!");
+											path.style(originalStrokeStyle);
+											path.style("stroke-width", activeWidth);
 											newActive = "true";
 										}
 										thisSeries.attr("active",newActive);
-										thisSeries.attr("style", newOpacity);
 									})
 									.text(function(d, i) {
 											        return d.id;
