@@ -5,7 +5,7 @@
           Chart
         </a>
       </h4>
-</div>	
+</div>
 <div id="collapseAChart" class="panel-collapse collapse in">
 <div class="panel-body">
 <div class="dropdown">
@@ -19,8 +19,15 @@
 	  <li role="presentation"><a role="menuitem" tabindex="-1" href="#" class="<%=metricsList[i]%> metricChoice" id="<%=metricsList[i]%>"><%=metricsList[i]%></a></li>
 	<% } %>
   </ul>
+
+<% var pWidth = $(".panel").width() -20 %>
+<% var pChartHeight = pWidth * 0.5 %>
+<!-- //TODO:  compute dynamically based on the number of series -->
+<% var pLegendHeight = 50 %>
+
 </div> <!-- /dropdown-menu -->
-  <svg width="800" height="600"></svg>
+  <svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg>
+	<svg id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></svg>
 </div> <!-- /panel-body -->
 </div> <!-- /panel-collapse -->
 </div> <!-- /panel -->

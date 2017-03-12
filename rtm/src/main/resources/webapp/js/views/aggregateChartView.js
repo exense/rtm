@@ -56,8 +56,7 @@ var AggregateChartView = Backbone.View.extend({
 	},
 
 	renderChart: function () {
-	
-	
+
 		var that = this;
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice});
@@ -69,15 +68,6 @@ var AggregateChartView = Backbone.View.extend({
 		.success(function(){
 
 			if(that.collection.models.length > 0){
-				that.drawD3Chart(that.collection.models[0].get('payload'),
-				{
-					metric : that.currentChartMetricChoice,
-					chartBeginKey : that.chartBeginKey,
-					chartGroupbyKey : that.chartGroupbyKey,
-					chartMaxSeries : that.chartMaxSeries,
-					chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-				});
-	
 				/* // D3 */
 				that.drawD3Chart(that.collection.models[0].get('payload'),
 				{
@@ -108,7 +98,7 @@ getChartableMetricsList: function(){
     		}
 		}
 	}
-	
+
 	return metricsList;
 },
 
@@ -130,26 +120,23 @@ getExcludeList: function(){ // CONFIGURATIVE
 },
 
 drawD3Chart: function(pAggregates, pChartParams){
-	/*
-	drawD3Chart(that.collection.models[0].get('payload'),{
-	metric : that.currentChartMetricChoice,
-	chartBeginKey : that.chartBeginKey,
-	chartGroupbyKey : that.chartGroupbyKey,
-	chartMaxSeries : that.chartMaxSeries,
-	chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-})
-*/
-
+	/*drawD3Chart(that.collection.models[0].get('payload'),{
+		metric : that.currentChartMetricChoice,
+		chartBeginKey : that.chartBeginKey,
+		chartGroupbyKey : that.chartGroupbyKey,
+		chartMaxSeries : that.chartMaxSeries,
+		chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
+})*/
 
 var Sdata = this.convertToSeries(pAggregates, pChartParams);
 var Tdata = this.convertToTable(pAggregates, pChartParams);
 
-
-var svg = d3.select("svg"),
+var svg = d3.select("#chartSVG"),
     margin = {top: 20, right: 90, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    height = svg.attr("height") - margin.top - margin.bottom;
+
+var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
@@ -186,11 +173,16 @@ var line = d3.line()
 
 
   var ser = g.selectAll(".ser")
-    .data(Sdata)
-    .enter().append("g")
-      .attr("class", "ser");
+    				 .data(Sdata)
+    		 		 .enter().append("g")
+      			 .attr("class", "ser")
+						 .attr("style","opacity: 1;")
+						 .attr("active", "true")
+						 .attr("id",function(d, i) {
+			        	//console.log("iteration " + i + " : " + JSON.stringify(d));
+			        	return d.id;
+						 });
 
-//console.log(ser);
 
   ser.append("path")
       .attr("class", "line")
@@ -202,16 +194,41 @@ var line = d3.line()
         return line(d.values); })
       .style("stroke", function(d) { return z(d.id); });
 
-  ser.append("text")
-      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) {
-        //console.log(d.value);
-        return "translate(" + x(d.value.date) + "," + y(d.value.metricVal) + ")"; })
-      .attr("x", 3)
-      .attr("dy", "0.35em")
-      .style("font", "10px sans-serif")
-      .text(function(d) { return d.id; });
+// Legend
+var lsvg = d3.select("#legendSVG"),
+    margin = {top: 20, right: 90, bottom: 30, left: 50},
+    width = svg.attr("width") - margin.left - margin.right,
+    height = svg.attr("height") - margin.top - margin.bottom;
 
+var tnode = lsvg.append("text")
+							.attr("id", "legend")
+							.attr("x", "50px")
+							.attr("y", "20px")
+							.attr("text-anchor", "start");
+
+	var lser = tnode.selectAll(".lser")
+								  .data(Sdata)
+								  .enter()
+									.append("tspan")
+									.attr('dx', '20px')
+									.on("click", function(d, i){
+										var thisSeries = d3.select("#" + d.id);
+										var newOpacity;
+										var newActive;
+										if(thisSeries.attr("active") == "true"){
+											newOpacity = "opacity: 0;";
+											newActive = "false";
+										}
+										if(thisSeries.attr("active") == "false"){
+											newOpacity = "opacity: 1;";
+											newActive = "true";
+										}
+										thisSeries.attr("active",newActive);
+										thisSeries.attr("style", newOpacity);
+									})
+									.text(function(d, i) {
+											        return d.id;
+														});
 },
 
 convertToTable: function (payload, pChartParams){
