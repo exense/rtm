@@ -167,37 +167,54 @@ var line = d3.line()
   g.append("g")
       .attr("class", "axis axis--y")
       .call(d3.axisLeft(y))
-    .append("text")
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
       .text("value");
 
-
+// Series
   var ser = g.selectAll(".ser")
     				 .data(Sdata)
     		 		 .enter().append("g")
       			 .attr("class", "ser")
 						 .attr("active", "false")
 						 .attr("id",function(d, i) {
-			        	//console.log("iteration " + i + " : " + JSON.stringify(d));
 			        	return d.id;
 						 });
 
-
+// Curves
   ser.append("path")
       .attr("class", "line")
       .attr("d", function(d) {
-        //console.log('d = ');
-        //console.log(d);
-        //console.log('d.values = ');
-        //console.log(d.values)
         return line(d.values); })
       	.style("stroke", function(d) { return z(d.id); })
 				.attr("originalStyle", function(d) { return z(d.id); })
 				.attr("originalWidth", "2")
 				.attr("activeWidth", "4");
+/*
+				console.log("Sdata");
+				console.log(JSON.stringify(Sdata));
+				console.log("Tdata");
+				console.log(JSON.stringify(Tdata));
+*/
+// Dots
+g.selectAll("g.dot")
+    .data(Sdata)
+    .enter().append("g")
+    .attr("class", "dot")
+    .selectAll("circle")
+    .data(function(d) { return d.values; })
+    .enter().append("circle")
+    .attr("r", 2)
+    .attr("cx", function(d,i) {  return x(d.date); })
+    .attr("cy", function(d,i) { return y(d.metricVal); })
+		.style("stroke", function(d) {
+    	return z(this.parentNode.__data__.id);
+		})
+		.style("stroke-width","2")
+		.style("fill","none");
 
 // Legend
 var lsvg = d3.select("#legendSVG"),
@@ -262,6 +279,18 @@ var factor = this.svgLegendFactor;
 									.text(function(d, i) {
 											        return d.id;
 														});
+},
+
+getSdataIndexById: function (serId, Sdata){
+	var index = 0;
+	var arrayLength = Sdata.length;
+	for (var i = 0; i < arrayLength; i++) {
+		if(Sdata[i]["id"] == serId){
+			return index;
+		}else{
+			index++;
+		}
+	}
 },
 
 convertToTable: function (payload, pChartParams){
