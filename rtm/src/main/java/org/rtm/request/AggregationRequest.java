@@ -11,9 +11,13 @@ public class AggregationRequest extends Request{
 	private LongTimeInterval timeWindow;
 	private Long intervalSize;
 	private String primaryDimensionKey;
-	private final List<Selector> selectors;
+	private List<Selector> selectors;
 	
-	private final Properties properties;
+	private Properties properties;
+	
+	public AggregationRequest() {
+		super();
+	}
 	
 	public AggregationRequest(LongTimeInterval timeWindow, List<Selector> selectors, Properties properties) {
 		super();

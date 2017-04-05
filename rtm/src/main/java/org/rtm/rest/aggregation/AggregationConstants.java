@@ -18,37 +18,13 @@
  *******************************************************************************/
 package org.rtm.rest.aggregation;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.rtm.request.AggregationRequest;
-import org.rtm.stream.StreamId;
-
 /**
  * @author doriancransac
  *
  */
-@Path(AggregationConstants.servletPrefix)
-public class AggregationServlet {
+public class AggregationConstants {
 
-	@POST
-	@Path(AggregationConstants.getpath)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getResutStreamForQuery(final AggregationRequest body) {
-		System.out.println(body.getSelectors());
-		return null;
-	}
-	
-	@POST
-	@Path(AggregationConstants.refreshpath)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response refreshResutStreamForId(StreamId body) {
-		System.out.println(body);
-		return null;
-	}
+	public static final String servletPrefix = "/aggregate";
+	public static final String getpath = "/get";
+	public static final String refreshpath = "/refresh";
 }

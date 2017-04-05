@@ -23,6 +23,9 @@ public class LongTimeInterval {
 	private Long begin;
 	private Long end;
 
+	public LongTimeInterval(){
+	}
+	
 	/*
 	public LongTimeInterval(Long pBegin, long duration) {
 		this.begin = pBegin;
