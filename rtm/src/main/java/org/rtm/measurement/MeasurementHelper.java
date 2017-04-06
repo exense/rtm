@@ -26,9 +26,7 @@ public class MeasurementHelper{
 	private String primaryDimension;
 	
 	public MeasurementHelper(Properties p){
-		//TODO: this.primaryDimension = p.getProperty(p.getProperty("properties.primaryDimension.key"))
-		//this.primaryDimension = "name";
-		this.primaryDimension = null;
+		this.primaryDimension = p.getProperty("primaryDimensionKey");
 	}
 	
 	public String getPrimaryDimensionName(){
