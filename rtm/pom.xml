@@ -3,7 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.rtm</groupId>
 	<artifactId>rtm</artifactId>
+<<<<<<< Upstream, based on origin/master
 	<version>1.0.1</version>
+=======
+	<version>2.0.0</version>
+>>>>>>> f228f9b Starting to implement new client. Changed StreamId for serialization.
 	<packaging>jar</packaging>
 	<name>Response Time Manager</name>
 	<properties>
@@ -21,7 +25,11 @@
 		<dependency>
 			<groupId>org.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
+<<<<<<< Upstream, based on origin/master
 			<version>1.0.1</version>
+=======
+			<version>2.0.0</version>
+>>>>>>> f228f9b Starting to implement new client. Changed StreamId for serialization.
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

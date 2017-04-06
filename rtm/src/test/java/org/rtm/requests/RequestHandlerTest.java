@@ -1,6 +1,5 @@
 package org.rtm.requests;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -23,7 +22,6 @@ import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RequestHandlerTest {
 
@@ -32,16 +30,10 @@ public class RequestHandlerTest {
 	public void basicTest() throws JsonProcessingException{
 
 		LocalDateTime today = LocalDateTime.now();
-		LocalDateTime twoWeeksAgo = today.minus(5, ChronoUnit.WEEKS);
+		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), new Properties());
-		ObjectMapper om = new ObjectMapper();
-		try {
-			om.writeValue(System.out, ar);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		
+
 		Integer targetDots = 10;
 		ar.getProperties().put("targetChartDots", targetDots.toString());
 		StreamBroker ssm = new StreamBroker();

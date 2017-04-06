@@ -14,4 +14,8 @@ public class StreamId {
 		return streamedSessionId.toString();
 	}
 	
+	public String toString(){
+		return this.streamedSessionId.toString();
+	}
+	
 }
