@@ -15,13 +15,6 @@
 <link href="css/frameworks/bootstrap-theme.min.css" rel="stylesheet">
 <link href="css/theme.css" rel="stylesheet">
 
-<!-- Google visualization (cached) -->
-<link href="css/libs/googleapi/charts.css">
-<link href="css/libs/googleapi/tooltips.css">
-
-<!-- Date Picker -->
-<link href="css/libs/datepicker/bootstrap-datetimepicker.min.css"
-	rel="stylesheet" media="screen">
 
 <style>
 .panel-group .panel {
@@ -51,9 +44,9 @@ display: inline;
 
 <body>
 
-	<svg></svg>
+	<svg width="800" height="600"></svg>
 	<div id="textData"></div>
-	<!-- /container -->
+	<div id="container"></div>
 
 	<div id="copyrightsDiv" class="text-center">
 		<span class="xtra-small">© 2013-2017 Dorian Cransac and Jerome Comte. <a href="http://www.gnu.org/licenses/agpl-3.0.en.html" >AGPLv3</a> applies. RTM v1.0.0<span>
@@ -63,6 +56,7 @@ display: inline;
 	<!-- Frameworks -->
 	<script src="js/frameworks/jquery.min.js" type="text/javascript"></script>
 	<script type="text/javascript" src="js/frameworks/d3.min.js"></script>
+	<script src="js/frameworks/underscore-min.js" type="text/javascript"></script>
 
 	<!-- RTM -->
 	<script src="js/models/configModels.js" type="text/javascript"></script>
