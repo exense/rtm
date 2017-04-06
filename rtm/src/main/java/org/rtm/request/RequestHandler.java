@@ -38,10 +38,15 @@ public class RequestHandler {
 			int poolSize = 1;
 			long timeout = 120;
 			int subPartitioning = 32;
-			int subPoolSize = 4;
+			int subPoolSize = 2;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
-			long optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(prop.getProperty("targetChartDots")));
+			Long optimalSize = null;
+			if(aggReq.getIntervalSize() == null || aggReq.getIntervalSize() < 1)
+				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(prop.getProperty("targetChartDots")));
+			else
+				optimalSize = aggReq.getIntervalSize();
+			
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 			
