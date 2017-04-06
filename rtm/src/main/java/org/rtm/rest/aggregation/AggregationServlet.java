@@ -46,15 +46,13 @@ public class AggregationServlet {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getResutStreamForQuery(final AggregationRequest body) {
-		Integer targetDots = 10;
-		body.getProperties().put("targetChartDots", targetDots.toString());
-			
 		AbstractResponse response = rh.handle(body);
 		return Response.status(200).entity(response).build();
 	}
 	
 	@POST
 	@Path(AggregationConstants.refreshpath)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response refreshResutStreamForId(StreamId body) {
 		return Response.status(200).entity(ssm.getStream(body)).build();

@@ -3,8 +3,9 @@ function initNewApplication() {
 	var svg = d3.select("svg");
 	svg.append("g").attr("test", "1");
 	
-	var obj = {"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":null,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{}}
-	
+	var obj = 
+{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":null,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
+}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10"}}
 				$.ajax(
 					{
 						type: 'POST',
@@ -12,10 +13,11 @@ function initNewApplication() {
 						contentType: "application/json",
 						data: JSON.stringify(obj),
 						success:function(result){
-							setInterval( function() { myTimer(result.payload); }, 1000 );
+							setInterval( function() { myTimer(result.payload); }, 3000 );
 						}
 					});
 	
+
 
 }
 
@@ -30,11 +32,60 @@ function myTimer(arg1) {
 						contentType: "application/json",
 						data: JSON.stringify(arg1),
 						success:function(result){
-							//console.log(result);
-							textDiv.text(result);
+							//console.log(JSON.stringify(convertToOld(result)));
+							
+							var chartParams = {
+										metric : 'count',
+									};
+							
+							drawD3Chart(convertToOld(result), chartParams);
 						}
 					});
 }
+
+
+function convertToOld(payload){
+
+	  var result = [];
+	  var curRow = {};
+
+	  var seriesNb = payload.length;
+	  var series = [];
+	  var metrics = [];
+	  var first = payload[Object.keys(payload)[0]];
+	  if(first){
+		for(attribute in first){
+			series.push(attribute);
+		}
+		
+		for(metric in first[series[0]]){
+			//console.log('-->first'); console.log(JSON.stringify(first));console.log('-->series[0]'); console.log(series[0]);console.log('-->metric'); console.log(metric);
+			metrics.push(metric)
+		}
+
+		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
+		
+		_.each(series, function(sery){ 
+			var seriesData = {"grouby" : sery, "data" : []};
+			
+			for(dot in payload){
+				
+				var thisMeasure = {};
+				thisMeasure['begin'] = parseInt(dot);
+				_.each(metrics, function(metric){
+					//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
+					thisMeasure[metric] = payload[dot][sery][metric];
+				});
+				
+				seriesData.data.push(thisMeasure);
+			}
+		result.push(seriesData);
+		});
+	  }
+	  
+	  return result;
+}
+
 
 function drawD3Chart(pAggregates, pChartParams){
 	/*
