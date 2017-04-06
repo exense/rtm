@@ -4,7 +4,7 @@ function initNewApplication() {
 	svg.append("g").attr("test", "1");
 	
 	var obj = 
-{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":null,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
+{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":600000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
 }],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10"}}
 				$.ajax(
 					{
@@ -13,7 +13,7 @@ function initNewApplication() {
 						contentType: "application/json",
 						data: JSON.stringify(obj),
 						success:function(result){
-							setInterval( function() { myTimer(result.payload); }, 3000 );
+							setInterval( function() { myTimer(result.payload); }, 500 );
 						}
 					});
 	
@@ -33,12 +33,16 @@ function myTimer(arg1) {
 						data: JSON.stringify(arg1),
 						success:function(result){
 							//console.log(JSON.stringify(convertToOld(result)));
-							
+							if(Object.keys(result).length > 0){
 							var chartParams = {
 										metric : 'count',
 									};
 							
+							
+							$( "svg" ).empty();
+							
 							drawD3Chart(convertToOld(result), chartParams);
+							}
 						}
 					});
 }
