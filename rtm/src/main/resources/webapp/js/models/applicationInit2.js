@@ -4,7 +4,7 @@ function initNewApplication() {
 	svg.append("g").attr("test", "1");
 	
 	var obj = 
-{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":600000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
+{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":6000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
 }],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10"}}
 				$.ajax(
 					{
@@ -32,7 +32,6 @@ function myTimer(arg1) {
 						contentType: "application/json",
 						data: JSON.stringify(arg1),
 						success:function(result){
-							//console.log(JSON.stringify(convertToOld(result)));
 							if(Object.keys(result).length > 0){
 							var chartParams = {
 										metric : 'count',
@@ -41,7 +40,10 @@ function myTimer(arg1) {
 							
 							$( "svg" ).empty();
 							
-							drawD3Chart(convertToOld(result), chartParams);
+							var convertedResult = convertToOld(result);
+							//console.log(' --> convertedResult'); console.log(JSON.stringify(convertToOld(result)));
+							if(convertedResult.length > 0);
+							drawD3Chart(convertedResult, chartParams);
 							}
 						}
 					});
@@ -73,15 +75,28 @@ function convertToOld(payload){
 			var seriesData = {"grouby" : sery, "data" : []};
 			
 			for(dot in payload){
+				//console.log(' --> result');	console.log(JSON.stringify(result));
+				if(Object.keys(dot).length > 0 ){
+					var thisMeasure = {};
+					thisMeasure['begin'] = parseInt(dot);
+					var complete = true;
+					_.each(metrics, function(metric){
+						//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
+						/*if(!payload[dot][sery]){
+						console.log(' ---> payload[dot][sery]');console.log(JSON.stringify(payload[dot][sery]));
+						console.log(' ---> payload[dot]');console.log(JSON.stringify(payload[dot]));
+						console.log(' ---> payload');console.log(JSON.stringify(payload));
+						}*/
+						if(payload[dot][sery]){
+							thisMeasure[metric] = payload[dot][sery][metric];
+						}else
+						    complete = false;
+					});
 				
-				var thisMeasure = {};
-				thisMeasure['begin'] = parseInt(dot);
-				_.each(metrics, function(metric){
-					//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
-					thisMeasure[metric] = payload[dot][sery][metric];
-				});
-				
-				seriesData.data.push(thisMeasure);
+					if(complete){
+						seriesData.data.push(thisMeasure);
+					}
+				}
 			}
 		result.push(seriesData);
 		});
