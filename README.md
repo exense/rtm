@@ -7,3 +7,7 @@ To start RTM, use either jetty via the following command line, simply using the 
 java -cp "C:\rtm\rtm-1.0.0-jar-with-dependencies.jar" org.rtm.jetty.JettyStarter -config=C:\rtm\rtm.properties
 
 !! IMPORTANT !! : make sure to update the paths to both files (the jar and the properties) before launching the command.
+
+
+
+--> RTM is then accessible through the url http://localhost:8099/rtm
