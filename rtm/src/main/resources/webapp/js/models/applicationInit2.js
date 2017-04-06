@@ -5,7 +5,7 @@ function initNewApplication() {
 	
 	var obj = 
 {"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":6000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
-}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10"}}
+}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10", "primaryDimensionKey" : "name"}}
 				$.ajax(
 					{
 						type: 'POST',
@@ -13,7 +13,7 @@ function initNewApplication() {
 						contentType: "application/json",
 						data: JSON.stringify(obj),
 						success:function(result){
-							setInterval( function() { myTimer(result.payload); }, 500 );
+							setInterval( function() { myTimer(result.payload); }, 300 );
 						}
 					});
 	
@@ -72,7 +72,7 @@ function convertToOld(payload){
 		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
 		
 		_.each(series, function(sery){ 
-			var seriesData = {"grouby" : sery, "data" : []};
+			var seriesData = {"groupby" : sery, "data" : []};
 			
 			for(dot in payload){
 				//console.log(' --> result');	console.log(JSON.stringify(result));
@@ -107,21 +107,13 @@ function convertToOld(payload){
 
 
 function drawD3Chart(pAggregates, pChartParams){
-	/*
-	drawD3Chart(that.collection.models[0].get('payload'),{
-	metric : that.currentChartMetricChoice,
-	chartBeginKey : that.chartBeginKey,
-	chartGroupbyKey : that.chartGroupbyKey,
-	chartMaxSeries : that.chartMaxSeries,
-	chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-})
-*/
-
 
 var Sdata = this.convertToSeries(pAggregates, pChartParams);
 var Tdata = this.convertToTable(pAggregates, pChartParams);
-
-
+//console.log('-->Tdata');
+//console.log(JSON.stringify(Tdata));
+//console.log('-->Sdata');
+//console.log(JSON.stringify(Sdata));
 var svg = d3.select("svg"),
     margin = {top: 20, right: 90, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
@@ -200,9 +192,9 @@ function convertToTable(payload, pChartParams){
 	  var payloadLen = payload[0].data.length;
 	  var headers = [];
 
-	  //console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
+	  //console.log(' --> seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
 	  _.each(payload, function(series){
-	    //console.log("series =");
+	    //console.log(" --> series =");
 	    //console.log(series);
 	    headers.push(series.groupby);
 	  });
