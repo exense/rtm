@@ -25,7 +25,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
+import org.rtm.request.RequestHandler;
+import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
 
 /**
@@ -35,20 +38,25 @@ import org.rtm.stream.StreamId;
 @Path(AggregationConstants.servletPrefix)
 public class AggregationServlet {
 
+	private static StreamBroker ssm = new StreamBroker();
+	RequestHandler rh = new RequestHandler(ssm);
+	
 	@POST
 	@Path(AggregationConstants.getpath)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getResutStreamForQuery(final AggregationRequest body) {
-		System.out.println(body.getSelectors());
-		return null;
+		Integer targetDots = 10;
+		body.getProperties().put("targetChartDots", targetDots.toString());
+			
+		AbstractResponse response = rh.handle(body);
+		return Response.status(200).entity(response).build();
 	}
 	
 	@POST
 	@Path(AggregationConstants.refreshpath)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response refreshResutStreamForId(StreamId body) {
-		System.out.println(body);
-		return null;
+		return Response.status(200).entity(ssm.getStream(body)).build();
 	}
 }

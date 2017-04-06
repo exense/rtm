@@ -15,7 +15,7 @@ public class StreamBroker {
 	 * 
 	 * 
 	 */
-	private ConcurrentMap<StreamId, Stream> streamRegistry;
+	private ConcurrentMap<String, Stream> streamRegistry;
 	
 	public StreamBroker(){
 		streamRegistry = new ConcurrentHashMap<>();
@@ -23,12 +23,12 @@ public class StreamBroker {
 	
 	public StreamId registerStreamSession(Stream streamHandle) {
 		StreamId id = new StreamId();
-		streamRegistry.put(id, streamHandle);
+		streamRegistry.put(id.getStreamedSessionId(), streamHandle);
 		return id;
 	}
 	
 	public Stream getStream(StreamId id){
-		return this.streamRegistry.get(id);
+		return this.streamRegistry.get(id.getStreamedSessionId());
 	}
 
 }
