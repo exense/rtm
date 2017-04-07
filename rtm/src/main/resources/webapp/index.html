@@ -38,16 +38,61 @@ font-size : xx-small;
 .nav-inline {
 display: inline;
 }
+
+
+input[type=text], select {
+    width: 100%;
+    padding: 10px 16px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type=submit] {
+    width: 10%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 16px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+div {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+}
 </style>
 
 </head>
 
 <body>
 
-	<svg width="800" height="600"></svg>
-	<div id="textData"></div>
-	<div id="container"></div>
 
+	<div id="formDiv">
+<form>
+query 
+  <input type="text" name="queryField" value="" style="width: 800px;" function="queryArg" /><br>
+  chart params
+  <input type="text" name="chartField" value="" style="width: 800px;" function="chartArg" /><br>
+  
+  
+<input type="submit" value="Send" function="send" />
+  <input type="submit" value="Pause" function="pause" />
+  <input type="submit" value="Resume" function="resume">
+</form> 
+	</div>
+
+	<svg width="800" height="600"></svg>
+	
 	<div id="copyrightsDiv" class="text-center">
 		<span class="xtra-small">© 2013-2017 Dorian Cransac and Jerome Comte. <a href="http://www.gnu.org/licenses/agpl-3.0.en.html" >AGPLv3</a> applies. RTM v1.0.0<span>
 	</div>

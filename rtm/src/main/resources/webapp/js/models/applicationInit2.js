@@ -1,29 +1,46 @@
-function initNewApplication() {
+var lastSetInterval;
+var curPayload;
+var refreshSpeed = 500;
 
-	var svg = d3.select("svg");
-	svg.append("g").attr("test", "1");
-	
-	var obj = 
-{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":6000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true
-}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10", "primaryDimensionKey" : "name"}}
+function initNewApplication() {
+$('form').submit(false);
+$('input[function="send"]').click(send);
+$('input[function="pause"]').click(pause);
+$('input[function="resume"]').click(resume);
+}
+
+function pause(){
+	clearInterval(lastSetInterval);
+}
+
+function resume(){
+	lastSetInterval = setInterval( function() { myTimer(curPayload); }, refreshSpeed);
+}
+
+function send(){
+
+console.log("send!");
+//{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":6000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10", "primaryDimensionKey" : "name"}}
+
+var query = $('input[function="queryArg"]').val();
+
 				$.ajax(
 					{
 						type: 'POST',
 						url: '/rtm/rest/aggregate/get',
 						contentType: "application/json",
-						data: JSON.stringify(obj),
+						//data: JSON.stringify(query),
+						data: query,
 						success:function(result){
-							setInterval( function() { myTimer(result.payload); }, 300 );
+							clearInterval(lastSetInterval);
+							curPayload = result.payload;
+							lastSetInterval = setInterval( function() { myTimer(result.payload); }, refreshSpeed );
 						}
-					});
-	
-
-
-}
+					});}
 
 function myTimer(arg1) {
 	
-	var textDiv = $("#textData");
+var chartArg = $('input[function="chartArg"]').val();
 	
 				$.ajax(
 					{
@@ -43,7 +60,9 @@ function myTimer(arg1) {
 							var convertedResult = convertToOld(result);
 							//console.log(' --> convertedResult'); console.log(JSON.stringify(convertToOld(result)));
 							if(convertedResult.length > 0);
-							drawD3Chart(convertedResult, chartParams);
+							console.log(chartArg);
+							drawD3Chart(convertedResult, JSON.parse(chartArg));
+							//drawD3Chart(convertedResult, { "metric" : "count"});
 							}
 						}
 					});
