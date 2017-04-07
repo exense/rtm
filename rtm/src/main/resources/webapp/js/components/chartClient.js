@@ -2,7 +2,7 @@ var lastSetInterval;
 var curPayload;
 var refreshSpeed = 500;
 
-function initNewApplication() {
+function initApplication() {
 $('form').submit(false);
 $('input[function="send"]').click(send);
 $('input[function="pause"]').click(pause);
@@ -19,7 +19,7 @@ function resume(){
 
 function send(){
 
-console.log("send!");
+//console.log("send!");
 //{"timeWindow":{"begin":1388440000000,"end":1591465779439},"intervalSize":6000,"primaryDimensionKey":null,"selectors":[{"textFilters":[{"key":"name","value":"Transaction.*","regex":true},{"key":"eId","value":".*","regex":true}],"numericalFilters":[{"key":"value","minValue":0,"maxValue":100000000}]}],"properties":{"targetChartDots":"10", "primaryDimensionKey" : "name"}}
 
 var query = $('input[function="queryArg"]').val();
