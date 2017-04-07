@@ -13,7 +13,7 @@ public class CursorHandler{
 
 	public TimeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket, Properties prop) {
 
-		TimeValue tv = new TimeValue(myBucket);
+		TimeValue tv = new TimeValue(myBucket.getLowerBound());
 		MeasurementHelper mh = new MeasurementHelper(prop);
 
 		for(Map m : iterable){

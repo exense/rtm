@@ -13,14 +13,14 @@ public class TimeValue extends ConcurrentHashMap<String, Dimension> implements A
 
 	private Identifier<Long> ti;
 
-	public TimeValue(Identifier<Long> ti){
+	public TimeValue(Long id){
 		super();
-		this.ti = ti;
+		this.ti = new TimeBasedPayloadIdentifier(id);
 	}
 
 	@Override
 	public PayloadIdentifier<Long> getStreamPayloadIdentifier() {
-		return (PayloadIdentifier<Long>) new TimeBasedPayloadIdentifier();
+		return (PayloadIdentifier<Long>) this.ti;
 	}
 
 
@@ -36,8 +36,8 @@ public class TimeValue extends ConcurrentHashMap<String, Dimension> implements A
 
 		Long id;
 
-		public TimeBasedPayloadIdentifier(){
-			this.id = (Long)ti.getIdAsTypedObject();
+		public TimeBasedPayloadIdentifier(Long id){
+			this.id = id;
 		}
 
 		@Override
@@ -51,8 +51,8 @@ public class TimeValue extends ConcurrentHashMap<String, Dimension> implements A
 		}
 
 		@Override
-		public int compareTo(Long o) {
-			return this.id.compareTo(o);
+		public int compareTo(Identifier<Long> o) {
+			return this.id.compareTo(o.getIdAsTypedObject());
 		}
 
 	}
