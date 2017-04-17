@@ -254,11 +254,13 @@ var lsvg = d3.select("#legendSVG"),
     width = svg.attr("width") - margin.left - margin.right,
     height = svg.attr("height") - margin.top - margin.bottom;
 
+var legPosx = $("#legendSVG").position().left;
+var legPosy = $("#legendSVG").position().bottom;
+
 var tnode = lsvg.append("text")
 							.attr("id", "legend")
-							.attr("x", "50px")
-							.attr("y", "20px")
-							.attr("text-anchor", "middle");
+							.attr("x", legPosx + 20 + "px")
+							.attr("dy", "20px");
 
 var containerWidth = $(".panel").width();
 var tDy = 20;
@@ -269,22 +271,18 @@ var tDx = (containerWidth -20) / Math.abs(this.svgLegendFactor +1);
 var origin = margin.left + 50;
 var tx = origin;
 var factor = this.svgLegendFactor;
+var that = this;
 	var lser = tnode.selectAll(".lser")
 								  .data(Sdata)
 								  .enter()
-									.append("tspan")
-									.attr('x', function(d, i){
-										if(i % factor <1)
-											tx = origin;
-										else {
-											tx += tDx;
-										}
-										return tx + "px";
-									})
-									.attr('y', function(d, i){
-										if(i % factor <1)
-											ty+=tDy;
-										return ty + "px";
+									.append("button")
+									.attr("class","btn btn-default btn-sm")
+									.each(function(d, i){
+											var thisSeries = d3.select("#" + d.id);
+											var path = thisSeries.select("path");
+											var rgbStyle= that.getRGB(path.attr("style"));
+											//console.log(rgbStyle);
+											d3.select(this).attr("style", "border-width: 2px; border-color: rgb" + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
 									})
 									.on("click", function(d, i){
 										var thisSeries = d3.select("#" + d.id);
@@ -292,7 +290,6 @@ var factor = this.svgLegendFactor;
 										var originalStrokeStyle = path.attr("originalStyle");
 										var originalWidth = path.attr("originalWidth");
 										var activeWidth = path.attr("activeWidth");
-
 										var newActive;
 										if(thisSeries.attr("active") == "true"){
 											path.style(originalStrokeStyle);
@@ -309,6 +306,9 @@ var factor = this.svgLegendFactor;
 									.text(function(d, i) {
 											        return d.id;
 														});
+},
+getRGB: function (cssStyle){
+	return rgbSplit = cssStyle.split("rgb")[1].split(";")[0];
 },
 
 getSdataIndexById: function (serId, Sdata){
