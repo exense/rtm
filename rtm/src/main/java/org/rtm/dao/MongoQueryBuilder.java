@@ -31,7 +31,7 @@ public class MongoQueryBuilder {
 							genQuerySb.append("\":");
 
 							if(f.isRegex())
-								genQuerySb.append("{$regex : "+f.getValue()+"}");
+								genQuerySb.append("{$regex : \""+f.getValue()+"\"}");
 							else
 								genQuerySb.append("\""+f.getValue()+"\"");
 							genQuerySb.append(",");
