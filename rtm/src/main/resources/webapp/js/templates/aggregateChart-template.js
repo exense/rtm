@@ -26,9 +26,12 @@
 <% var pLegendHeight = (20 * (Math.abs(nbSeries / factor))) + 20 %>
 
 </div> <!-- /dropdown-menu -->
-  <svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg>
-  <svg id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></svg>
-	<div class="divToolTip">
+<div id="svgContainer" style="height: 0; display: inline-block; position: relative; width: 100%; height: 100%; padding-bottom: 5%">
+  <!-- //<svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg> -->
+	<svg id="chartSVG" viewBox="0 0 <%=pWidth%> <%=pChartHeight%>" style="display: inline-block; position: relative; top: 10px; left: 0;"></svg>
+</div> <!-- /svgContainer -->
+<div id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></svg>
+<div class="divToolTip" />
 </div> <!-- /panel-body -->
 </div> <!-- /panel-collapse -->
 </div> <!-- /panel -->

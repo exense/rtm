@@ -135,10 +135,14 @@ drawD3Chart: function(pAggregates, pChartParams){
 var Sdata = this.convertToSeries(pAggregates, pChartParams);
 var Tdata = this.convertToTable(pAggregates, pChartParams);
 
-var svg = d3.select("#chartSVG"),
-    margin = {top: 20, right: 90, bottom: 30, left: 50},
-    width = svg.attr("width") - margin.left - margin.right,
-    height = svg.attr("height") - margin.top - margin.bottom;
+var svg = d3.select("#chartSVG")
+					.attr("preserveAspectRatio", "xMinYMin meet")
+
+var margin = {top: 20, right: 90, bottom: 30, left: 50};
+var width = $("svg").width() - margin.right - margin.left;
+var height = $("svg").height() - margin.top - margin.bottom;
+
+//console.log("width=" + width + "; height=" + height);
 
 var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
