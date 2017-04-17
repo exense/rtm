@@ -242,7 +242,9 @@ g.selectAll("g.dot")
 					tooltipDiv.transition()
 							.duration(200)
 							.style("opacity", .85);
-					tooltipDiv.html("series="+circ.attr("serName") + "<br/> date=" + circ.attr("date") + "<br/> value=" + circ.attr("value"))
+					tooltipDiv.html('<p style="display: inline-block">series='+circ.attr("serName") + '</p><br />'
+					 						  + '<p style="display: inline-block">date=' + circ.attr("date") + '</p><br />'
+											  + '<p style="display: inline-block">value='+ circ.attr("value") + '</p>')
 							.style("left", (d3.event.pageX) + "px")
 							.style("top", (d3.event.pageY - 28) + "px");
 				})

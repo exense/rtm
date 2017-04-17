@@ -29,12 +29,12 @@ body {
 .divToolTip {
     position: absolute;
     text-align: left;
-    width: 200px;
-    height: 60px;
     padding: 2px;
     padding-left: 20px;
+    padding-right: 20px;
     font: 12px sans-serif;
-    background: goldenrod;
+    color: white;
+    background: #357ebd;
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
