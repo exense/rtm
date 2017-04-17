@@ -55,9 +55,9 @@ public class MeasurementServlet {
 			return Response.status(500).entity("Exception occured : " + e1.getMessage()).build();
 		}
 		int skip;
-		int limit = conf.getPropertyAsInteger("measurementService.paging");
+		int limit = conf.getPropertyAsInteger("client.MeasurementListView.pagingValue");
 		try{
-			skip = Integer.parseInt(input.getServiceParams().get("skip"));
+			skip = Integer.parseInt(input.getServiceParams().get("measurementService.nextFactor"));
 		}catch(NumberFormatException e){
 			//e.printStackTrace();
 			skip = 0;

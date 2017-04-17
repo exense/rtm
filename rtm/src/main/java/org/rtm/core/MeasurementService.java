@@ -54,12 +54,6 @@ public class MeasurementService{
 		for(Object o : it){
 			Map<String, Object> m = (Map) o;
 			itcount++;
-			 if(debug){
-				 long now = System.currentTimeMillis();
-				 sb.append("iteration " + itcount + "; duration=" + (now - start) + "ms.\n");
-				 start = now;
-			 }
-			
 			res.add(m);
 		}
 		
