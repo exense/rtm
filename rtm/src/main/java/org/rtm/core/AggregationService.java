@@ -51,7 +51,7 @@ public class AggregationService{
 	private static final int maxAggregatesForSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxAggregatesForSeries"));
 	private static final int maxSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxSeries"));
 	public static final int maxMeasurements = Configuration.getInstance().getPropertyAsInteger("aggregateService.maxMeasurements");
-	private boolean isDebug = true;
+	private boolean isDebug = false;
 
 	public AggregationService(){
 		if(Configuration.getInstance().getProperty("rtm.debug") != null)
