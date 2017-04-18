@@ -15,7 +15,8 @@ import org.rtm.exception.ShouldntHappenException;
 public class MeasurementAggregator {
 
 	public enum AggregationType {
-		COUNT("cnt"), MIN("min"), MAX("max"), SUM("sum"), AVG("avg"), PCL("pcl"), STD("std"), TPS("tps");
+		COUNT("cnt"), MIN("min"), MAX("max"), SUM("sum"), AVG("avg"), STD("std"), TPS("tps"), TPM("tpm"),
+		PCL50("pcl50"), PCL80("pcl80"), PCL90("pcl90"), PCL99("pcl99"); 
 
 		String shortName;
 		AggregationType(String s) {
@@ -198,21 +199,23 @@ public class MeasurementAggregator {
 		result.put(AggregationType.MIN.getShort(), MeasurementAggregator.aggregateMinByNumericVal(durationList));
 		result.put(AggregationType.MAX.getShort(), MeasurementAggregator.aggregateMaxByNumericVal(durationList));
 		result.put(AggregationType.STD.getShort(), MeasurementAggregator.aggregateStandardDevByNumericVal(durationList));
-		result.put(AggregationType.PCL.getShort() + "50", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
-		result.put(AggregationType.PCL.getShort() + "80", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
-		result.put(AggregationType.PCL.getShort() + "90", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
-		result.put(AggregationType.PCL.getShort() + "99", MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
+		result.put(AggregationType.PCL50.getShort(), MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 50D));
+		result.put(AggregationType.PCL80.getShort(), MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 80D));
+		result.put(AggregationType.PCL90.getShort(), MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 90D));
+		result.put(AggregationType.PCL99.getShort(), MeasurementAggregator.aggregatePercentileByNumericVal(durationList, 99D));
 
 		return result;
 	}
 
-	public static Long computeTps(long count, long begin, long end) {
+	public static float computeTpX(long count, long begin, long end, float interval) {
 		float fCount = (float) count;
 		float fWindow = (float) (end - begin);
 		
 		if(count > 0)
-			return (long) Math.abs((fCount / fWindow)* 1000F);
+			//return (long) Math.abs((fCount / fWindow)* interval);
+			return Math.abs((fCount / fWindow)* interval);
 		return 0L;
 	}
+
 
 }

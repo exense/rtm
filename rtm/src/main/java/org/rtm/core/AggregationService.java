@@ -43,13 +43,15 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AggregationService{
 
-	private static final Logger logger = LoggerFactory.getLogger(AggregationService.class);
+	private static final String defaultGroupByString = "DefaultGroupBy";
 	
+	private static final Logger logger = LoggerFactory.getLogger(AggregationService.class);
+
 	private static final int maxCapacityForInterval = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxCapacityForInterval"));
 	private static final int maxAggregatesForSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxAggregatesForSeries"));
 	private static final int maxSeries = Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.maxSeries"));
 	public static final int maxMeasurements = Configuration.getInstance().getPropertyAsInteger("aggregateService.maxMeasurements");
-	private boolean isDebug = false;
+	private boolean isDebug = true;
 
 	public AggregationService(){
 		if(Configuration.getInstance().getProperty("rtm.debug") != null)
@@ -84,7 +86,7 @@ public class AggregationService{
 
 		boolean noDiffMode = false;
 		if(differenciatorKey == null || differenciatorKey.isEmpty()){
-			differenciatorKey = UUID.randomUUID().toString();
+			differenciatorKey = defaultGroupByString;
 			noDiffMode = true;
 		}
 
@@ -107,7 +109,7 @@ public class AggregationService{
 			if(curr.belongs((Long) m.get(beginKey))){
 				/* 211014 */
 				if(noDiffMode || m.get(differenciatorKey) == null)
-					m.put(differenciatorKey, "[DefaultGroupBy]");
+					m.put(differenciatorKey, defaultGroupByString);
 				/* /211014 */
 				if(subChunk.get(m.get(differenciatorKey)) == null){
 
@@ -145,7 +147,7 @@ public class AggregationService{
 
 				/* 211014 */
 				if(noDiffMode || m.get(differenciatorKey) == null)
-					m.put(differenciatorKey, "[DefaultGroupBy]");
+					m.put(differenciatorKey, defaultGroupByString);
 
 				/* /211014 */
 
@@ -163,8 +165,8 @@ public class AggregationService{
 							res.put(tn, new ArrayList<Map<String, Object>>());
 
 						res.get(tn).add(buildAggregate(differenciatorKey, tn, sessionKey, sessionId,
-													beginKey, curr.getBegin(), endKey, curr.getEnd(),
-													dataList, valueKey));
+								beginKey, curr.getBegin(), endKey, curr.getEnd(),
+								dataList, valueKey));
 
 						subChunk.get(tn).clear();
 						totalChunkSize = 0;
@@ -260,15 +262,16 @@ public class AggregationService{
 	}
 
 	private Map<String, Object> buildAggregate(String differenciatorKey, String tn, String sessionKey, String sessionId,
-												String beginKey, long begin, String endKey, long end,
-												List<Map<String, Object>> dataList, String valueKey) throws Exception{
+			String beginKey, long begin, String endKey, long end,
+			List<Map<String, Object>> dataList, String valueKey) throws Exception{
 		Map<String, Object> agg = new HashMap<String, Object>();
-		agg.put(differenciatorKey, tn);
+		//agg.put(differenciatorKey, tn);
 		agg.put(sessionKey, sessionId);
 		agg.put(beginKey, begin);
 		agg.put(endKey, end);
 		agg.putAll(MeasurementAggregator.reduceAll(AggregationHelper.getDurationsList(dataList, valueKey)));
 		enrichWithTpms(agg);
+		enrichWithTpmin(agg);
 		return agg;
 	}
 
@@ -299,7 +302,7 @@ public class AggregationService{
 		{
 			String t = e.getKey();
 			List<Map<String, Object>> lt = e.getValue();
-			List<Map<String, Object>> filledGaps = fillInTheGaps(lt, min, max, granularity, beginKey, endKey, sessionKey, nameKey);
+			List<Map<String, Object>> filledGaps = fillInTheGaps(lt, min, max, granularity, beginKey, endKey, sessionKey);
 			// check for maxAggregates?
 			consistent.put(t, filledGaps);
 		}
@@ -311,7 +314,7 @@ public class AggregationService{
 
 
 	private static List<Map<String, Object>> fillInTheGaps(List<Map<String, Object>> lr, Long min, Long max, long granularity,
-			String beginKey, String endKey, String sessionKey, String nameKey) throws Exception {
+			String beginKey, String endKey, String sessionKey) throws Exception {
 
 		if(lr == null || lr.size() < 1)
 			throw new NoDataException("No data to work with.");
@@ -329,7 +332,7 @@ public class AggregationService{
 
 			BlankAggregate b = new BlankAggregate();
 			b.put(sessionKey, first.get(sessionKey));
-			b.put(nameKey,first.get(nameKey));
+			//b.put(nameKey,first.get(nameKey));
 			b.put(beginKey, initialGap);
 			b.put(endKey, initialGap + granularity);
 			lf.add(b);
@@ -344,7 +347,7 @@ public class AggregationService{
 				cursor+=granularity;				
 				BlankAggregate b = new BlankAggregate();
 				b.put(sessionKey, first.get(sessionKey));
-				b.put(nameKey,first.get(nameKey));
+				//b.put(nameKey,first.get(nameKey));
 				b.put(beginKey, cursor);
 				b.put(endKey, cursor + granularity);
 				lf.add(b);
@@ -361,7 +364,7 @@ public class AggregationService{
 		while(curTime <= finalGap){
 			BlankAggregate b = new BlankAggregate();
 			b.put(sessionKey, first.get(sessionKey));
-			b.put(nameKey,(String)first.get(nameKey));
+			//b.put(nameKey,(String)first.get(nameKey));
 			b.put(beginKey, curTime);
 			b.put(endKey, curTime + granularity);
 			lf.add(b);
@@ -431,14 +434,23 @@ public class AggregationService{
 		logger.debug("auto-granularity : abs(" + timeWindow + " / " + targetSeriesDots + " ) = " + result);
 		return result;
 	}
-	
+
 
 	public static void enrichWithTpms(Map<String, Object> agg) {
-		agg.put(AggregationType.TPS.getShort(),
-					MeasurementAggregator.computeTps(
-							(Long)agg.get(AggregationType.COUNT.getShort()), 
-							(Long)agg.get(MeasurementConstants.BEGIN_KEY),
-							(Long)agg.get(MeasurementConstants.END_KEY)));
-		
+		enrichWithTpX(agg, 1000L, AggregationType.TPS.getShort());
+	}
+
+	public static void enrichWithTpmin(Map<String, Object> agg) {
+		enrichWithTpX(agg, 60000L, AggregationType.TPM.getShort());
+	}
+
+	public static void enrichWithTpX(Map<String, Object> agg, long intervalMs, String metric) {
+		agg.put(metric,
+				MeasurementAggregator.computeTpX(
+						(Long)agg.get(AggregationType.COUNT.getShort()), 
+						(Long)agg.get(MeasurementConstants.BEGIN_KEY),
+						(Long)agg.get(MeasurementConstants.END_KEY),
+						intervalMs));
+
 	}
 }
