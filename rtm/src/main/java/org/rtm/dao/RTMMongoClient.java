@@ -159,9 +159,8 @@ public class RTMMongoClient{
 		long result = maxVal - minVal;
 		logger.debug("time window : " + maxVal + " - " + minVal + " = " + result);
 		
-		if(result < 1L)
-			throw new Exception("Could not compute auto-granularity : result="+result);
-		
+		if(result < 1L) //only one document
+			result = 1;
 		return result;
 	}
 

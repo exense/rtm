@@ -93,8 +93,13 @@ public class AggregationService{
 		start = (Long)m.get(beginKey);
 
 		LongTimeInterval curr = new LongTimeInterval(start, granularity);
-		while(!curr.belongs(firstBegin))
-			curr = curr.getNext(granularity);
+
+		boolean isSingleInterval = curr.getBegin().equals(curr.getEnd());
+
+		if(!isSingleInterval){
+			while(!curr.belongs(firstBegin))
+				curr = curr.getNext(granularity);
+		}
 
 		int totalChunkSize = 0;
 		// Iterate over all transactions in the result set
@@ -106,7 +111,7 @@ public class AggregationService{
 				System.out.println("for=>["+m+"]");
 
 			// The currently evaluated measurement belongs to the current interval
-			if(curr.belongs((Long) m.get(beginKey))){
+			if(curr.belongs((Long) m.get(beginKey)) || isSingleInterval){
 				/* 211014 */
 				if(noDiffMode || m.get(differenciatorKey) == null)
 					m.put(differenciatorKey, defaultGroupByString);
@@ -319,26 +324,30 @@ public class AggregationService{
 		if(lr == null || lr.size() < 1)
 			throw new NoDataException("No data to work with.");
 
-		if ( Math.round((max - min) / granularity) > 100000)
-			throw new Exception("The input dates and granularity result in too many datapoints (filled blanks)");
+		boolean isSingleMilli = (max - min) == 0;
 
+		if(!isSingleMilli){ //single millisecond interval or single doc
+			if ( Math.round((max - min) / granularity) > 100000)
+				throw new Exception("The input dates and granularity result in too many datapoints (filled blanks)");
+		}
 		Map<String, Object> first = lr.get(0);
 
 		List<Map<String, Object>> lf = new ArrayList<Map<String, Object>>();
 
 		long initialGap = min;
 		long curTime = (Long) first.get(beginKey);
-		while(curTime > initialGap){
+		if(!isSingleMilli){
+			while(curTime > initialGap){
 
-			BlankAggregate b = new BlankAggregate();
-			b.put(sessionKey, first.get(sessionKey));
-			//b.put(nameKey,first.get(nameKey));
-			b.put(beginKey, initialGap);
-			b.put(endKey, initialGap + granularity);
-			lf.add(b);
-			initialGap+=granularity;
+				BlankAggregate b = new BlankAggregate();
+				b.put(sessionKey, first.get(sessionKey));
+				//b.put(nameKey,first.get(nameKey));
+				b.put(beginKey, initialGap);
+				b.put(endKey, initialGap + granularity);
+				lf.add(b);
+				initialGap+=granularity;
+			}
 		}
-
 		Map<String, Object> last = first;
 		for(Map<String, Object> a : lr){
 
@@ -361,16 +370,17 @@ public class AggregationService{
 
 		long finalGap = max;
 		curTime = lastDate.getTime();
-		while(curTime <= finalGap){
-			BlankAggregate b = new BlankAggregate();
-			b.put(sessionKey, first.get(sessionKey));
-			//b.put(nameKey,(String)first.get(nameKey));
-			b.put(beginKey, curTime);
-			b.put(endKey, curTime + granularity);
-			lf.add(b);
-			curTime+=granularity;
+		if(!isSingleMilli){
+			while(curTime <= finalGap){
+				BlankAggregate b = new BlankAggregate();
+				b.put(sessionKey, first.get(sessionKey));
+				//b.put(nameKey,(String)first.get(nameKey));
+				b.put(beginKey, curTime);
+				b.put(endKey, curTime + granularity);
+				lf.add(b);
+				curTime+=granularity;
+			}
 		}
-
 		return lf;
 	}
 
