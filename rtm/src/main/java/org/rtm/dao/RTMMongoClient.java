@@ -40,7 +40,7 @@ public class RTMMongoClient{
 
 	private static final Logger logger = LoggerFactory.getLogger(RTMMongoClient.class);
 
-	private final MongoClient mongoClient;
+	private final MongoClient mongo;
 	private final MongoDatabase db;
 	final MongoCollection<Document> coll;
 
@@ -59,14 +59,26 @@ public class RTMMongoClient{
 		super();
 
 		Configuration conf = Configuration.getInstance();
+		String stringAttempt1 = conf.getProperty("db.host");
+		String stringAttempt2 = conf.getProperty("ds.host");
+		host = (stringAttempt1 == null || stringAttempt1.isEmpty())?((stringAttempt2 == null || stringAttempt2.isEmpty())?"localhost":stringAttempt2):stringAttempt1;
 
-		host = conf.getProperty("db.host");
-		Integer confPort = conf.getPropertyAsInteger("db.port");
-		port = (confPort==null)?27017:confPort;
-		user = conf.getProperty("db.username");
-		pwd = conf.getProperty("db.password");
-		String confDb = conf.getProperty("db.database");
-		database = (confDb==null)?"rtm":confDb;
+		Integer intAttempt1 = conf.getPropertyAsInteger("db.port");
+		Integer intAttempt2 = conf.getPropertyAsInteger("port");
+		port = (intAttempt1 == null || intAttempt1 <= 0)?((intAttempt2 == null || intAttempt2 <= 0)?27017:intAttempt2):intAttempt1;
+		
+		stringAttempt1 = conf.getProperty("db.username");
+		stringAttempt2 = conf.getProperty("ds.username");
+		user = (stringAttempt1 == null || stringAttempt1.isEmpty())?((stringAttempt2 == null || stringAttempt2.isEmpty())?null:stringAttempt2):stringAttempt1;
+		
+		stringAttempt1 = conf.getProperty("db.password");
+		stringAttempt2 = conf.getProperty("ds.password");
+		pwd = (stringAttempt1 == null || stringAttempt1.isEmpty())?((stringAttempt2 == null || stringAttempt2.isEmpty())?null:stringAttempt2):stringAttempt1;
+		
+		stringAttempt1 = conf.getProperty("db.database");
+		stringAttempt2 = conf.getProperty("ds.dbname");
+		
+		database = (stringAttempt1 == null || stringAttempt1.isEmpty())?((stringAttempt2 == null || stringAttempt2.isEmpty())?"rtm":stringAttempt2):stringAttempt1;
 
 		ServerAddress address = new ServerAddress(host, port);
 		List<MongoCredential> credentials = new ArrayList<MongoCredential>();
@@ -75,10 +87,12 @@ public class RTMMongoClient{
 			credentials.add(credential);
 		}
 
-		mongoClient = new MongoClient(address, credentials);
-		db = mongoClient.getDatabase(database);
+		mongo = new MongoClient(address, credentials);
+		db = mongo.getDatabase(database);
 		coll = db.getCollection(conf.getProperty("ds.measurements.collectionName"));
-
+		
+		if(mongo == null || db == null || mongo.getAddress() == null || coll == null)
+			logger.error("Mongo is down.");
 	}
 
 	public static RTMMongoClient getInstance() {
@@ -132,7 +146,7 @@ public class RTMMongoClient{
 	}
 
 	public void close(){
-		mongoClient.close();
+		mongo.close();
 	}
 
 	public long getTimeWindow(Iterable<? extends Map<String, Object>> naturalOrder, Iterable<? extends Map<String, Object>> reverseOrder) throws Exception {
