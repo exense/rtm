@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.rtm</groupId>
 	<artifactId>rtm</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>Response Time Manager</name>
 	<properties>
@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>org.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
