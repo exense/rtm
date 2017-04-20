@@ -1,0 +1,41 @@
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+}
+
+.theme-dropdown .dropdown-menu {
+  display: block;
+  position: static;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.navbar {
+    padding: 0;
+    transition: background 0.5s ease-in-out 0s, padding 0.5s ease-in-out 0s;
+}
+.navbar-brand {
+    float: left;
+    font-size: 18px;
+    height: 10px;
+    line-height: 2px;
+    padding: 2px;
+    padding-left: 15px;
+}
+
+.divToolTip {
+    position: absolute;
+    text-align: left;
+    padding: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font: 12px sans-serif;
+    color: white;
+    background: #357ebd;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
