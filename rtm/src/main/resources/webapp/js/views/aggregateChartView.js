@@ -67,7 +67,7 @@ var AggregateChartView = Backbone.View.extend({
 		var that = this;
 		if(this.collection.models.length > 0){
 
-		var streamId = this.collection.models[0].get('payload');
+		this.curPayload = this.collection.models[0].get('payload');
 
 		console.log();
 
@@ -79,8 +79,12 @@ var AggregateChartView = Backbone.View.extend({
 			displayError('response=' + JSON.stringify(response));
 		})
 		.success(function(){
+			var pauser = that.pauseChartTimer.bind(that);
+			var resumer = that.resume.bind(that);
+			$('input[function="pause"]').click(pauser);
+			$('input[function="resume"]').click(resumer);
 			clearInterval(that.lastSetInterval);
-			that.lastSetInterval = setInterval( function() { that.chartTimer(streamId); }, that.refreshSpeed );
+			that.lastSetInterval = setInterval( function() { that.chartTimer(that.curPayload); }, that.refreshSpeed );
 		});
 
 	}
@@ -107,12 +111,13 @@ chartTimer: function(arg1) {
 			});
 },
 
-pause : function(){
-	clearInterval(lastSetInterval);
+pauseChartTimer : function(){
+	clearInterval(this.lastSetInterval);
 },
 
 resume : function(){
-	lastSetInterval = setInterval( function() { myTimer(curPayload); }, refreshSpeed);
+	var that = this;
+	this.lastSetInterval = setInterval( function() { that.chartTimer(that.curPayload); }, that.refreshSpeed);
 },
 
 isNumeric: function(n) {
