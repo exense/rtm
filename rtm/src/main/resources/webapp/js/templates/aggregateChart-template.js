@@ -31,7 +31,7 @@
   <!-- //<svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg> -->
 	<svg id="chartSVG" viewBox="0 0 <%=pWidth%> <%=pChartHeight%>" style="display: inline-block; position: relative; top: 10px; left: 0;"></svg>
 </div> <!-- /svgContainer -->
-<div id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></svg>
+<div id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></div>
 <div class="divToolTip" style="display: inline-block;" />
 </div> <!-- /panel-body -->
 </div> <!-- /panel-collapse -->

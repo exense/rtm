@@ -26,7 +26,7 @@ public class MeasurementHelper{
 	private String primaryDimension;
 	
 	public MeasurementHelper(Properties p){
-		this.primaryDimension = p.getProperty("primaryDimensionKey");
+		this.primaryDimension = p.getProperty("aggregateService.groupby");
 	}
 	
 	public String getPrimaryDimensionName(){
