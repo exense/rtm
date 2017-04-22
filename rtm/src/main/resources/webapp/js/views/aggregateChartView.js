@@ -12,12 +12,17 @@ var AggregateChartView = Backbone.View.extend({
 	svgLegendFactor : 5,
 	seriesCount : 0,
 
+	lastSetInterval : '',
+	curPayload : '',
+	refreshSpeed : 500,
+
 	initialize : function(){
 		this.currentChartMetricChoice = Config.getProperty('client.AggregateChartView.currentChartMetricChoice');
 		this.chartBeginKey = Config.getProperty('client.AggregateChartView.chartBeginKey');
 		this.chartGroupbyKey = Config.getProperty('client.AggregateChartView.chartGroupbyKey');
 		this.chartMaxSeries = Config.getProperty('client.AggregateChartView.chartMaxSeries');
 		this.chartMaxDotsPerSeries = Config.getProperty('client.AggregateChartView.chartMaxDotsPerSeries');
+
 	},
 	getGuiFragment :function(){
 		return {
@@ -61,7 +66,11 @@ var AggregateChartView = Backbone.View.extend({
 
 		var that = this;
 		if(this.collection.models.length > 0){
-				this.seriesCount = this.collection.models[0].get('payload').length;
+
+		var streamId = this.collection.models[0].get('payload');
+
+		console.log();
+
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
 			that.$el.append(template);
@@ -70,19 +79,40 @@ var AggregateChartView = Backbone.View.extend({
 			displayError('response=' + JSON.stringify(response));
 		})
 		.success(function(){
-
-			if(that.collection.models.length > 0){
-				that.drawD3Chart(that.collection.models[0].get('payload'),
-				{
-					metric : that.currentChartMetricChoice,
-					chartBeginKey : that.chartBeginKey,
-					chartGroupbyKey : that.chartGroupbyKey,
-					chartMaxSeries : that.chartMaxSeries,
-					chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
-				});
-			}
+			clearInterval(that.lastSetInterval);
+			that.lastSetInterval = setInterval( function() { that.chartTimer(streamId); }, that.refreshSpeed );
 		});
+
 	}
+},
+
+chartTimer: function(arg1) {
+	
+	var that = this;
+	
+	$.ajax({
+			type: 'POST',
+			url: '/rtm/rest/aggregate/refresh',
+			contentType: "application/json",
+			data: JSON.stringify(arg1),
+			success:function(result){
+					if(Object.keys(result).length > 0){
+						var chartParams = { metric : 'count'};
+						$( "svg" ).empty();
+						$("#legendSVG").empty();
+						var convertedResult = that.convertToOld(result);
+						that.drawD3Chart(convertedResult, chartParams);
+					}
+				}
+			});
+},
+
+pause : function(){
+	clearInterval(lastSetInterval);
+},
+
+resume : function(){
+	lastSetInterval = setInterval( function() { myTimer(curPayload); }, refreshSpeed);
 },
 
 isNumeric: function(n) {
@@ -91,18 +121,9 @@ isNumeric: function(n) {
 
 getChartableMetricsList: function(){
 	var metricsList = [];
-	var firstModel = this.collection.models[0];
-	var excludes = this.getExcludeList();
-	if(firstModel){
-		for ( var prop in firstModel.attributes.payload[0].data[0]){
-				if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
-        		if(this.isNumeric(firstModel.attributes.payload[0].data[0][prop])){
-					metricsList.push(prop);
-    			}
-    		}
-		}
-	}
-
+	//TODO: dynimicize
+	metricsList.push('count');
+	metricsList.push('sum');
 	return metricsList;
 },
 
@@ -255,6 +276,7 @@ g.selectAll("g.dot")
 });;
 
 // Legend
+
 var lsvg = d3.select("#legendSVG"),
     margin = {top: 20, right: 90, bottom: 30, left: 50},
     width = svg.attr("width") - margin.left - margin.right,
@@ -315,6 +337,61 @@ var that = this;
 },
 getRGB: function (cssStyle){
 	return rgbSplit = cssStyle.split("rgb")[1].split(";")[0];
+},
+
+convertToOld : function(payload){
+
+	  var result = [];
+	  var curRow = {};
+
+	  var seriesNb = payload.length;
+	  var series = [];
+	  var metrics = [];
+	  var first = payload[Object.keys(payload)[0]];
+	  if(first){
+		for(attribute in first){
+			series.push(attribute);
+		}
+		
+		for(metric in first[series[0]]){
+			//console.log('-->first'); console.log(JSON.stringify(first));console.log('-->series[0]'); console.log(series[0]);console.log('-->metric'); console.log(metric);
+			metrics.push(metric)
+		}
+
+		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
+		
+		_.each(series, function(sery){ 
+			var seriesData = {"groupby" : sery, "data" : []};
+			
+			for(dot in payload){
+				//console.log(' --> result');	console.log(JSON.stringify(result));
+				if(Object.keys(dot).length > 0 ){
+					var thisMeasure = {};
+					thisMeasure['begin'] = parseInt(dot);
+					var complete = true;
+					_.each(metrics, function(metric){
+						//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
+						/*if(!payload[dot][sery]){
+						console.log(' ---> payload[dot][sery]');console.log(JSON.stringify(payload[dot][sery]));
+						console.log(' ---> payload[dot]');console.log(JSON.stringify(payload[dot]));
+						console.log(' ---> payload');console.log(JSON.stringify(payload));
+						}*/
+						if(payload[dot][sery]){
+							thisMeasure[metric] = payload[dot][sery][metric];
+						}else
+						    complete = false;
+					});
+				
+					if(complete){
+						seriesData.data.push(thisMeasure);
+					}
+				}
+			}
+		result.push(seriesData);
+		});
+	  }
+	  
+	  return result;
 },
 
 getSdataIndexById: function (serId, Sdata){

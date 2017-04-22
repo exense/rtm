@@ -19,7 +19,8 @@
 	  <li role="presentation"><a role="menuitem" tabindex="-1" href="#" class="<%=metricsList[i]%> metricChoice" id="<%=metricsList[i]%>"><%=metricsList[i]%></a></li>
 	<% } %>
   </ul>
-
+  <input type="submit" value="Pause" function="pause" />
+  <input type="submit" value="Resume" function="resume">
 <% var pWidth = $(".panel").width() -20 %>
 <% var pChartHeight = pWidth * 0.5 %>
 <!-- //TODO:  compute dynamically based on the number of series -->

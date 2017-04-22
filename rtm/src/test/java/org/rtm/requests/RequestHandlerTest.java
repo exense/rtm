@@ -37,7 +37,7 @@ public class RequestHandlerTest {
 		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), new Properties());
 
 		Integer targetDots = 10;
-		ar.getProperties().put("targetChartDots", targetDots.toString());
+		ar.getServiceParams().put("targetChartDots", targetDots.toString());
 
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
