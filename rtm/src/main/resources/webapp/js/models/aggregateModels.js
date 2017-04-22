@@ -1,7 +1,7 @@
 var Aggregate = Backbone.Model.extend({});
 
 var Aggregates = Backbone.Collection.extend({
-      url: '/rtm/rest/aggregate/timebased',
+      url: '/rtm/rest/aggregate/get',
       model: Aggregate,
 
       refreshData: function(rawInput){

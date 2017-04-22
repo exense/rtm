@@ -31,7 +31,7 @@ public class RequestHandler {
 	public AbstractResponse handle(AggregationRequest aggReq){
 		List<Selector> sel = aggReq.getSelectors();
 		LongTimeInterval lti = aggReq.getTimeWindow();
-		Properties prop = aggReq.getProperties();
+		Properties prop = aggReq.getServiceParams();
 		AbstractResponse r = null;
 
 		try {
@@ -42,10 +42,12 @@ public class RequestHandler {
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			Long optimalSize = null;
-			if(aggReq.getIntervalSize() == null || aggReq.getIntervalSize() < 1)
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(prop.getProperty("targetChartDots")));
+			
+			String hardInterval = prop.getProperty("aggregateService.granularity");
+			if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
+				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
 			else
-				optimalSize = aggReq.getIntervalSize();
+				optimalSize = Long.parseLong(hardInterval);
 			
 			Stream<Long> stream = new Stream<>();
 			ResultHandler<Long> rh = new StreamResultHandler(stream);

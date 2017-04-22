@@ -31,18 +31,23 @@ public class BsonQuery extends Document {
 		List<BasicDBObject> dbSelectorList = new ArrayList<>();
 
 		for (Selector slt : selectors) {
+			boolean hasFilter = false;
 			if (slt.hasTextFilters()) {
 				List<TextFilter> textFilters = slt.getTextFilters();
 				dbFilterList.addAll(processTextFilters(textFilters));
+				hasFilter = true;
 			}
 			if (slt.hasNumericalFilters()) {
 				List<NumericalFilter> numericalFilters = slt.getNumericalFilters();
 				dbFilterList.addAll(processNumFilters(numericalFilters));
+				hasFilter = true;
 			}
-			dbSelectorList.add(new BasicDBObject("$and", dbFilterList));
+			if(hasFilter)
+				dbSelectorList.add(new BasicDBObject("$and", dbFilterList));
 			dbFilterList = new ArrayList<>();
 		}
-		top.append("$or", dbSelectorList);
+		if(dbSelectorList.size()>0)
+			top.append("$or", dbSelectorList);
 		//dbSelectorList = new ArrayList<>();
 		return new Document(top);
 	}

@@ -55,7 +55,12 @@ public class DBClient {
 	@SuppressWarnings("rawtypes")
 	public static LongTimeInterval findEffectiveBoundariesViaMongo(LongTimeInterval lti, List<Selector> sel) throws Exception {
 		BsonQuery baseQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));
-		Document completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
+		Document completeQuery =null;
+		if(lti != null)// for compatibility with v1 client
+			completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
+		else
+			completeQuery = baseQuery;
+		
 		DBClient db = new DBClient();
 		
 		//TODO: get Time key from request Properties
