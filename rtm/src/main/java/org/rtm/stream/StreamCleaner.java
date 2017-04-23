@@ -32,10 +32,10 @@ public class StreamCleaner implements Runnable{
 	private long sleepTime;
 	private long eviction;
 	
-	public StreamCleaner(StreamBroker sb, long streamEvictionSeconds, long sleepTimeMs){
+	public StreamCleaner(StreamBroker sb, long streamEvictionSeconds, long sleepTimeSeconds){
 		this.sb = sb;
-		this.sleepTime = sleepTimeMs;
-		this.eviction = streamEvictionSeconds;
+		this.sleepTime = sleepTimeSeconds * 1000;
+		this.eviction = streamEvictionSeconds * 1000;
 	}
 
 	@Override
@@ -61,13 +61,19 @@ public class StreamCleaner implements Runnable{
 			Stream s = e.getValue();
 			String id = e.getKey();
 			
-			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s))
+			System.out.println("Checking stream " + id + "...");
+			
+			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
 				registry.remove(id);
+				System.out.println("Evicted stream " + id + "due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTime=" + isEvictionTimeReached(s));
+			}
 		});
 	}
 
 	private boolean isEvictionTimeReached(Stream s) {
-		return (s.getTimeCreated() - System.currentTimeMillis()) > this.eviction;
+		long elapsed = System.currentTimeMillis() - s.getTimeCreated();
+		System.out.println("elapsed=" + elapsed + "; eviction=" + this.eviction);
+		return elapsed > this.eviction;
 	}
 	
 }

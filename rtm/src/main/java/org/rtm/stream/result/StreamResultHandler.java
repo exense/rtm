@@ -22,7 +22,12 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		/* Check only relevant for MergeAccumulator*/
 		//if(stream.get(id) != null)
 		//		logger.error("There's already a result for id=" + id.getIdAsTypedObject());
-		stream.put(id.getIdAsTypedObject(), tv);
+		
+		if(stream == null){
+			logger.error("Can not attach result to null stream. Stream with id " + id + "was probably evicted too early.");
+		}else{
+			stream.put(id.getIdAsTypedObject(), tv);
+		}
 
 	}
 

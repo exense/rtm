@@ -12,28 +12,27 @@ public class Stream<T> extends ConcurrentSkipListMap<Long, AggregationResult<T>>
 	private static final long serialVersionUID = 8431902330094695624L;
 	
 	@JsonIgnore
-	private long timeCreated;
+	private long timeCreated = System.currentTimeMillis();
 	
-	private boolean isComplete = false;
+	private boolean complete = false;
 	
 	@JsonIgnore
 	private boolean isRefreshedSinceCompletion = false;
 	
 	public Stream(){
 		super();
-		this.timeCreated = System.currentTimeMillis();
 	}
-
+	
 	public long getTimeCreated() {
 		return timeCreated;
 	}
 
 	public synchronized boolean isComplete() {
-		return isComplete;
+		return complete;
 	}
 
 	public synchronized void setComplete(boolean isComplete) {
-		this.isComplete = isComplete;
+		this.complete = isComplete;
 	}
 
 	public synchronized boolean isRefreshedSinceCompletion() {
