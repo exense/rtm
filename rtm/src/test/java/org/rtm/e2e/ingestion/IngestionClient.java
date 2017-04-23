@@ -27,6 +27,8 @@ import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.MongoWaitQueueFullException;
+
 public class IngestionClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(IngestionClient.class);
@@ -85,7 +87,8 @@ public class IngestionClient {
 				10,   // nbTasks
 				10,   // timeOut
 				1000, // skewFactor
-				200); // stdFactor
+				200, // stdFactor
+				5);  // targetCardinality 
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
@@ -96,11 +99,12 @@ public class IngestionClient {
 
 		LoadDescriptor ld = new TransactionalProfile(
 				5,  // pauseTime
-				50000, // nbIterations
-				20,    // nbTasks
-				300,  // timeOut
+				100000, // nbIterations
+				300,    // nbTasks
+				30000,  // timeOut
 				1000, // skewFactor
-				200); // stdFactor
+				200, // stdFactor
+				5);  //  targetCardinality
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
@@ -117,14 +121,15 @@ public class IngestionClient {
 		logger.debug("submitting task vector: " + tasks);
 		try {
 			for(Future<Boolean> f : executor.invokeAll(tasks, ld.getTimeOut(), TimeUnit.SECONDS)){
-				if(!f.get()){
-					// in practice will never be executed because f.get throws an exception
-					result = false;
-					break;
+				try{
+					f.get();
+				} catch (MongoWaitQueueFullException e1){
+					// continue silently;
 				}
 			}
-		} catch (Exception e) {
-			logger.error("Test failed.", e);
+		}
+		catch (Exception e2) {
+			logger.error("Test failed.", e2);
 			result = false;
 		}
 		return result;
