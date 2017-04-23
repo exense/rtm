@@ -14,7 +14,7 @@ var AggregateChartView = Backbone.View.extend({
 
 	lastSetInterval : '',
 	curPayload : '',
-	refreshSpeed : 1000,
+	refreshSpeed : 500,
 	isComplete : 'false',
 
 	initialize : function(){
@@ -94,7 +94,6 @@ chartTimer: function(arg1) {
 	var that = this;
 	
 	if(this.isComplete === 'false'){
-		console.log('firing: ' + this.isComplete);
 		$.ajax({
 			type: 'POST',
 			url: '/rtm/rest/aggregate/refresh',
@@ -115,13 +114,9 @@ chartTimer: function(arg1) {
 								var convertedResult = that.convertToOld(result.payload.streamData);
 								that.drawD3Chart(convertedResult, chartParams);
 								
-								console.log(result.payload.complete)
-								if(result.payload.complete && Object.keys(result.payload.complete).length > 0){
-									if(complete === 'true'){
+								if(result.payload.complete && result.payload.complete === true){
 										that.isComplete = 'true';
 										that.pauseChartTimer();
-										console.log('paused cause complete!');
-									}
 								}
 							}
 						}
