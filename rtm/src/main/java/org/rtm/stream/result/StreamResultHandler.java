@@ -26,7 +26,7 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		if(stream == null){
 			logger.error("Can not attach result to null stream. Stream with id " + id + "was probably evicted too early.");
 		}else{
-			stream.put(id.getIdAsTypedObject(), tv);
+			stream.getStreamData().put(id.getIdAsTypedObject(), tv);
 		}
 
 	}

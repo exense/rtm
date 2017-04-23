@@ -14,7 +14,8 @@ var AggregateChartView = Backbone.View.extend({
 
 	lastSetInterval : '',
 	curPayload : '',
-	refreshSpeed : 500,
+	refreshSpeed : 1000,
+	isComplete : 'false',
 
 	initialize : function(){
 		this.currentChartMetricChoice = Config.getProperty('client.AggregateChartView.currentChartMetricChoice');
@@ -92,29 +93,42 @@ chartTimer: function(arg1) {
 	
 	var that = this;
 	
-	$.ajax({
+	if(this.isComplete === 'false'){
+		console.log('firing: ' + this.isComplete);
+		$.ajax({
 			type: 'POST',
 			url: '/rtm/rest/aggregate/refresh',
 			contentType: "application/json",
 			data: JSON.stringify(arg1),
 			success:function(result){
-					console.log(JSON.stringify(result));
+					//console.log(JSON.stringify(result));
 					
 					if(result.status === 'ERROR')
 						that.pauseChartTimer();
 					
-					if(Object.keys(result).length > 0){
-						
+					if(result && Object.keys(result).length > 0){
 						if(result.payload && Object.keys(result.payload).length > 0){
-							var chartParams = { metric : 'count'};
-							$( "svg" ).empty();
-							$("#legendSVG").empty();
-							var convertedResult = that.convertToOld(result.payload);
-							that.drawD3Chart(convertedResult, chartParams);
+							if(result.payload.streamData && Object.keys(result.payload.streamData).length > 0){
+								var chartParams = { metric : 'count'};
+								$( "svg" ).empty();
+								$("#legendSVG").empty();
+								var convertedResult = that.convertToOld(result.payload.streamData);
+								that.drawD3Chart(convertedResult, chartParams);
+								
+								console.log(result.payload.complete)
+								if(result.payload.complete && Object.keys(result.payload.complete).length > 0){
+									if(complete === 'true'){
+										that.isComplete = 'true';
+										that.pauseChartTimer();
+										console.log('paused cause complete!');
+									}
+								}
+							}
 						}
 					}
 				}
 			});
+		}
 },
 
 pauseChartTimer : function(){

@@ -57,7 +57,7 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 	@SuppressWarnings("unchecked")
 	protected LongRangeValue merge(RangeBucket<Long> bucket) {
 		LongRangeValue result = new LongRangeValue(bucket);
-		subResults.values().stream().forEach(tv -> {
+		subResults.getStreamData().values().stream().forEach(tv -> {
 			tv.getData().values().stream().forEach(d -> {
 				Dimension dim = (Dimension)d;
 				String dimensionValue = dim.getDimensionValue();
