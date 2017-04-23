@@ -54,23 +54,30 @@ public class RequestHandler {
 			
 			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);
 
-			/*
-			PullTaskBuilder tb = new PullQueryBuilder(sel, new MergingAccumulator(prop));
-			PullPipelineBuilder ppb = new SimplePipelineBuilder(
-					effective.getBegin(), effective.getEnd(),
-					optimalSize, rh, tb);
-			*/	
-
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
 					optimalSize, rh, tb);
 
-			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.NON_BLOCKING);
+			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
 
-			pp.execute();
+			Runnable waiter = new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						pp.execute();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}finally{
+						stream.setComplete(true);
+					}
+				}
+			};
 
-			r = new AggregationResponse(ssm.registerStreamSession(stream));
+			waiter.run();
+			
+			r = new SuccessResponse(ssm.registerStreamSession(stream), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
 			logger.error(message, e);

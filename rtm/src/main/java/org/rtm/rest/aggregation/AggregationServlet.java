@@ -27,9 +27,13 @@ import javax.ws.rs.core.Response;
 
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
+import org.rtm.request.ErrorResponse;
 import org.rtm.request.RequestHandler;
+import org.rtm.request.SuccessResponse;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author doriancransac
@@ -37,6 +41,8 @@ import org.rtm.stream.StreamId;
  */
 @Path(AggregationConstants.servletPrefix)
 public class AggregationServlet {
+	
+	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
 
 	private static StreamBroker ssm = new StreamBroker();
 	RequestHandler rh = new RequestHandler(ssm);
@@ -55,6 +61,19 @@ public class AggregationServlet {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response refreshResutStreamForId(StreamId body) {
-		return Response.status(200).entity(ssm.getStream(body)).build();
+		AbstractResponse rtmResponse = null;
+		Response jettyResponse;
+		try {
+			rtmResponse = new SuccessResponse(
+							ssm.getStreamAndFlagForRefresh(body),
+							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());
+		} catch (Exception e) {
+			String message = "A problem occured while retrieving stream with id= " + body; 
+			logger.error(message, e);
+			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+		}finally{
+			jettyResponse = Response.status(200).entity(rtmResponse).build();
+		}
+		return jettyResponse;
 	}
 }
