@@ -20,6 +20,10 @@ package org.rtm.stream;
 
 import java.util.Map;
 
+import org.rtm.stream.result.StreamResultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author doriancransac
  *
@@ -27,6 +31,8 @@ import java.util.Map;
 
 @SuppressWarnings("rawtypes")
 public class StreamCleaner implements Runnable{
+	
+	private static final Logger logger = LoggerFactory.getLogger(StreamCleaner.class);
 	
 	private StreamBroker sb;
 	private long sleepTime;
@@ -61,18 +67,15 @@ public class StreamCleaner implements Runnable{
 			Stream s = e.getValue();
 			String id = e.getKey();
 			
-			System.out.println("Checking stream " + id + "...");
-			
 			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
 				registry.remove(id);
-				System.out.println("Evicted stream " + id + "due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTime=" + isEvictionTimeReached(s));
+				logger.info("Evicted stream " + id + "due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
 			}
 		});
 	}
 
 	private boolean isEvictionTimeReached(Stream s) {
 		long elapsed = System.currentTimeMillis() - s.getTimeCreated();
-		System.out.println("elapsed=" + elapsed + "; eviction=" + this.eviction);
 		return elapsed > this.eviction;
 	}
 	
