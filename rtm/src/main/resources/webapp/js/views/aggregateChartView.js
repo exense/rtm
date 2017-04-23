@@ -77,8 +77,8 @@ var AggregateChartView = Backbone.View.extend({
 },
 
 cleanupChartOnly: function() {
-  	$( "svg" ).empty();
-	$("#legendSVG").empty();
+  	//$( "svg" ).empty();
+	//$("#legendSVG").empty();
 },
 
 renderChartOnly: function(){
