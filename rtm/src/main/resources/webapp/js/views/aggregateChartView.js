@@ -11,11 +11,8 @@ var AggregateChartView = Backbone.View.extend({
 	chartMaxDotsPerSeries : 0,
 	svgLegendFactor : 5,
 	seriesCount : 0,
-
-	lastSetInterval : '',
-	curPayload : '',
-	refreshSpeed : 500,
-	isComplete : 'false',
+	
+	isTemplateIinit : 'false',
 
 	initialize : function(){
 		this.currentChartMetricChoice = Config.getProperty('client.AggregateChartView.currentChartMetricChoice');
@@ -23,7 +20,6 @@ var AggregateChartView = Backbone.View.extend({
 		this.chartGroupbyKey = Config.getProperty('client.AggregateChartView.chartGroupbyKey');
 		this.chartMaxSeries = Config.getProperty('client.AggregateChartView.chartMaxSeries');
 		this.chartMaxDotsPerSeries = Config.getProperty('client.AggregateChartView.chartMaxDotsPerSeries');
-
 	},
 	getGuiFragment :function(){
 		return {
@@ -60,79 +56,58 @@ var AggregateChartView = Backbone.View.extend({
 
 		this.$el.html('');
 
-		this.renderChart();
+		this.renderTemplate(this.renderChart);
+		this.renderChartOnly();
 	},
 
-	renderChart: function () {
-
+	renderTemplate: function(callback) {
+		console.log('entering renderTemplate');
 		var that = this;
-		if(this.collection.models.length > 0){
-
-		this.curPayload = this.collection.models[0].get('payload');
-
-		$.get(resolveTemplate('aggregateChart-template'), function (data) {
+		var thisCallback = callback.bind(this);
+	
+		$.get(resolveTemplate('aggregateChart-template'), function (data) {	
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
 			that.$el.append(template);
+			console.log('inside get/resolve');
 		}, 'html')
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
 		})
 		.success(function(){
-			var pauser = that.pauseChartTimer.bind(that);
-			var resumer = that.resume.bind(that);
-			$('input[function="pause"]').click(pauser);
-			$('input[function="resume"]').click(resumer);
-			clearInterval(that.lastSetInterval);
-			that.lastSetInterval = setInterval( function() { that.chartTimer(that.curPayload); }, that.refreshSpeed );
+			console.log('rendered Template, calling callback');
+			thisCallback();
 		});
-
-	}
 },
 
-chartTimer: function(arg1) {
+cleanupChartOnly: function() {
+  	$( "svg" ).empty();
+	$("#legendSVG").empty();
+},
+
+renderChartOnly: function(){
+			console.log('chartOnly');
+			if(this.isTemplateInit === 'false'){
+				this.renderTemplate(this.renderChart);
+				this.isTemplateInit = 'true';
+			}else{
+				this.renderChart();
+			}
+},
+
+renderChart: function(){
+			console.log('inside callback.');
+			if(this.collection.models[0]){
+				var payload = this.collection.models[0].get('payload');
 	
-	var that = this;
-	
-	if(this.isComplete === 'false'){
-		$.ajax({
-			type: 'POST',
-			url: '/rtm/rest/aggregate/refresh',
-			contentType: "application/json",
-			data: JSON.stringify(arg1),
-			success:function(result){
-					//console.log(JSON.stringify(result));
-					
-					if(result.status === 'ERROR')
-						that.pauseChartTimer();
-					
-					if(result && Object.keys(result).length > 0){
-						if(result.payload && Object.keys(result.payload).length > 0){
-							if(result.payload.streamData && Object.keys(result.payload.streamData).length > 0){
+				if(payload && Object.keys(payload).length > 0){
+							if(payload.streamData && Object.keys(payload.streamData).length > 0){
 								var chartParams = { metric : 'count'};
-								$( "svg" ).empty();
-								$("#legendSVG").empty();
-								var convertedResult = that.convertToOld(result.payload.streamData);
-								that.drawD3Chart(convertedResult, chartParams);
-								
-								if(result.payload.complete && result.payload.complete === true){
-										that.isComplete = 'true';
-										that.pauseChartTimer();
-								}
+
+								var convertedResult = this.convertToOld(payload.streamData);
+								this.drawD3Chart(convertedResult, chartParams);
 							}
-						}
-					}
 				}
-			});
-		}
-},
-
-pauseChartTimer : function(){
-	clearInterval(this.lastSetInterval);
-},
-
-resume : function(){
-	var that = this;
-	this.lastSetInterval = setInterval( function() { that.chartTimer(that.curPayload); }, that.refreshSpeed);
+			}
 },
 
 isNumeric: function(n) {

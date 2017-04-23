@@ -3,6 +3,12 @@ var TopLevelManager = function () {};
 
 $.extend(TopLevelManager.prototype, Backbone.Events, {
 
+	lastSetInterval : '',
+	curPayload : '',
+	refreshSpeed : 1000,
+	isComplete : 'false',
+	curStreamId : '',
+
 	setRouterReference: function(obj){
 		this.router = obj;
 	},
@@ -15,6 +21,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		// collections
 		this.measurements = new Measurements();
 		this.aggregates = new Aggregates();
+		this.aggregateDatapoints = new AggregateDatapoints();
 
 		// These views are static to the context :
 		this.navbarView = new NavBarView();
@@ -23,17 +30,22 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		// These views are dynamic to the context :
 		this.measurementListView = new MeasurementListView({collection : this.measurements});
 		//this.dynamicViewsManager.push({view : this.measurementListView, contextRelevancy : ['Measurement']});
-		this.aggregateChartView = new AggregateChartView({collection : this.aggregates});
-		this.aggregateTableView = new AggregateTableView({collection : this.aggregates});
+		this.aggregateChartView = new AggregateChartView({collection : this.aggregateDatapoints});
+		this.aggregateTableView = new AggregateTableView({collection : this.aggregateDatapoints});
 		//this.dynamicViewsManager.push({view : this.aggregateListView, contextRelevancy : ['Measurement']});
 
 		this.aggSPControllerView = new AggSPControllerView();
 		this.postControllerView = new PostControllerView();
 
 		this.listenTo( this.postControllerView, 'globalSearchEvent', this.dispatchTopLevelSearch );
+		this.listenTo( this.postControllerView, 'pauseEvent', this.dispatchPause );
+		this.listenTo( this.postControllerView, 'resumeEvent', this.dispatchResume );
 		this.listenTo( this.aggSPControllerView, 'globalSearchEvent', this.dispatchTopLevelSearch );
 		this.listenTo( this.measurements, 'MeasurementsRefreshed', this.dispatchMeasurementsRefreshed );
 		this.listenTo( this.aggregates, 'AggregatesRefreshed', this.dispatchAggregatesRefreshed );
+		this.listenTo( this.aggregateDatapoints, 'streamConsumed', this.dispatchStreamConsumed );
+		this.listenTo( this.aggregateDatapoints, 'pauseChartTimer', this.dispatchPause );
+		this.listenTo( this.aggregateDatapoints, 'AggregateDatapointsRefreshed', this.dispatchAggregateDatapointsRefreshed );
 		this.listenTo( this.measurementListView, 'MeasurementPrevious', this.sendSearch );
 		this.listenTo( this.measurementListView, 'MeasurementNext', this.sendSearch );
 	},
@@ -42,18 +54,48 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 //	dispatchMeasurementPrevious
 //	dispatchMeasurementNext
 
+dispatchStreamConsumed : function(){
+		console.log('stream is consumed.');
+		this.isComplete = 'true';
+		this.clearRefresh();
+},
+dispatchPause : function(){
+		this.clearRefresh();
+},
+
+dispatchResume : function(){
+		this.setRefresh();
+},
+
 	dispatchMeasurementsRefreshed: function(){
 		this.measurementListView.cleanup();
 		this.measurementListView.render();
 	},
 
 	dispatchAggregatesRefreshed: function(){
-		// if Chart turned on
-		this.aggregateChartView.cleanup();
-		this.aggregateChartView.render();
+		var that = this;
+		var streamId = this.aggregates.models[0].get('payload');
+		this.curStreamId = streamId;
+		
+		this.setRefresh();
+	},
+	
+	setRefresh : function(){
+		var that = this;
+		this.lastSetInterval = setInterval( function() { that.aggregateDatapoints.refreshData(that.curStreamId); }, that.refreshSpeed );
+	},
+	
+	clearRefresh : function(){
+		clearInterval(this.lastSetInterval);
+	},
+	
+	dispatchAggregateDatapointsRefreshed: function(){
+	
+		this.aggregateChartView.cleanupChartOnly();
+		this.aggregateChartView.renderChartOnly();
 		// if Table turned on
-		this.aggregateTableView.cleanup();
-		this.aggregateTableView.render();
+		//this.aggregateTableView.cleanupTableOnly();
+		//this.aggregateTableView.renderTableOnly();
 	},
 	
 	serializeInput: function(){
@@ -107,11 +149,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 	sendSearch: function(){
 
 		var guiState = JSON.stringify(this.serializeGui());
-		// Compression
-		//var compressed = LZString.compressToBase64(string);
-
 		var route = this.activeContext + "/select/"+ encodeURIComponent(guiState) + "/" + Date.now();
-
 		this.router.navigate(route, true);
 	},
 	renderDefaultViews: function(){
@@ -134,7 +172,8 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.measurementListView.cleanup();
 		this.postControllerView.cleanup();
 		this.aggSPControllerView.cleanup();
-		this.aggregateChartView.cleanup();
+		//this.aggregateChartView.cleanup();
+		this.aggregateChartView.cleanupChartOnly();
 		this.aggregateTableView.cleanup();
 	},
 
@@ -158,13 +197,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 	},
 
 	loadGuiState: function(guiState){
-
-//		console.log('-                              TopLevelManager : ---------[guiState]--------');
-//		console.log(guiState);
 		$.extend(guiState, guiStateFunctions);
-		
-//		console.log('-                              TopLevelManager : ---------[ guiState.getGuiParam]------------');
-//		console.log(guiState.getGuiParam(this.postControllerView.getGuiDomain()));
 	
 		this.postControllerView.loadGuiState(guiState.getGuiParam(this.postControllerView.getGuiDomain()));
 		this.aggSPControllerView.loadGuiState(guiState.getGuiParam(this.aggSPControllerView.getGuiDomain()));
@@ -181,11 +214,6 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 
 	refreshAggregateModel: function(){
 		var serviceInput = this.serializeInput();
-		
-//		console.log('-                              TopLevelManager : ---------[ serviceInput]------------');
-//		console.log(serviceInput);
-//		console.log('-                              TopLevelManager : ---------[ guiToBackendInput]------------');
-//		console.log(guiToBackendInput(serviceInput));
 		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors()));
 		
 		this.aggregates.refreshData(serviceInput);

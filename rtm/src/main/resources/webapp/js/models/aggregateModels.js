@@ -34,3 +34,40 @@ var Aggregates = Backbone.Collection.extend({
         return status;
       }
     });
+
+    var AggregateDatapoints = Backbone.Collection.extend({
+      url: '/rtm/rest/aggregate/refresh',
+      model: Aggregate,
+
+      refreshData: function(rawInput){
+
+        var that = this;
+
+        input = JSON.stringify(rawInput);
+        this.fetch({
+          type : 'POST',
+          dataType:'json',
+          contentType:'application/json; charset=utf-8',
+          data: input,
+          success: function (response) {
+          var payload = response.models[0].get('payload');
+           if(payload && Object.keys(payload).length > 0){
+           		if(payload.status === 'ERROR')
+					that.trigger('pauseChartTimer');
+					
+           		if(payload.complete === true)
+           			that.trigger('streamConsumed');
+           		that.trigger('AggregateDatapointsRefreshed');
+           	}
+         },
+         error: function( model, response, options ){
+			that.trigger('pauseChartTimer');
+          //console.log('model=' + JSON.stringify(model) + ', response=' + JSON.stringify(response) + ', options=' + JSON.stringify(options));
+          	 displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
+          that.reset();
+        }
+      });
+        return status;
+      }
+    });
+    
