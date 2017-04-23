@@ -21,7 +21,7 @@ public class StreamBroker {
 	
 	public StreamBroker(){
 		streamRegistry = new ConcurrentHashMap<>();
-		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, 60, 3));
+		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, 600, 5));
 	}
 	
 	public StreamId registerStreamSession(Stream streamHandle) {
