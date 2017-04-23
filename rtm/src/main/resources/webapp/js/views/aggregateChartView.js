@@ -61,20 +61,17 @@ var AggregateChartView = Backbone.View.extend({
 	},
 
 	renderTemplate: function(callback) {
-		console.log('entering renderTemplate');
 		var that = this;
 		var thisCallback = callback.bind(this);
 	
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {	
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
 			that.$el.append(template);
-			console.log('inside get/resolve');
 		}, 'html')
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
 		})
 		.success(function(){
-			console.log('rendered Template, calling callback');
 			thisCallback();
 		});
 },
@@ -85,7 +82,6 @@ cleanupChartOnly: function() {
 },
 
 renderChartOnly: function(){
-			console.log('chartOnly');
 			if(this.isTemplateInit === 'false'){
 				this.renderTemplate(this.renderChart);
 				this.isTemplateInit = 'true';
@@ -95,7 +91,7 @@ renderChartOnly: function(){
 },
 
 renderChart: function(){
-			console.log('inside callback.');
+
 			if(this.collection.models[0]){
 				var payload = this.collection.models[0].get('payload');
 	
@@ -154,13 +150,14 @@ var Tdata = this.convertToTable(pAggregates, pChartParams);
 var svg = d3.select("#chartSVG")
 					.attr("preserveAspectRatio", "xMinYMin meet")
 
-var margin = {top: 20, right: 90, bottom: 30, left: 50};
-var width = $("svg").width() - margin.right - margin.left;
-var height = $("svg").height() - margin.top - margin.bottom;
+//var wMargin = $("svg").width() / 8;  
+//var hMargin = $("svg").height() / 6;
+var wMargin = 100;  
+var hMargin = 50; 
+var width = $("svg").width() - wMargin;
+var height = $("svg").height() - hMargin;
 
-//console.log("width=" + width + "; height=" + height);
-
-var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var g = svg.append("g").attr("transform", "translate(" + 80 + "," + 20 + ")");
 
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]),
