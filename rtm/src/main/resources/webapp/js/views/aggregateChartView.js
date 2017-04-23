@@ -69,8 +69,6 @@ var AggregateChartView = Backbone.View.extend({
 
 		this.curPayload = this.collection.models[0].get('payload');
 
-		console.log();
-
 		$.get(resolveTemplate('aggregateChart-template'), function (data) {
 			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
 			that.$el.append(template);
@@ -100,12 +98,20 @@ chartTimer: function(arg1) {
 			contentType: "application/json",
 			data: JSON.stringify(arg1),
 			success:function(result){
+					console.log(JSON.stringify(result));
+					
+					if(result.status === 'ERROR')
+						that.pauseChartTimer();
+					
 					if(Object.keys(result).length > 0){
-						var chartParams = { metric : 'count'};
-						$( "svg" ).empty();
-						$("#legendSVG").empty();
-						var convertedResult = that.convertToOld(result.payload);
-						that.drawD3Chart(convertedResult, chartParams);
+						
+						if(result.payload && Object.keys(result.payload).length > 0){
+							var chartParams = { metric : 'count'};
+							$( "svg" ).empty();
+							$("#legendSVG").empty();
+							var convertedResult = that.convertToOld(result.payload);
+							that.drawD3Chart(convertedResult, chartParams);
+						}
 					}
 				}
 			});
@@ -460,7 +466,7 @@ convertToSeries: function (payload, pChartParams){
 	      result.push({ 'id' : series.groupby, 'values' : curSeries})
 	      curSeries = [];
 	  });
-
+	
 	  return result;
 },
 

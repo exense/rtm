@@ -2,6 +2,8 @@ package org.rtm.request;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
@@ -75,7 +77,7 @@ public class RequestHandler {
 				}
 			};
 
-			waiter.run();
+			Executors.newSingleThreadExecutor().submit(waiter);
 			
 			r = new SuccessResponse(ssm.registerStreamSession(stream), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {

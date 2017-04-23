@@ -3,6 +3,7 @@ package org.rtm.stream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
 
 @SuppressWarnings("rawtypes")
 public class StreamBroker {
@@ -20,7 +21,7 @@ public class StreamBroker {
 	
 	public StreamBroker(){
 		streamRegistry = new ConcurrentHashMap<>();
-		
+		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, 60, 3));
 	}
 	
 	public StreamId registerStreamSession(Stream streamHandle) {
@@ -35,8 +36,9 @@ public class StreamBroker {
 	
 	public Stream getStreamAndFlagForRefresh(StreamId id) throws Exception{
 		Stream thisStream = getStream(id);
-		if(thisStream == null)
-			throw new Exception("Stream with id " + id.getStreamedSessionId() + "is null.");
+		if(thisStream == null){
+			throw new Exception("Stream with id " + id.getStreamedSessionId() + " is null.");
+		}
 		
 		if(thisStream.isComplete())
 			thisStream.setRefreshedSinceCompletion(true);
