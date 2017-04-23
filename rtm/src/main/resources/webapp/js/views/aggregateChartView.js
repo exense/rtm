@@ -104,7 +104,7 @@ chartTimer: function(arg1) {
 						var chartParams = { metric : 'count'};
 						$( "svg" ).empty();
 						$("#legendSVG").empty();
-						var convertedResult = that.convertToOld(result);
+						var convertedResult = that.convertToOld(result.payload);
 						that.drawD3Chart(convertedResult, chartParams);
 					}
 				}
