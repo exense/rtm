@@ -94,8 +94,8 @@ dispatchResume : function(){
 		this.aggregateChartView.cleanupChartOnly();
 		this.aggregateChartView.renderChartOnly();
 		// if Table turned on
-		//this.aggregateTableView.cleanupTableOnly();
-		//this.aggregateTableView.renderTableOnly();
+		this.aggregateTableView.cleanupTableOnly();
+		this.aggregateTableView.renderTableOnly();
 	},
 	
 	serializeInput: function(){
@@ -173,8 +173,9 @@ dispatchResume : function(){
 		this.postControllerView.cleanup();
 		this.aggSPControllerView.cleanup();
 		//this.aggregateChartView.cleanup();
+		//this.aggregateTableView.cleanup();
 		this.aggregateChartView.cleanupChartOnly();
-		this.aggregateTableView.cleanup();
+		this.aggregateTableView.cleanupTableOnly();
 	},
 
 	clearCollections: function(){

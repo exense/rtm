@@ -9,6 +9,8 @@ var AggregateTableView = Backbone.View.extend({
 	dateMetrics : [],
 	excludeList : [],
 	switchedOn: '',
+	
+	isTemplateInit : 'false',
 
 	initialize : function(){
 		
@@ -72,32 +74,66 @@ var AggregateTableView = Backbone.View.extend({
 
 		this.$el.html('');
 
-		this.renderTable();
+		this.renderTemplate(this.renderTable);
+		//this.renderTableOnly();
 	},
 
-	renderTable: function () {
+	renderTemplate: function (callback) {
 		var that = this;
+		var thisCallback = callback.bind(this);
 		
-		//console.log('gotta render table too..');
-		/*
-		$.get(resolveTemplate('aggregateTable-template'), function (data) {
+		$.get(resolveTemplate('aggregateTableHeader-template'), function (data) {
 
 			template = _.template(data, 
 					{
-				aggregates: that.collection.models, 
-				metricsList : that.getMetricsList(), 
-				checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
-				dateMetric : that.dateMetrics,
-				displayTable : that.switchedOn
+						aggregates: that.collection.models, 
+						metricsList : that.getMetricsList(), 
+						checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
+						dateMetric : that.dateMetrics,
+						displayTable : that.switchedOn
 					});
 			that.$el.append(template);
 		}, 'html')
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
+		})
+		.success(function(){
+			thisCallback();	
 		});
-		*/
 	},
-	
+
+cleanupTableOnly: function() {
+  	$( "svg" ).empty();
+	$("#legendSVG").empty();
+},
+
+renderTableOnly: function(){
+			if(this.isTemplateInit === 'false'){
+				this.renderTemplate(this.renderTable);
+				this.isTemplateInit = 'true';
+			}else{
+				this.renderTable();
+			}
+},
+
+renderTable: function(){
+
+		var that = this;
+		$.get(resolveTemplate('aggregateTableData-template'), function (data) {
+			template = _.template(data, 
+					{
+						aggregates: that.collection.models, 
+						metricsList : that.getMetricsList(), 
+						checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
+						dateMetric : that.dateMetrics,
+						displayTable : that.switchedOn
+					});
+			$("#dataPanelContainer").html(template);
+		}, 'html')
+		.fail(function(model, response, options ) {
+			displayError('response=' + JSON.stringify(response));
+		})
+},
 	
 isNumeric: function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -123,6 +159,9 @@ getChartableMetricsList: function(){
 
 getMetricsList: function(){
 	var metricsList = [];
+	metricsList.push('count');
+	metricsList.push('sum');
+	/*
 	var firstModel = this.collection.models[0];
 	var excludes = this.getExcludeList();
 	if(firstModel){
@@ -132,6 +171,7 @@ getMetricsList: function(){
     		}
 		}
 	}
+	*/
 	return metricsList;
 },
 
