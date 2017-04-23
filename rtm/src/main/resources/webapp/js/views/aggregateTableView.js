@@ -78,7 +78,7 @@ var AggregateTableView = Backbone.View.extend({
 	renderTable: function () {
 		var that = this;
 		
-		console.log('gotta render table too..');
+		//console.log('gotta render table too..');
 		/*
 		$.get(resolveTemplate('aggregateTable-template'), function (data) {
 

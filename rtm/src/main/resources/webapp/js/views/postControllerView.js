@@ -13,6 +13,8 @@ var PostControllerView = Backbone.View.extend(
 				"click .rdf" : "remFilter",
 				"change .sinp": "refreshController",
 				"click #sendSearch" : "sendSearch",
+				"click #pause" : "pauseEvent",
+				"click #resume" : "resumeEvent",
 				"keypress" : "hijackEnter",
 				"click .defaultKey" : "setDefaultKey"
 			},
@@ -83,9 +85,6 @@ var PostControllerView = Backbone.View.extend(
 
 				var that = this;
 				jQuery.get(resolveTemplate('postController-template'), function (data) {
-
-//					console.log('-                               PostControllerView : -----------[that.guiSelectors]------------');
-//					console.log(that.guiSelectors);
 					template = _.template(data, {
 						controller: {text : 'Add Selector'},
 						selectors : that.guiSelectors,
@@ -169,7 +168,14 @@ var PostControllerView = Backbone.View.extend(
 				this.trigger('globalSearchEvent');
 				e.preventDefault();
 			},
-
+			pauseEvent: function(e){
+				this.trigger('pauseEvent');
+				e.preventDefault();
+			},
+			resumeEvent: function(e){
+				this.trigger('resumeEvent');
+				e.preventDefault();
+			},
 			refreshController: function(e){
 
 				var sel = this.guiSelectors;
