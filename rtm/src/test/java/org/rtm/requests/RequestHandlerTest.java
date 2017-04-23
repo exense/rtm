@@ -52,7 +52,7 @@ public class RequestHandlerTest {
 			
 			long waitInterval = 500;
 
-			while(stream.size() < 1){
+			while(stream.getStreamData().size() < 1){
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
@@ -63,10 +63,10 @@ public class RequestHandlerTest {
 			long firstByte = System.currentTimeMillis();
 			System.out.println("TimeToFirstByte=" + (firstByte - start) + " ms.");
 
-			while(stream.size() != targetDots){
+			while(stream.getStreamData().size() != targetDots){
 				try {
 					Thread.sleep(500);
-					System.out.println("Size = " + stream.size());
+					System.out.println("Size = " + stream.getStreamData().size());
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
