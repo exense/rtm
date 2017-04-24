@@ -103,8 +103,8 @@ var AggregateTableView = Backbone.View.extend({
 	},
 
 cleanupTableOnly: function() {
-  	$( "svg" ).empty();
-	$("#legendSVG").empty();
+	// No need to clean up manually since the template gets re-rendered entirely
+	//$("#collapseATable").empty();
 },
 
 renderTableOnly: function(){
@@ -117,12 +117,12 @@ renderTableOnly: function(){
 },
 
 renderTable: function(){
-
-		var that = this;
+	var that = this;
+	if(that.collection.models.length > 0 && that.collection.models[0].get('payload')){
 		$.get(resolveTemplate('aggregateTableData-template'), function (data) {
 			template = _.template(data, 
 					{
-						aggregates: that.collection.models, 
+						aggregates: convertToOld(that.collection.models[0].get('payload').streamData), 
 						metricsList : that.getMetricsList(), 
 						checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
 						dateMetric : that.dateMetrics,
@@ -133,6 +133,7 @@ renderTable: function(){
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
 		})
+	}
 },
 	
 isNumeric: function(n) {
