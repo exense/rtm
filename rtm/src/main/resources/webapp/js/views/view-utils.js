@@ -178,3 +178,59 @@ function guiToBackendInput(guiSelectors){
 
 	return selPayload;
 }
+
+
+function convertToOld(payload){
+
+	  var result = [];
+	  var curRow = {};
+
+	  var seriesNb = payload.length;
+	  var series = [];
+	  var metrics = [];
+	  var first = payload[Object.keys(payload)[0]];
+	  if(first){
+		for(attribute in first){
+			series.push(attribute);
+		}
+		
+		for(metric in first[series[0]]){
+			//console.log('-->first'); console.log(JSON.stringify(first));console.log('-->series[0]'); console.log(series[0]);console.log('-->metric'); console.log(metric);
+			metrics.push(metric)
+		}
+
+		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
+		
+		_.each(series, function(sery){ 
+			var seriesData = {"groupby" : sery, "data" : []};
+			
+			for(dot in payload){
+				//console.log(' --> result');	console.log(JSON.stringify(result));
+				if(Object.keys(dot).length > 0 ){
+					var thisMeasure = {};
+					thisMeasure['begin'] = parseInt(dot);
+					var complete = true;
+					_.each(metrics, function(metric){
+						//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
+						/*if(!payload[dot][sery]){
+						console.log(' ---> payload[dot][sery]');console.log(JSON.stringify(payload[dot][sery]));
+						console.log(' ---> payload[dot]');console.log(JSON.stringify(payload[dot]));
+						console.log(' ---> payload');console.log(JSON.stringify(payload));
+						}*/
+						if(payload[dot][sery]){
+							thisMeasure[metric] = payload[dot][sery][metric];
+						}else
+						    complete = false;
+					});
+				
+					if(complete){
+						seriesData.data.push(thisMeasure);
+					}
+				}
+			}
+		result.push(seriesData);
+		});
+	  }
+	  
+	  return result;
+}

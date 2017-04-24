@@ -77,8 +77,8 @@ var AggregateChartView = Backbone.View.extend({
 },
 
 cleanupChartOnly: function() {
-  	//$( "svg" ).empty();
-	//$("#legendSVG").empty();
+  	$( "svg" ).empty();
+	$("#legendSVG").empty();
 },
 
 renderChartOnly: function(){
@@ -99,7 +99,7 @@ renderChart: function(){
 							if(payload.streamData && Object.keys(payload.streamData).length > 0){
 								var chartParams = { metric : 'count'};
 
-								var convertedResult = this.convertToOld(payload.streamData);
+								var convertedResult = convertToOld(payload.streamData);
 								this.drawD3Chart(convertedResult, chartParams);
 							}
 				}
@@ -329,61 +329,6 @@ var that = this;
 },
 getRGB: function (cssStyle){
 	return rgbSplit = cssStyle.split("rgb")[1].split(";")[0];
-},
-
-convertToOld : function(payload){
-
-	  var result = [];
-	  var curRow = {};
-
-	  var seriesNb = payload.length;
-	  var series = [];
-	  var metrics = [];
-	  var first = payload[Object.keys(payload)[0]];
-	  if(first){
-		for(attribute in first){
-			series.push(attribute);
-		}
-		
-		for(metric in first[series[0]]){
-			//console.log('-->first'); console.log(JSON.stringify(first));console.log('-->series[0]'); console.log(series[0]);console.log('-->metric'); console.log(metric);
-			metrics.push(metric)
-		}
-
-		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
-		
-		_.each(series, function(sery){ 
-			var seriesData = {"groupby" : sery, "data" : []};
-			
-			for(dot in payload){
-				//console.log(' --> result');	console.log(JSON.stringify(result));
-				if(Object.keys(dot).length > 0 ){
-					var thisMeasure = {};
-					thisMeasure['begin'] = parseInt(dot);
-					var complete = true;
-					_.each(metrics, function(metric){
-						//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
-						/*if(!payload[dot][sery]){
-						console.log(' ---> payload[dot][sery]');console.log(JSON.stringify(payload[dot][sery]));
-						console.log(' ---> payload[dot]');console.log(JSON.stringify(payload[dot]));
-						console.log(' ---> payload');console.log(JSON.stringify(payload));
-						}*/
-						if(payload[dot][sery]){
-							thisMeasure[metric] = payload[dot][sery][metric];
-						}else
-						    complete = false;
-					});
-				
-					if(complete){
-						seriesData.data.push(thisMeasure);
-					}
-				}
-			}
-		result.push(seriesData);
-		});
-	  }
-	  
-	  return result;
 },
 
 getSdataIndexById: function (serId, Sdata){

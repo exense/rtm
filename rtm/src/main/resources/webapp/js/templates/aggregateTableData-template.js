@@ -38,8 +38,9 @@
         </tr>
         </thead>
         <tbody>
+
         <% if (aggregates.length > 0) {%>
-        <% _.each(aggregates[0].get('payload'), function(aggregate) { %>
+        <% _.each(aggregates, function(aggregate) { %>
           <% _.each(aggregate.data, function(itemZ) { %>
             <tr>
             <td><%= aggregate.groupby %></td>
