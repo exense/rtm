@@ -12,8 +12,6 @@ var AggregateChartView = Backbone.View.extend({
 	svgLegendFactor : 5,
 	seriesCount : 0,
 	
-	isTemplateIinit : 'false',
-
 	initialize : function(){
 		this.currentChartMetricChoice = Config.getProperty('client.AggregateChartView.currentChartMetricChoice');
 		this.chartBeginKey = Config.getProperty('client.AggregateChartView.chartBeginKey');
@@ -57,7 +55,6 @@ var AggregateChartView = Backbone.View.extend({
 		this.$el.html('');
 
 		this.renderTemplate(this.renderChart);
-		this.renderChartOnly();
 	},
 
 	renderTemplate: function(callback) {
@@ -82,12 +79,11 @@ cleanupChartOnly: function() {
 },
 
 renderChartOnly: function(){
-			if(this.isTemplateInit === 'false'){
+			var length = $("#svgContainer").length;
+			if(length < 1)
 				this.renderTemplate(this.renderChart);
-				this.isTemplateInit = 'true';
-			}else{
+			else
 				this.renderChart();
-			}
 },
 
 renderChart: function(){
