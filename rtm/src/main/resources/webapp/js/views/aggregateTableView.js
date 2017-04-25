@@ -10,8 +10,6 @@ var AggregateTableView = Backbone.View.extend({
 	excludeList : [],
 	switchedOn: '',
 	
-	isTemplateInit : 'false',
-
 	initialize : function(){
 		
 		var splitter = Config.getProperty('client.splitChar');
@@ -75,10 +73,12 @@ var AggregateTableView = Backbone.View.extend({
 		this.$el.html('');
 
 		this.renderTemplate(this.renderTable);
-		//this.renderTableOnly();
 	},
 
 	renderTemplate: function (callback) {
+	
+	console.log(' renderTemplate');
+	
 		var that = this;
 		var thisCallback = callback.bind(this);
 		
@@ -108,15 +108,15 @@ cleanupTableOnly: function() {
 },
 
 renderTableOnly: function(){
-			if(this.isTemplateInit === 'false'){
+			var length = $("#dataPanelContainer").length;
+			if(length < 1)
 				this.renderTemplate(this.renderTable);
-				this.isTemplateInit = 'true';
-			}else{
+			else
 				this.renderTable();
-			}
 },
 
 renderTable: function(){
+	
 	var that = this;
 	if(that.collection.models.length > 0 && that.collection.models[0].get('payload')){
 		$.get(resolveTemplate('aggregateTableData-template'), function (data) {
