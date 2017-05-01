@@ -69,7 +69,7 @@ public class StreamCleaner implements Runnable{
 			
 			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
 				registry.remove(id);
-				logger.info("Evicted stream " + id + "due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
+				logger.info("Evicted stream " + id + " due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
 			}
 		});
 	}
