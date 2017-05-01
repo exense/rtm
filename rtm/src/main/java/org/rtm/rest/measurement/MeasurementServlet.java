@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.commons.Configuration;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
@@ -51,7 +52,10 @@ public class MeasurementServlet {
 	public Response getResutStreamForQuery(final AggregationRequest body) {
 		AbstractResponse response;
 		try {
-			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors(), MeasurementConstants.BEGIN_KEY, 0, 100), "ok");
+			int pager = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
+			int pageSize = Configuration.getInstance().getPropertyAsInteger("client.MeasurementListView.pagingValue");
+			
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors(), MeasurementConstants.BEGIN_KEY, pager * pageSize, pageSize), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());

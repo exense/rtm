@@ -72,7 +72,7 @@ var MeasurementListView = Backbone.View.extend({
 		var that = this;
 
 		if(that.collection.models.length > 0){
-		console.log(JSON.stringify(that.collection.models[0].get('payload')[0]));
+		//console.log(JSON.stringify(that.collection.models[0].get('payload')[0]));
 
 		$.get(resolveTemplate('measurement-list-template'), function (data) {
 			template = _.template(data,
@@ -94,10 +94,11 @@ var MeasurementListView = Backbone.View.extend({
 	},
 	getMetricsList: function(){
 		var metricsList = [];
-		var firstModel = this.collection.models[0];
+		var firstModel = this.collection.models[0].get('payload')[0];
 		var excludes = this.getExcludeList();
+		
 		if(firstModel){
-			for ( var key in firstModel.attributes){
+			for ( var key in firstModel){
 				metricsList.push(key);
 			}
 		}
