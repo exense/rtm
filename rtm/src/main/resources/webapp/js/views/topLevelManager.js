@@ -55,7 +55,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 
 dispatchStreamConsumed : function(){
 		console.log('stream is consumed.');
-		this.postControllerView.spinner.stop();
+		this.postControllerView.stopSpinner();
 		this.isComplete = 'true';
 		this.clearRefresh();
 },
@@ -84,6 +84,10 @@ dispatchResume : function(){
 	
 	setRefresh : function(){
 		var that = this;
+		var target = $('#spinner');
+		
+		this.postControllerView.resetSpinner();
+		
 		this.lastSetInterval = setInterval( function() {
 			if(Date.now() < that.maxDate){ 
 				that.aggregateDatapoints.refreshData(that.curStreamId);
