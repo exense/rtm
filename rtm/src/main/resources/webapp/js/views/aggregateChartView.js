@@ -45,7 +45,9 @@ var AggregateChartView = Backbone.View.extend({
 	},
 	updateChartMetricChoice: function (e) {
 		this.currentChartMetricChoice = e.currentTarget.id;
-		this.render();
+		
+		this.cleanupChartOnly();
+		this.renderChartOnly();
 		e.preventDefault();
 	},
 	render: function () {
@@ -93,8 +95,7 @@ renderChart: function(){
 	
 				if(payload && Object.keys(payload).length > 0){
 							if(payload.streamData && Object.keys(payload.streamData).length > 0){
-								var chartParams = { metric : 'count'};
-
+								var chartParams = { metric : this.currentChartMetricChoice};
 								var convertedResult = convertToOld(payload.streamData);
 								this.drawD3Chart(convertedResult, chartParams);
 							}
@@ -108,9 +109,16 @@ isNumeric: function(n) {
 
 getChartableMetricsList: function(){
 	var metricsList = [];
-	//TODO: dynimicize
-	metricsList.push('count');
-	metricsList.push('sum');
+	var payload = this.collection.models[0].get('payload');
+	
+	if(payload.streamData && Object.keys(payload.streamData).length > 0){
+		var first = payload.streamData[Object.keys(payload.streamData)[0]];
+		var obj = first[Object.keys(first)[0]];
+	
+		for (key in obj){
+			metricsList.push(key);
+		}
+	}
 	return metricsList;
 },
 

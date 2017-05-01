@@ -53,10 +53,6 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.listenTo( this.measurementListView, 'MeasurementNext', this.sendSearch );
 	},
 
-//	can just reuse sendSearch?
-//	dispatchMeasurementPrevious
-//	dispatchMeasurementNext
-
 dispatchStreamConsumed : function(){
 		console.log('stream is consumed.');
 		this.isComplete = 'true';
@@ -68,7 +64,12 @@ dispatchPause : function(){
 },
 
 dispatchResume : function(){
+	if(this.isComplete != 'true'){
+		console.log('fetching paused.');
 		this.setRefresh();
+	}else{
+		console.log('cant resume consumed stream.');
+	}
 },
 
 	dispatchMeasurementsRefreshed: function(){
