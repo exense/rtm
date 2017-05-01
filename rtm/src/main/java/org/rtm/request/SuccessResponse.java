@@ -6,9 +6,9 @@ public class SuccessResponse extends AbstractResponse {
 
 	//private static final Logger logger = LoggerFactory.getLogger(AggregationResponse.class);
 
-	public SuccessResponse(Object registeredStreamSessionId, String message) throws JsonProcessingException{
+	public SuccessResponse(Object payload, String message) throws JsonProcessingException{
 		super();
-		super.setPayload(registeredStreamSessionId);
+		super.setPayload(payload);
 		super.setMetaMessage(message);
 		super.setStatus(ResponseStatus.SUCCESS);
 	}

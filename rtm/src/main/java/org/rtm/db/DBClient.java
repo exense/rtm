@@ -32,6 +32,11 @@ public class DBClient {
 	public Iterable<? extends Map> executeQuery(Document timelessQuery, String sortKey, Integer sortDirection) {
 		return ma.find(timelessQuery, new BasicDBObject(sortKey, sortDirection));
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public Iterable<? extends Map> executeQuery(Document timelessQuery, String sortKey, Integer sortDirection, int skip, int limit) {
+		return ma.find(timelessQuery, new BasicDBObject(sortKey, sortDirection), skip, limit);
+	}
 
 	public static BsonQuery buildQuery(List<Selector> sel, LongTimeInterval bucket) {
 		BsonQuery aQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));

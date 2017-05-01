@@ -172,11 +172,9 @@ dispatchResume : function(){
 		this.measurementListView.cleanup();
 		this.postControllerView.cleanup();
 		this.aggSPControllerView.cleanup();
-		//this.aggregateChartView.cleanup();
-		//this.aggregateTableView.cleanup();
-		this.aggregateChartView.cleanupChartOnly();
-		this.aggregateTableView.cleanupTableOnly();
-	},
+		this.aggregateChartView.cleanup();
+		this.aggregateTableView.cleanup();
+		},
 
 	clearCollections: function(){
 		this.measurementListView.clearAll();

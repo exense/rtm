@@ -68,15 +68,15 @@ Table
           <% for (i = 0; i < tlength; i++) { %>
             <% curMetric = checkedTableMetrics[i]; %>
             <%if($.inArray(curMetric, dateMetric) >= 0){%>
-              <%var curDate = new Date(measurement.attributes[curMetric]);%>
+              <%var curDate = new Date(measurement[curMetric]);%>
               <%var printableDate = getPrintableDate(curDate)%>
-              <td><%=printableDate%>(<%=measurement.attributes[curMetric]%>)</td>
+              <td><%=printableDate%>(<%=measurement[curMetric]%>)</td>
             <%}else{%>
-                <%if(measurement.attributes[curMetric]){%>
-                  <td><%= measurement.attributes[curMetric] %></td>
+                <%if(measurement[curMetric]){%>
+                  <td><%= measurement[curMetric] %></td>
                 <%}else{%>
-                       <%if(measurement.attributes[curMetric]){%>
-                         <td><%= measurement.attributes[curMetric] %></td>
+                       <%if(measurement[curMetric]){%>
+                         <td><%= measurement[curMetric] %></td>
                        <%}else{%>
                           <td>no data</td>
                        <%}%>
