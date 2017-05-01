@@ -10,14 +10,28 @@
 <form class="form-inline">
 <div class="form-group">
 <div class="form-group row">
-<label class="col-md-2 control-label">intervalSize (ms)</label>
-<div class="col-md-3">
+
+<div class="col-md-2">
+<label class="control-label">bucket size (ms)</label> &nbsp
 <input type="text" class="form-control granularity aggserviceparams" id="granularity" value="<%= content.granularity %>">
 </div>
-<label class="col-md-2 control-label">groupby (key)</label>
-<div class="col-md-3">
+
+<div class="col-md-2">
+<label class="control-label">groupby</label> &nbsp
 <input type="text" class="form-control groupby aggserviceparams" id="groupby" value="<%= content.groupby %>">
 </div>
+
+<div class="col-md-2">
+<label class="control-label">cpu #</label> &nbsp
+<input type="text" class="form-control cpu aggserviceparams" id="cpu" value="<%= content.cpu %>">
+</div>
+
+<div class="col-md-2">
+<label class="control-label">partition #</label> &nbsp
+<input type="text" class="form-control partition aggserviceparams" id="partition" value="<%= content.partition %>">
+</div>
+
+
 </div>
 
 </div>
