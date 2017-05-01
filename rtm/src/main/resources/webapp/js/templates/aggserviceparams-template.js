@@ -14,7 +14,7 @@
 <div class="col-md-3">
 <input type="text" class="form-control granularity aggserviceparams" id="granularity" value="<%= content.granularity %>">
 </div>
-<label class="col-md-2 control-label">groupby (string dimension)</label>
+<label class="col-md-2 control-label">groupby (key)</label>
 <div class="col-md-3">
 <input type="text" class="form-control groupby aggserviceparams" id="groupby" value="<%= content.groupby %>">
 </div>
