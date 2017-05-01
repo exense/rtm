@@ -27,6 +27,7 @@ var Aggregates = Backbone.Collection.extend({
          },
          error: function( model, response, options ){
           //console.log('model=' + JSON.stringify(model) + ', response=' + JSON.stringify(response) + ', options=' + JSON.stringify(options));
+	         that.trigger('pauseChartTimer');
           	 displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
           that.reset();
         }

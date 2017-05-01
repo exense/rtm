@@ -77,8 +77,6 @@ var AggregateTableView = Backbone.View.extend({
 
 	renderTemplate: function (callback) {
 	
-	console.log(' renderTemplate');
-	
 		var that = this;
 		var thisCallback = callback.bind(this);
 		

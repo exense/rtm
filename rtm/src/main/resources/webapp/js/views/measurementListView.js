@@ -71,10 +71,13 @@ var MeasurementListView = Backbone.View.extend({
 	render: function () {
 		var that = this;
 
+		if(that.collection.models.length > 0){
+		//console.log(JSON.stringify(that.collection.models[0].get('payload')[0]));
+
 		$.get(resolveTemplate('measurement-list-template'), function (data) {
 			template = _.template(data,
 					{
-				measurements: that.collection.models,
+				measurements: that.collection.models[0].get('payload'),
 				metricsList : that.getMetricsList(),
 				checkedTableMetrics : that.checkedTableMetrics,
 				dateMetric : that.dateMetrics,
@@ -87,13 +90,15 @@ var MeasurementListView = Backbone.View.extend({
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
 		});
+		}
 	},
 	getMetricsList: function(){
 		var metricsList = [];
-		var firstModel = this.collection.models[0];
+		var firstModel = this.collection.models[0].get('payload')[0];
 		var excludes = this.getExcludeList();
+		
 		if(firstModel){
-			for ( var key in firstModel.attributes){
+			for ( var key in firstModel){
 				metricsList.push(key);
 			}
 		}
