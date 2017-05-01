@@ -10,7 +10,7 @@
 <div class="panel-body">
 <div class="dropdown">
   <a id="dLabel" class="btn btn-default metricChooser" role="button" data-toggle="dropdown" data-target="#" href="">
-    choose metric <span class="caret"></span>
+    metric <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
   <% var length = metricsList.length %>
