@@ -23,14 +23,17 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		//if(stream.get(id) != null)
 		//		logger.error("There's already a result for id=" + id.getIdAsTypedObject());
 		
+		
 		if(stream == null){
-			logger.error("Can not attach result to null stream. Stream with id " + id.getIdAsTypedObject() + " was probably evicted too early.");
+			logger.error("Can not attach result to null stream. Stream with id " + stream.getId() + " was probably evicted too early.");
 		}else{
 			try{
 				stream.getStreamData().put(id.getIdAsTypedObject(), tv);
 			}catch(NullPointerException e){
-				logger.error("Can not attach result to null collection. Stream with id " + id.getIdAsTypedObject() + "has probably timed out.", e);
-				throw new RuntimeException("Propagating error to shutdown tasks.");
+				//logger.error("Can not attach result to null collection. Stream with id " + stream.getId() + " has probably timed out.");// prettier than : , e);
+				//throw new RuntimeException("Propagating error to shutdown tasks.");
+				
+				throw new RuntimeException("Stream timed out : " + stream.getId());
 			}
 		}
 

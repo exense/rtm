@@ -20,7 +20,6 @@ package org.rtm.stream;
 
 import java.util.Map;
 
-import org.rtm.stream.result.StreamResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +35,12 @@ public class StreamCleaner implements Runnable{
 	
 	private StreamBroker sb;
 	private long sleepTime;
-	private long eviction;
+	private long defaultTimeToEviction;
 	
 	public StreamCleaner(StreamBroker sb, long streamEvictionSeconds, long sleepTimeSeconds){
 		this.sb = sb;
 		this.sleepTime = sleepTimeSeconds * 1000;
-		this.eviction = streamEvictionSeconds * 1000;
+		this.defaultTimeToEviction = streamEvictionSeconds * 1000;
 	}
 
 	@Override
@@ -77,8 +76,12 @@ public class StreamCleaner implements Runnable{
 	}
 
 	private boolean isEvictionTimeReached(Stream s) {
+		Long customTimeout = s.getTimeoutDurationSecs();
 		long elapsed = System.currentTimeMillis() - s.getTimeCreated();
-		return elapsed > this.eviction;
+		if(customTimeout != null && customTimeout > 0)
+			return elapsed > (customTimeout * 1000);
+		else
+			return elapsed > this.defaultTimeToEviction;
 	}
 	
 }

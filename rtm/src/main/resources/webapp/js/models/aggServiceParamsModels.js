@@ -5,10 +5,12 @@ function AggregateServiceParams(defaults){
   this.groupby = defaults.defaultGroupby;
   this.cpu = defaults.defaultCpu;
   this.partition = defaults.defaultPartition;
+  this.timeout = defaults.defaultTimeout;
 
   this.getSessionId = function(){ return this.sessionId;};
   this.getGranularity = function(){ return this.granularity;};
   this.getGroupby = function(){ return this.groupby;};
   this.getCpu = function(){ return this.cpu;};
   this.getPartition = function(){ return this.partition;};
+  this.getTimeout = function(){ return this.timeout;};
 }
