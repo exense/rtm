@@ -30,8 +30,10 @@ import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
+import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
+import org.rtm.stream.metrics.PostMetricsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +66,10 @@ public class AggregationServlet {
 		AbstractResponse rtmResponse = null;
 		Response jettyResponse;
 		try {
-			rtmResponse = new SuccessResponse(
-							ssm.getStreamAndFlagForRefresh(body),
+			@SuppressWarnings("rawtypes")
+			Stream result = new PostMetricsFilter().handle(ssm.getStreamAndFlagForRefresh(body));
+			//logger.debug(result.toString());
+			rtmResponse = new SuccessResponse(result,
 							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with id= " + body; 

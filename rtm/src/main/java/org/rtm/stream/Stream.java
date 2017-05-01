@@ -17,6 +17,7 @@ public class Stream<T> {
 	
 	private ConcurrentSkipListMap<Long, AggregationResult<T>> streamData;
 	private StreamId id = new StreamId(); 
+	private boolean isClone = false; 
 	
 	private long timeCreated = System.currentTimeMillis();
 	private long timeoutDurationSecs;
@@ -84,4 +85,25 @@ public class Stream<T> {
 		return id;
 	}
 
+	public Stream<T> clone(){
+		Stream<T> newStream = new Stream<>();
+		newStream.isClone = true;
+		
+		newStream.streamData = new ConcurrentSkipListMap<>(this.streamData);
+		newStream.id = this.id;
+		newStream.complete = this.complete;
+		newStream.isRefreshedSinceCompletion = this.isRefreshedSinceCompletion;
+		newStream.timeCreated = this.timeCreated;
+		newStream.timeoutDurationSecs = this.timeoutDurationSecs;
+		
+		return newStream;
+	}
+
+	public boolean isClone() {
+		return isClone;
+	}
+	
+	public String toString(){
+		return this.streamData.toString();
+	}
 }

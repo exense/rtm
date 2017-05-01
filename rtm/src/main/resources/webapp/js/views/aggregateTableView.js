@@ -71,8 +71,8 @@ var AggregateTableView = Backbone.View.extend({
 		}else{
 			this.checkedAggTableMetrics.splice(index,1);
 		}
-
-		this.render();
+		this.cleanupTableOnly();
+		this.renderTableOnly();
 		e.preventDefault();
 	},
 	render: function () {
@@ -163,19 +163,19 @@ getChartableMetricsList: function(){
 
 getMetricsList: function(){
 	var metricsList = [];
-	metricsList.push('count');
-	metricsList.push('sum');
-	/*
-	var firstModel = this.collection.models[0];
+
+	var payload = this.collection.models[0].get('payload');
+	
 	var excludes = this.getExcludeList();
-	if(firstModel){
-		for ( var prop in firstModel.attributes.payload[0].data[0]){
-			if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
-				metricsList.push(prop);
-    		}
+	
+	if(payload.streamData && Object.keys(payload.streamData).length > 0){
+		var first = payload.streamData[Object.keys(payload.streamData)[0]];
+		var obj = first[Object.keys(first)[0]];
+		for ( var prop in obj){
+			metricsList.push(prop);
 		}
 	}
-	*/
+
 	return metricsList;
 },
 

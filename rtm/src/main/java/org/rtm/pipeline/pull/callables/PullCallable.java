@@ -25,20 +25,13 @@ public class PullCallable implements Runnable{
 
 	@Override
 	public final void run() {
-		int loopCount = 0;
-		long start = System.currentTimeMillis();
 		try {
 			RangeBucket bucket;
-			while((bucket = splitRange()) != null){
-				loopCount++;
-				//logger.debug(Thread.currentThread() + " -> " + bucket);
+			while((bucket = splitRange()) != null)
 				harvestRange(processRange(bucket));
-			}
 		} catch (Exception e) {
 			logger.debug("Problem during pipeline execution.", e );
 		}
-		
-		//logger.debug(Thread.currentThread() + " did " + loopCount + " iterations, and took " + (System.currentTimeMillis() - start) +" ms.");
 	}
 
 	public RangeBucket splitRange(){

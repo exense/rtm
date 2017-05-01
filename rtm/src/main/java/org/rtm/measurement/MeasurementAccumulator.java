@@ -3,6 +3,7 @@ package org.rtm.measurement;
 import java.util.Map;
 import java.util.Properties;
 
+import org.rtm.measurement.MeasurementStatistics.AggregationType;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
@@ -23,10 +24,8 @@ public abstract class MeasurementAccumulator {
 	protected Dimension getOrInitDimension(LongRangeValue sc, Map m) {
 		String m_dimension = mh.getPrimaryDimensionValue(m);
 
-		//TODO: get key from request props
 		if(m_dimension == null || m_dimension.trim().isEmpty()){
-			//TODO: get from prop/conf (default fall back key name)
-			m_dimension = "groupall";
+			m_dimension = "default";
 		}
 
 		Dimension d = sc.getDimension(m_dimension);
@@ -39,14 +38,17 @@ public abstract class MeasurementAccumulator {
 
 	protected void accumulateStats(Dimension d, Long value) {
 		LongAccumulationHelper la = d.getAccumulationHelper();
-		//TODO: we'll only do hardcoded counts for now
-		if(la.isInit("count"))
-			la.initializeAccumulatorForMetric("count", (x,y) -> x+1, 0L);
-		la.accumulateMetric("count", 1);
+
+		String metric = AggregationType.COUNT.getShort();
 		
-		if(la.isInit("sum"))
-			la.initializeAccumulatorForMetric("sum", (x,y) -> x+y, 0L);
-		la.accumulateMetric("sum", value);
+		if(la.isInit(metric))
+			la.initializeAccumulatorForMetric(metric, (x,y) -> x+1, 0L);
+		la.accumulateMetric(metric, 1);
+		
+		metric = AggregationType.SUM.getShort();
+		if(la.isInit(metric))
+			la.initializeAccumulatorForMetric(metric, (x,y) -> x+y, 0L);
+		la.accumulateMetric(metric, value);
 	}
 
 
