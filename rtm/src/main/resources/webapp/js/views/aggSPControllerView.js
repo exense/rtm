@@ -14,6 +14,7 @@ var AggSPControllerView = Backbone.View.extend(
 			defaultGroupby : '',
 			defaultCpu : '',
 			defaultPartition : '',
+			defaultTimeout : '',
 			
 			initialize : function(){
 				  this.defaultSessionId = Config.getProperty('client.AggSPControllerView.defaultSid');
@@ -21,12 +22,15 @@ var AggSPControllerView = Backbone.View.extend(
 				  this.defaultGroupby = Config.getProperty('client.AggSPControllerView.defaultGroupby');
 				  this.defaultCpu = Config.getProperty('client.AggSPControllerView.defaultCpu');
 				  this.defaultPartition = Config.getProperty('client.AggSPControllerView.defaultPartition');
+				  this.defaultTimeout = Config.getProperty('aggregateService.defaultStreamTimeoutSecs');
+				  
 				  this.aggserviceparams = new AggregateServiceParams({
 				  	defaultSessionId : this.defaultSessionId,
 				  	defaultGranularity : this.defaultGranularity,
 				  	defaultGroupby : this.defaultGroupby,
 				  	defaultCpu : this.defaultCpu,
-				  	defaultPartition : this.defaultPartition
+				  	defaultPartition : this.defaultPartition,
+				  	defaultTimeout : this.defaultTimeout
 				  });
 			},
 			

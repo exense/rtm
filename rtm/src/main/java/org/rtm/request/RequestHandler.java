@@ -2,10 +2,8 @@ package org.rtm.request;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -39,10 +37,11 @@ public class RequestHandler {
 
 		try {
 			int poolSize = 1;
-			long timeout = Configuration.getInstance().getPropertyAsInteger("aggregateService.streamTimeoutSecs");
+
+			long timeout = Long.parseLong(prop.getProperty("aggregateService.timeout"));
 			int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 			int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
-			
+
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			Long optimalSize = null;
 			
@@ -53,10 +52,11 @@ public class RequestHandler {
 				optimalSize = Long.parseLong(hardInterval);
 			
 			Stream<Long> stream = new Stream<>();
+			stream.setTimeoutDurationSecs(timeout);
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
-			
-			logger.debug("effective=" + effective + "; optimalSize=" + optimalSize);
 
+			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
+			
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
@@ -80,7 +80,9 @@ public class RequestHandler {
 
 			Executors.newSingleThreadExecutor().submit(waiter);
 			
-			r = new SuccessResponse(ssm.registerStreamSession(stream), "Stream initialized. Call the streaming service next to start retrieving data.");
+			ssm.registerStreamSession(stream);
+			r = new SuccessResponse(stream.getId(), "Stream initialized. Call the streaming service next to start retrieving data.");
+			
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
 			logger.error(message, e);

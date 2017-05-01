@@ -31,6 +31,10 @@
 <input type="text" class="form-control partition aggserviceparams" id="partition" value="<%= content.partition %>">
 </div>
 
+<div class="col-md-2">
+<label class="control-label">timeout (s)</label> &nbsp
+<input type="text" class="form-control timeout aggserviceparams" id="timeout" value="<%= content.timeout %>">
+</div>
 
 </div>
 

@@ -2,6 +2,10 @@ package org.rtm.stream;
 
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import org.rtm.commons.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /*
@@ -9,15 +13,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class Stream<T> {
 	
+	private static final Logger logger = LoggerFactory.getLogger(Stream.class);
+	
 	private ConcurrentSkipListMap<Long, AggregationResult<T>> streamData;
+	private StreamId id = new StreamId(); 
 	
 	private long timeCreated = System.currentTimeMillis();
+	private long timeoutDurationSecs;
 	
 	private boolean complete = false;
 	private boolean isRefreshedSinceCompletion = false;
 	
 	public Stream(){
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());
+		try {
+			this.setTimeoutDurationSecs(Configuration.getInstance().getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs"));
+		} catch (Exception e) {
+			logger.error("Could not access default timeout value.", e);
+			this.setTimeoutDurationSecs(600);
+		}
 	}
 	
 	@JsonIgnore
@@ -54,6 +68,20 @@ public class Stream<T> {
 	public void closeStream(){
 		this.streamData.clear();
 		this.streamData = null;
+	}
+
+	@JsonIgnore
+	public long getTimeoutDurationSecs() {
+		return timeoutDurationSecs;
+	}
+
+	@JsonIgnore
+	public void setTimeoutDurationSecs(long timeoutDurationSecs) {
+		this.timeoutDurationSecs = timeoutDurationSecs;
+	}
+
+	public StreamId getId() {
+		return id;
 	}
 
 }

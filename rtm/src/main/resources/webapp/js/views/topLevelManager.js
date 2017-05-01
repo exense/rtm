@@ -19,7 +19,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.activeContext = '';
 		this.dynamicViewsManager = [];
 
-		this.timeout = Config.getProperty('aggregateService.streamTimeoutSecs');
+		this.timeout = Config.getProperty('aggregateService.defaultStreamTimeoutSecs');
 		
 		// collections
 		this.measurements = new Measurements();
@@ -158,8 +158,11 @@ dispatchResume : function(){
 		}
 	},
 
+	setNewClientTimeout: function(){
+		this.timeout = parseInt(this.aggSPControllerView.aggserviceparams.timeout);
+	},
 	sendSearch: function(){
-
+		this.setNewClientTimeout();
 		var guiState = JSON.stringify(this.serializeGui());
 		var route = this.activeContext + "/select/"+ encodeURIComponent(guiState) + "/" + Date.now();
 		this.router.navigate(route, true);
