@@ -8,6 +8,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 	refreshSpeed : 1000,
 	isComplete : 'false',
 	curStreamId : '',
+	timeout : '',
 
 	setRouterReference: function(obj){
 		this.router = obj;
@@ -18,6 +19,8 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.activeContext = '';
 		this.dynamicViewsManager = [];
 
+		this.timeout = Config.getProperty('aggregateService.streamTimeoutSecs');
+		
 		// collections
 		this.measurements = new Measurements();
 		this.aggregates = new Aggregates();
@@ -77,13 +80,21 @@ dispatchResume : function(){
 		var that = this;
 		var streamId = this.aggregates.models[0].get('payload');
 		this.curStreamId = streamId;
-		
+		this.refreshStart = Date.now();
+		this.maxDate = this.refreshStart + (parseInt(this.timeout) * 1000);
 		this.setRefresh();
 	},
 	
 	setRefresh : function(){
 		var that = this;
-		this.lastSetInterval = setInterval( function() { that.aggregateDatapoints.refreshData(that.curStreamId); }, that.refreshSpeed );
+		this.lastSetInterval = setInterval( function() {
+			if(Date.now() < that.maxDate){ 
+				that.aggregateDatapoints.refreshData(that.curStreamId);
+			} else {
+				console.log('stream timed out.');
+				that.clearRefresh();
+			}
+		}, that.refreshSpeed );
 	},
 	
 	clearRefresh : function(){

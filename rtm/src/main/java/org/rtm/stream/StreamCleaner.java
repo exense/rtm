@@ -68,6 +68,8 @@ public class StreamCleaner implements Runnable{
 			String id = e.getKey();
 			
 			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
+				Stream thisStream = registry.get(id);
+				thisStream.closeStream();
 				registry.remove(id);
 				logger.info("Evicted stream " + id + " due to consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
 			}

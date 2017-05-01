@@ -24,9 +24,14 @@ public class StreamResultHandler implements ResultHandler<Long>{
 		//		logger.error("There's already a result for id=" + id.getIdAsTypedObject());
 		
 		if(stream == null){
-			logger.error("Can not attach result to null stream. Stream with id " + id + "was probably evicted too early.");
+			logger.error("Can not attach result to null stream. Stream with id " + id.getIdAsTypedObject() + " was probably evicted too early.");
 		}else{
-			stream.getStreamData().put(id.getIdAsTypedObject(), tv);
+			try{
+				stream.getStreamData().put(id.getIdAsTypedObject(), tv);
+			}catch(NullPointerException e){
+				logger.error("Can not attach result to null collection. Stream with id " + id.getIdAsTypedObject() + "has probably timed out.", e);
+				throw new RuntimeException("Propagating error to shutdown tasks.");
+			}
 		}
 
 	}

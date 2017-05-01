@@ -5,6 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 
+import org.rtm.commons.Configuration;
+import org.rtm.pipeline.pull.PullPipeline;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @SuppressWarnings("rawtypes")
 public class StreamBroker {
 	/*
@@ -17,11 +22,19 @@ public class StreamBroker {
 	 * 
 	 * 
 	 */
+	private static final Logger logger = LoggerFactory.getLogger(StreamBroker.class);
+	
 	private ConcurrentMap<String, Stream> streamRegistry;
 	
 	public StreamBroker(){
 		streamRegistry = new ConcurrentHashMap<>();
-		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, 600, 5));
+		long timeout = 600;
+		try {
+			timeout = Configuration.getInstance().getPropertyAsInteger("aggregateService.streamTimeoutSecs");
+		} catch (Exception e) {
+			logger.error("Couldn't load timeout value from conf.", e);
+		}
+		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, timeout, 5));
 	}
 	
 	public StreamId registerStreamSession(Stream streamHandle) {
