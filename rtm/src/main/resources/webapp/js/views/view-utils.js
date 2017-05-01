@@ -206,7 +206,7 @@ function convertToOld(payload){
 			var seriesData = {"groupby" : sery, "data" : []};
 			
 			for(dot in payload){
-				//console.log(' --> result');	console.log(JSON.stringify(result));
+
 				if(Object.keys(dot).length > 0 ){
 					var thisMeasure = {};
 					thisMeasure['begin'] = parseInt(dot);
