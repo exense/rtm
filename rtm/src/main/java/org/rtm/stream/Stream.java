@@ -50,5 +50,10 @@ public class Stream<T> {
 	public void setStreamData(ConcurrentSkipListMap<Long, AggregationResult<T>> streamData) {
 		this.streamData = streamData;
 	}
+	
+	public void closeStream(){
+		this.streamData.clear();
+		this.streamData = null;
+	}
 
 }

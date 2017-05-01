@@ -98,25 +98,30 @@ public class Configuration{
 		return INSTANCE;
 	}
 
-	public String getProperty(String name) {
-		return properties.getProperty(name);
+	public String getProperty(String name) throws Exception {
+		String prop = properties.getProperty(name);
+		if(prop!=null) {
+			return prop;
+		} else {
+			throw new Exception("Configuration issue - property not found: " + name);
+		}
 	}
 
-	public Integer getPropertyAsInteger(String name) {
+	public Integer getPropertyAsInteger(String name) throws Exception {
 		String prop = properties.getProperty(name);
 		if(prop!=null) {
 			return Integer.parseInt(prop);
 		} else {
-			return null;
+			throw new Exception("Configuration issue - property not found: " + name);
 		}
 	}
 
-	public boolean getPropertyAsBoolean(String name) {
+	public boolean getPropertyAsBoolean(String name) throws Exception {
 		String prop = properties.getProperty(name);
 		if(prop!=null) {
 			return Boolean.parseBoolean(prop);
 		} else {
-			return false;
+			throw new Exception("Configuration issue - property not found: " + name);
 		}
 	}
 

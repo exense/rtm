@@ -42,8 +42,14 @@ public class ConfigurationGetter extends Thread{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if((i % 100) == 0)
-				System.out.println(Configuration.getInstance().getProperty("test1"));
+			if((i % 100) == 0){
+				try {
+					System.out.println(Configuration.getInstance().getProperty("test1"));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		System.out.println(Thread.currentThread().getId() + ": Getter is done.");

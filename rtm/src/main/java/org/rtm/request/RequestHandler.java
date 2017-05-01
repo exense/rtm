@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -38,7 +39,7 @@ public class RequestHandler {
 
 		try {
 			int poolSize = 1;
-			long timeout = 600;
+			long timeout = Configuration.getInstance().getPropertyAsInteger("aggregateService.streamTimeoutSecs");
 			int subPartitioning = 32;
 			int subPoolSize = 4;
 			
