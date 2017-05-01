@@ -60,6 +60,7 @@ dispatchStreamConsumed : function(){
 		this.clearRefresh();
 },
 dispatchPause : function(){
+		console.log('fetching paused.');
 		this.clearRefresh();
 },
 

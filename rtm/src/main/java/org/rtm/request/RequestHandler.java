@@ -38,16 +38,16 @@ public class RequestHandler {
 
 		try {
 			int poolSize = 1;
-			long timeout = 120;
+			long timeout = 600;
 			int subPartitioning = 32;
-			int subPoolSize = 2;
+			int subPoolSize = 4;
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			Long optimalSize = null;
 			
 			String hardInterval = prop.getProperty("aggregateService.granularity");
 			if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 20);
+				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 60);
 			else
 				optimalSize = Long.parseLong(hardInterval);
 			
