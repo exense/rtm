@@ -44,14 +44,6 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			initialize : function(){
-					var opts = {
-						top: 10, left: 0, lines: 13, length: 28, width: 8, radius: 20, scale: 0.12, corners: 1, color: '#000',
-						opacity: 0.25, rotate: 0, direction: 1, speed: 0.6, trail: 60, fps: 20, zIndex: 2e9,
-						className: 'spinner', shadow: false, hwaccel: false, position: 'relative'
-					}
-					
-				this.spinner = new Spinner(opts).spin();
-				this.spinner.stop();
 			},
 
 			hasData : function () {
@@ -114,17 +106,30 @@ var PostControllerView = Backbone.View.extend(
 						showMeridian: 1
 					});
 					
-					var target = $('#spinner');
-					if(target.length > 0){
-						target.append(that.spinner.el);
-					}
-
+					that.resetSpinner();
 				}) // success
 				.fail(function(model, response, options ) {
 					displayError('response=' + JSON.stringify(response));
 				});
 			},
 
+			resetSpinner : function(){
+				var opts = {
+						top: 0, left: 0, lines: 13, length: 35, width: 15, radius: 18, scale: 0.2, corners: 1, color: 'gray',
+						opacity: 0.20, rotate: 0, direction: 1, speed: 0.8, trail: 80, fps: 25, zIndex: 2e9,
+						className: 'spinner', shadow: false, hwaccel: false, position: 'relative'
+				};
+				this.spinner = new Spinner(opts).spin();
+				//this.spinner.stop();
+				var target = $('#spinner');
+				if(target.length > 0){
+					target.append(this.spinner.el);
+				}
+			},
+			stopSpinner : function(){
+				this.spinner.stop();
+				$('#spinner').empty();
+			},
 			addSelector : function(event){
 
 				this.guiSelectors.push(new GuiSelector());

@@ -8,14 +8,32 @@ Selectors
 </div>
 <div id="collapseSelectors" class="panel-collapse collapse in">
 <div class="panel-body">
-<span><button type="submit" id="addSelector" class="btn btn-default">Add Selector</button></span><span>&nbsp</span>
-<span><button type="submit" id="clearAll" class="btn btn-default">Clear All</button></span><span>&nbsp</span>
-<span style="display: inline-block"><button type="submit" id="sendSearch" class="btn btn-success" style="display: inline-block">
-			<div style="display: inline-block">Search</div> <div style="display: inline-block">&nbsp</div> <div id="spinner" style="display: inline-block;">&nbsp</div>
-	</button></span><span>&nbsp</span>
+
+<div style="display: inline-block;">
+<button type="submit" id="addSelector" class="btn btn-default">Add Selector</button>
+</div>
+<div style="display: inline-block;">
+<button type="submit" id="clearAll" class="btn btn-default">Clear All</button>
+</div>
+<div style="display: inline-block;">
+<button type="submit" id="sendSearch" class="btn btn-success">Search</button>
+</div>
+<div style="display: inline-block;">
+<button type="submit" id="pause" class="btn btn-info">Pause</button>
+</div>
+<div style="display: inline-block;">
+<button type="submit" id="resume" class="btn btn-info">Resume</button>
+</div>
+<div style="display: inline-block;">
+&nbsp
+</div>
+<div style="display: inline-block;">
+&nbsp
+</div>
+<div style="display: inline-block;  vertical-align: middle;" id="spinner">
+</div>
 	
-<span><button type="submit" id="pause" class="btn btn-info">Pause</button></span><span>&nbsp</span>
-<span><button type="submit" id="resume" class="btn btn-info">Resume</button></span><span>&nbsp</span>
+<span></span><span>&nbsp</span>
 
 <div>&nbsp</div>
 
