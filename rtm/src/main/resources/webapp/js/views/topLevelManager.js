@@ -64,12 +64,7 @@ dispatchPause : function(){
 },
 
 dispatchResume : function(){
-	if(this.isComplete != 'true'){
-		console.log('fetching paused.');
-		this.setRefresh();
-	}else{
-		console.log('cant resume consumed stream.');
-	}
+	this.setRefresh();
 },
 
 	dispatchMeasurementsRefreshed: function(){
