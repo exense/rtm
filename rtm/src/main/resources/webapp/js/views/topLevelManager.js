@@ -55,6 +55,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 
 dispatchStreamConsumed : function(){
 		console.log('stream is consumed.');
+		this.postControllerView.spinner.stop();
 		this.isComplete = 'true';
 		this.clearRefresh();
 },

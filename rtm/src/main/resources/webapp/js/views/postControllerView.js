@@ -24,6 +24,7 @@ var PostControllerView = Backbone.View.extend(
 			defaultNumericalKeys : ['value'],
 			defaultDateKeys : ['begin'],
 
+			spinner : '',
 
 			getGuiDomain: function(){
 				return 'postControllerView';
@@ -43,7 +44,14 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			initialize : function(){
-
+					var opts = {
+						top: 10, left: 0, lines: 13, length: 28, width: 8, radius: 20, scale: 0.12, corners: 1, color: '#000',
+						opacity: 0.25, rotate: 0, direction: 1, speed: 0.6, trail: 60, fps: 20, zIndex: 2e9,
+						className: 'spinner', shadow: false, hwaccel: false, position: 'relative'
+					}
+					
+				this.spinner = new Spinner(opts).spin();
+				this.spinner.stop();
 			},
 
 			hasData : function () {
@@ -105,6 +113,11 @@ var PostControllerView = Backbone.View.extend(
 						forceParse: 0,
 						showMeridian: 1
 					});
+					
+					var target = $('#spinner');
+					if(target.length > 0){
+						target.append(that.spinner.el);
+					}
 
 				}) // success
 				.fail(function(model, response, options ) {
@@ -165,6 +178,7 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			sendSearch: function(e){
+				this.spinner.spin();
 				this.trigger('globalSearchEvent');
 				e.preventDefault();
 			},
