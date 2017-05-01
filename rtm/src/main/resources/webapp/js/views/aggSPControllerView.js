@@ -12,12 +12,22 @@ var AggSPControllerView = Backbone.View.extend(
 			defaultSessionId : '',
 			defaultGranularity : '',
 			defaultGroupby : '',
+			defaultCpu : '',
+			defaultPartition : '',
 			
 			initialize : function(){
 				  this.defaultSessionId = Config.getProperty('client.AggSPControllerView.defaultSid');
 				  this.defaultGranularity = Config.getProperty('client.AggSPControllerView.defaultGranularity');
 				  this.defaultGroupby = Config.getProperty('client.AggSPControllerView.defaultGroupby');
-				  this.aggserviceparams = new AggregateServiceParams({defaultSessionId : this.defaultSessionId, defaultGranularity : this.defaultGranularity, defaultGroupby : this.defaultGroupby});
+				  this.defaultCpu = Config.getProperty('client.AggSPControllerView.defaultCpu');
+				  this.defaultPartition = Config.getProperty('client.AggSPControllerView.defaultPartition');
+				  this.aggserviceparams = new AggregateServiceParams({
+				  	defaultSessionId : this.defaultSessionId,
+				  	defaultGranularity : this.defaultGranularity,
+				  	defaultGroupby : this.defaultGroupby,
+				  	defaultCpu : this.defaultCpu,
+				  	defaultPartition : this.defaultPartition
+				  });
 			},
 			
 			getGuiDomain: function(){

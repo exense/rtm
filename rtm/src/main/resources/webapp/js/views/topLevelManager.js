@@ -202,8 +202,8 @@ dispatchResume : function(){
 	renderAggregateViews: function(){
 		this.postControllerView.render();
 		this.aggSPControllerView.render();
-		this.aggregateChartView.render();
-		this.aggregateTableView.render();
+		//this.aggregateChartView.render();
+		//this.aggregateTableView.render();
 		
 	},
 

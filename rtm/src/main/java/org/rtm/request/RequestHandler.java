@@ -40,8 +40,8 @@ public class RequestHandler {
 		try {
 			int poolSize = 1;
 			long timeout = Configuration.getInstance().getPropertyAsInteger("aggregateService.streamTimeoutSecs");
-			int subPartitioning = 32;
-			int subPoolSize = 4;
+			int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
+			int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
 			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			Long optimalSize = null;
