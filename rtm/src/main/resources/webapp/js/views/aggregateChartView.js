@@ -7,8 +7,6 @@ var AggregateChartView = Backbone.View.extend({
 	currentChartMetricChoice: '',
 	chartBeginKey : '',
 	chartGroupbyKey : '',
-	chartMaxSeries : 0,
-	chartMaxDotsPerSeries : 0,
 	svgLegendFactor : 5,
 	seriesCount : 0,
 	
@@ -16,8 +14,6 @@ var AggregateChartView = Backbone.View.extend({
 		this.currentChartMetricChoice = Config.getProperty('client.AggregateChartView.currentChartMetricChoice');
 		this.chartBeginKey = Config.getProperty('client.AggregateChartView.chartBeginKey');
 		this.chartGroupbyKey = Config.getProperty('client.AggregateChartView.chartGroupbyKey');
-		this.chartMaxSeries = Config.getProperty('client.AggregateChartView.chartMaxSeries');
-		this.chartMaxDotsPerSeries = Config.getProperty('client.AggregateChartView.chartMaxDotsPerSeries');
 	},
 	getGuiFragment :function(){
 		return {
@@ -143,11 +139,10 @@ drawD3Chart: function(pAggregates, pChartParams){
 	/*drawD3Chart(that.collection.models[0].get('payload'),{
 		metric : that.currentChartMetricChoice,
 		chartBeginKey : that.chartBeginKey,
-		chartGroupbyKey : that.chartGroupbyKey,
-		chartMaxSeries : that.chartMaxSeries,
-		chartMaxDotsPerSeries : that.chartMaxDotsPerSeries
+		chartGroupbyKey : that.chartGroupbyKey
 })*/
 
+var that = this;
 var Sdata = this.convertToSeries(pAggregates, pChartParams);
 var Tdata = this.convertToTable(pAggregates, pChartParams);
 
@@ -261,7 +256,7 @@ g.selectAll("g.dot")
 							.style("opacity", .85);
 					tooltipDiv.html('<p style="display: inline-block">series='+circ.attr("serName") + '</p><br />'
 					 						  + '<p style="display: inline-block">date=' + circ.attr("date") + '</p><br />'
-											  + '<p style="display: inline-block">value='+ circ.attr("value") + '</p>')
+											  + '<p style="display: inline-block">' + that.currentChartMetricChoice+'='+ circ.attr("value") + '</p>')
 							.style("left", (d3.event.pageX) + "px")
 							.style("top", (d3.event.pageY - 28) + "px");
 				})

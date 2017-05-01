@@ -9,9 +9,8 @@
 <div id="collapseAChart" class="panel-collapse collapse in">
 <div class="panel-body">
 <div class="dropdown">
-<label> Metric : </label>
   <a id="dLabel" class="btn btn-default metricChooser" role="button" data-toggle="dropdown" data-target="#" href="">
-    <%=currentChartMetricChoice%> <span class="caret"></span>
+    choose metric <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
   <% var length = metricsList.length %>
