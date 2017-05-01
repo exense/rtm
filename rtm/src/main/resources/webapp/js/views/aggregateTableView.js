@@ -9,6 +9,7 @@ var AggregateTableView = Backbone.View.extend({
 	dateMetrics : [],
 	excludeList : [],
 	switchedOn: '',
+	templateContent : '',
 	
 	initialize : function(){
 		
@@ -19,6 +20,13 @@ var AggregateTableView = Backbone.View.extend({
 		this.excludeList =  Config.getProperty('client.AggregateTableView.excludeList').split(splitter);
 		this.switchedOn =  Config.getProperty('client.AggregateTableView.switchedOn');
 		
+		var that = this;
+		$.get(resolveTemplate('aggregateTableData-template'), function (data) {
+			that.templateContent = data;
+		}, 'html')
+		.fail(function(model, response, options ) {
+			displayError('response=' + JSON.stringify(response));
+		})
 	},
 	
 	switchTable:function(e){
@@ -114,11 +122,12 @@ renderTableOnly: function(){
 },
 
 renderTable: function(){
-	
+
+
 	var that = this;
 	if(that.collection.models.length > 0 && that.collection.models[0].get('payload')){
-		$.get(resolveTemplate('aggregateTableData-template'), function (data) {
-			template = _.template(data, 
+		
+			template = _.template(that.templateContent, 
 					{
 						aggregates: convertToOld(that.collection.models[0].get('payload').streamData), 
 						metricsList : that.getMetricsList(), 
@@ -127,10 +136,6 @@ renderTable: function(){
 						displayTable : that.switchedOn
 					});
 			$("#dataPanelContainer").html(template);
-		}, 'html')
-		.fail(function(model, response, options ) {
-			displayError('response=' + JSON.stringify(response));
-		})
 	}
 },
 	
