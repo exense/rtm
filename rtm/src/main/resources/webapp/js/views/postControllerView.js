@@ -107,6 +107,7 @@ var PostControllerView = Backbone.View.extend(
 					});
 					
 					that.resetSpinner();
+					that.spinner.stop();
 				}) // success
 				.fail(function(model, response, options ) {
 					displayError('response=' + JSON.stringify(response));
