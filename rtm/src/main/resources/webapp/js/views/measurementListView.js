@@ -46,12 +46,12 @@ var MeasurementListView = Backbone.View.extend({
 	triggerMeasurementPrevious: function(){
 		this.nextFactor = this.nextFactor - 1;
 		this.trigger('MeasurementPrevious');
-		event.preventDefault();
+		//event.preventDefault();
 	},
 	triggerMeasurementNext: function(){
 		this.nextFactor = this.nextFactor + 1;
 		this.trigger('MeasurementNext');
-		event.preventDefault();
+		//event.preventDefault();
 	},
 	getCurrentMetricChoices: function () {
 		return this.checkedTableMetrics;

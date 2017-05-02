@@ -65,6 +65,7 @@ dispatchPause : function(){
 },
 
 dispatchResume : function(){
+	console.log('fetching resumed.');
 	this.setRefresh();
 },
 

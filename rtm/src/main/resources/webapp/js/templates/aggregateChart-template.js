@@ -25,8 +25,12 @@
 
 </div> <!-- /dropdown-menu -->
 <div id="svgContainer" style="height: 0; display: inline-block; position: relative; width: 100%; height: 100%; padding-bottom: 5%">
-  <!-- //<svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg> -->
+  <!-- IE 11 -->
+  <% if(window.navigator.userAgent.indexOf('.NET CLR') >= 0 && window.navigator.userAgent.indexOf('; rv:' >=0)) {%>
+  	<svg id="chartSVG" width="<%=pWidth%>" height="<%=pChartHeight%>"></svg>
+  	<% } else {%>
 	<svg id="chartSVG" viewBox="0 0 <%=pWidth%> <%=pChartHeight%>" style="display: inline-block; position: relative; top: 10px; left: 0;"></svg>
+	<% }%>
 </div> <!-- /svgContainer -->
 <div id="legendSVG" width="<%=pWidth%>" height="<%=pLegendHeight%>"></div>
 <div class="divToolTip" style="display: inline-block;" />
