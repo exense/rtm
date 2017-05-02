@@ -301,7 +301,7 @@ var that = this;
 											var path = thisSeries.select("path");
 											var rgbStyle= that.getRGB(path.attr("style"));
 											//console.log(rgbStyle);
-											d3.select(this).attr("style", "border-width: 2px; border-color: rgb" + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
+											d3.select(this).attr("style", "border-width: 2px; border-color: " + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
 									})
 									.on("click", function(d, i){
 										var thisSeries = d3.select("#" + d.id);
@@ -327,7 +327,16 @@ var that = this;
 														});
 },
 getRGB: function (cssStyle){
-	return rgbSplit = cssStyle.split("rgb")[1].split(";")[0];
+	if(cssStyle.indexOf('rgb') >= 0)
+		return rgbSplit = 'rgb'+cssStyle.split("rgb")[1].split(";")[0];
+	else{
+		if(cssStyle.indexOf('#') >= 0)
+			return '#' + cssStyle.split("#")[1].split(";")[0];
+		else{
+			console.log('unknown RGB pattern.');
+			return null;
+		}
+	}
 },
 
 getSdataIndexById: function (serId, Sdata){
