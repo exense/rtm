@@ -10,7 +10,7 @@ public class CountSumBucket {
 		this.sum = 0;
 	}
 	
-	public void ingest(long value){
+	public synchronized void ingest(long value){
 		this.count++;
 		this.sum += value;
 	}
@@ -32,6 +32,11 @@ public class CountSumBucket {
 
 	@Override
 	public String toString(){
-		return "{ count="+count+", sum="+sum+"}";
+		return "{ avg="+getAvg()+", count="+count+", sum="+sum+"}";
+	}
+	
+	public synchronized void merge(CountSumBucket other) {
+		this.count += other.getCount();
+		this.sum += other.getSum();
 	}
 }

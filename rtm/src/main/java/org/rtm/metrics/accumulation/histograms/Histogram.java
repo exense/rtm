@@ -1,5 +1,9 @@
 package org.rtm.metrics.accumulation.histograms;
 
+import java.util.Iterator;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 public class Histogram {
 	
 	private int nbPairs;
@@ -26,7 +30,7 @@ public class Histogram {
 			histogram[i] = new CountSumBucket();
 	}
 
-	public void ingest(long valueMs){
+	public synchronized void ingest(long valueMs){
 		
 		long minBound = valueMs - approxMs;
 		long maxBound = valueMs + approxMs;
@@ -73,7 +77,11 @@ public class Histogram {
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
-		sb.append("[");
+		sb.append("(totalCount=");
+		sb.append(getTotalCount());
+		sb.append(", totalSum=");
+		sb.append(getTotalSum());
+		sb.append("), [");
 		int size = histogram.length;
 		for(int i=0; i < size; i++){
 			sb.append(histogram[i].toString());
@@ -96,5 +104,39 @@ public class Histogram {
 		for(CountSumBucket b : histogram)
 			sum += b.getSum();
 		return sum;
+	}
+	
+	public long size(){
+		return histogram.length;
+	}
+	
+	private synchronized void mergeBucket(int index, CountSumBucket b){
+		histogram[index].merge(b);
+	}
+	
+	// public for JUnit test but should be private
+	public CountSumBucket getBucket(int index){
+		return histogram[index];
+	}
+	
+	public synchronized void merge(Histogram hist) throws Exception{
+		if(histogram.length != hist.size())
+			throw new Exception("Inconsistent sizes: left=" + histogram.length +"; right="+ hist.size());
+		
+		Iterator<Integer> thisMap = buildSortedMap().values().iterator();
+		Iterator<Integer> thatMap = hist.buildSortedMap().values().iterator();
+		
+		while(thisMap.hasNext() && thatMap.hasNext()){
+			int leftIndex = thisMap.next();
+			int rightIndex = thatMap.next();
+			mergeBucket(leftIndex, hist.getBucket(rightIndex));
+		}
+	}
+
+	private SortedMap<Long, Integer> buildSortedMap() {
+		SortedMap<Long, Integer> map = new TreeMap<>();
+		for(int i=0; i<histogram.length; i++)
+			map.put(histogram[i].getAvg(), i);
+		return map;
 	}
 }
