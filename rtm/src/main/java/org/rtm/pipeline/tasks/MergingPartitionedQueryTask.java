@@ -3,8 +3,8 @@ package org.rtm.pipeline.tasks;
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.measurement.MeasurementAccumulator;
-import org.rtm.measurement.MergingAccumulator;
+import org.rtm.metrics.accumulation.MeasurementAccumulator;
+import org.rtm.metrics.accumulation.MergingAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Dimension;

@@ -1,11 +1,11 @@
-package org.rtm.stream.metrics;
+package org.rtm.metrics.postprocessing;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.measurement.MeasurementStatistics.AggregationType;
-import org.rtm.stream.AggregationResult;
 import org.rtm.stream.Stream;
+import org.rtm.stream.result.AggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

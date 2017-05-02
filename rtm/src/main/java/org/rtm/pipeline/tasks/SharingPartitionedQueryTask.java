@@ -3,8 +3,8 @@ package org.rtm.pipeline.tasks;
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.measurement.AccumulationContext;
-import org.rtm.measurement.SharingAccumulator;
+import org.rtm.metrics.accumulation.AccumulationContext;
+import org.rtm.metrics.accumulation.SharingAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;

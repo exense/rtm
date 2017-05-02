@@ -3,6 +3,7 @@ package org.rtm.stream;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.commons.Configuration;
+import org.rtm.stream.result.AggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

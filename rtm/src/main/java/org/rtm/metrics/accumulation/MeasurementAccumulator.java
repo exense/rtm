@@ -1,8 +1,9 @@
-package org.rtm.measurement;
+package org.rtm.metrics.accumulation;
 
 import java.util.Map;
 import java.util.Properties;
 
+import org.rtm.measurement.MeasurementHelper;
 import org.rtm.measurement.MeasurementStatistics.AggregationType;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.Dimension;

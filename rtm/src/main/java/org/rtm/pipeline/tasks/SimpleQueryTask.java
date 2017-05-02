@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.rtm.db.BsonQuery;
 import org.rtm.db.DBClient;
-import org.rtm.measurement.MeasurementAccumulator;
+import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;

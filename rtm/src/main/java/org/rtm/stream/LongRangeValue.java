@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rtm.range.Identifier;
+import org.rtm.stream.result.AggregationResult;
 
 public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
