@@ -58,7 +58,7 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Map getData() {
+	public Map getDimensionsMap() {
 		return this;
 	}
 }

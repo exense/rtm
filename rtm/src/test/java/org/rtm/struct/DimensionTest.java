@@ -9,7 +9,7 @@ public class DimensionTest {
 
 	@Test
 	public void testAccumulation(){
-		Dimension d = new Dimension("Transaction1");
+		Dimension d = new Dimension("Transaction1", 10, 20);
 		LongAccumulationHelper acc = d.getAccumulationHelper();
 		acc.initializeAccumulatorForMetric("count", (x, y) -> x+1, 0L);
 		acc.accumulateMetric("count", 1);

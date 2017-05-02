@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
+import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -35,6 +36,16 @@ public class RequestHandler {
 		Properties prop = aggReq.getServiceParams();
 		AbstractResponse r = null;
 
+		//TODO: expose to client
+		try {
+			//prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
+			//prop.put("histogram.approxMs", Configuration.getInstance().getProperty("histogram.approxMs"));
+			prop.put("histogram.nbPairs", "20");
+			prop.put("histogram.approxMs", "500");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
 		try {
 			int poolSize = 1;
 
@@ -44,19 +55,19 @@ public class RequestHandler {
 
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 			Long optimalSize = null;
-			
+
 			String hardInterval = prop.getProperty("aggregateService.granularity");
 			if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
 				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 60);
 			else
 				optimalSize = Long.parseLong(hardInterval);
-			
+
 			Stream<Long> stream = new Stream<>();
 			stream.setTimeoutDurationSecs(timeout);
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
-			
+
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
 					effective.getBegin(), effective.getEnd(),
@@ -65,7 +76,7 @@ public class RequestHandler {
 			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
 
 			Runnable waiter = new Runnable() {
-				
+
 				@Override
 				public void run() {
 					try {
@@ -79,10 +90,10 @@ public class RequestHandler {
 			};
 
 			Executors.newSingleThreadExecutor().submit(waiter);
-			
+
 			ssm.registerStreamSession(stream);
 			r = new SuccessResponse(stream.getId(), "Stream initialized. Call the streaming service next to start retrieving data.");
-			
+
 		} catch (Exception e) {
 			String message = "Request processing failed. "; 
 			logger.error(message, e);

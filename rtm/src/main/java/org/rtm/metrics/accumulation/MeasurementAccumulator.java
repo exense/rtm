@@ -31,7 +31,7 @@ public abstract class MeasurementAccumulator {
 
 		Dimension d = sc.getDimension(m_dimension);
 		if(d == null){
-			d = new Dimension(m_dimension);
+			d = new Dimension(m_dimension, Integer.parseInt(prop.getProperty("histogram.nbPairs")), Integer.parseInt(prop.getProperty("histogram.approxMs")));
 			sc.setDimension(d);
 		}
 		return d;
@@ -39,9 +39,9 @@ public abstract class MeasurementAccumulator {
 
 	protected void accumulateStats(Dimension d, Long value) {
 		LongAccumulationHelper la = d.getAccumulationHelper();
-
-		String metric = AggregationType.COUNT.getShort();
-		
+		String metric = null;
+		/*// now done via histogram
+		metric = AggregationType.COUNT.getShort();
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x+1, 0L);
 		la.accumulateMetric(metric, 1);
@@ -50,7 +50,19 @@ public abstract class MeasurementAccumulator {
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x+y, 0L);
 		la.accumulateMetric(metric, value);
+		*/
+		
+		metric = AggregationType.MIN.getShort();
+		if(la.isInit(metric))
+			la.initializeAccumulatorForMetric(metric, (x,y) -> x < y ? x : y, Long.MAX_VALUE);
+		la.accumulateMetric(metric, value);
+		
+		metric = AggregationType.MAX.getShort();
+		if(la.isInit(metric))
+			la.initializeAccumulatorForMetric(metric, (x,y) -> x > y ? x : y, Long.MIN_VALUE);
+		la.accumulateMetric(metric, value);
+		
+		d.getHist().ingest(value);
 	}
-
 
 }
