@@ -2,7 +2,7 @@ package org.rtm.struct;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.measurement.LongAccumulationHelper;
+import org.rtm.metrics.accumulation.LongAccumulationHelper;
 import org.rtm.stream.Dimension;
 
 public class DimensionTest {

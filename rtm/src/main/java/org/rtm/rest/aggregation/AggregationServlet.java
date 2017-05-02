@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.metrics.postprocessing.PostMetricsFilter;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
@@ -33,7 +34,6 @@ import org.rtm.request.SuccessResponse;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
-import org.rtm.stream.metrics.PostMetricsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,7 @@ package org.rtm.pipeline.pull.builders.tasks;
 
 import java.util.List;
 
-import org.rtm.measurement.MeasurementAccumulator;
+import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.pipeline.tasks.RangeTask;
 import org.rtm.pipeline.tasks.SimpleQueryTask;
 import org.rtm.request.selection.Selector;

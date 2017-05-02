@@ -1,4 +1,4 @@
-package org.rtm.measurement;
+package org.rtm.metrics.accumulation;
 
 import java.util.Map;
 import java.util.Properties;

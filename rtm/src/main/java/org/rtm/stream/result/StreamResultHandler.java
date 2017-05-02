@@ -1,6 +1,5 @@
 package org.rtm.stream.result;
 
-import org.rtm.stream.AggregationResult;
 import org.rtm.stream.PayloadIdentifier;
 import org.rtm.stream.Stream;
 import org.slf4j.Logger;

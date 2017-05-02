@@ -18,8 +18,6 @@
  *******************************************************************************/
 package org.rtm.stream.result;
 
-import org.rtm.stream.AggregationResult;
-
 /**
  * @author doriancransac
  *

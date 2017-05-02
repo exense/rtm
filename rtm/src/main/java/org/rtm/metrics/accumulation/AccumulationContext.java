@@ -16,29 +16,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.measurement;
+package org.rtm.metrics.accumulation;
 
-import java.util.HashMap;
-import java.util.concurrent.atomic.LongAccumulator;
-import java.util.function.LongBinaryOperator;
+import org.rtm.range.Identifier;
+import org.rtm.stream.Dimension;
+import org.rtm.stream.LongRangeValue;
 
-public class LongAccumulationHelper extends HashMap<String, LongAccumulator>{
+public class AccumulationContext extends LongRangeValue{
 
-	private static final long serialVersionUID = -3524554683954932477L;
-
-	public LongAccumulationHelper(){
-		super();
+	private static final long serialVersionUID = -1234819766224267981L;
+	
+	public AccumulationContext(Identifier<Long> id){
+		super(id);
 	}
 	
-	public void initializeAccumulatorForMetric(String metric, LongBinaryOperator lbo, Long identity){
-		this.put(metric, new LongAccumulator(lbo, identity));
+	public Dimension getAccHelperForDimension(String dimensionName){
+		return super.getDimension(dimensionName);
 	}
 	
-	public void accumulateMetric(String metric, long l){
-		this.get(metric).accumulate(l);
-	}
+	public void outerMerge(){
+		this.values().stream().forEach(d -> {
+			d.copyAndFlush();
+		});
+	} 
 	
-	public boolean isInit(String metric){
-		return this.get(metric) == null;
-	}
 }
