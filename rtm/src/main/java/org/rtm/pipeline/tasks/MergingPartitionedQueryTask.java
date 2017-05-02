@@ -3,6 +3,7 @@ package org.rtm.pipeline.tasks;
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.measurement.MeasurementStatistics.AggregationType;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.metrics.accumulation.MergingAccumulator;
 import org.rtm.range.RangeBucket;
@@ -58,20 +59,29 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 	protected LongRangeValue merge(RangeBucket<Long> bucket) {
 		LongRangeValue result = new LongRangeValue(bucket);
 		subResults.getStreamData().values().stream().forEach(tv -> {
-			tv.getData().values().stream().forEach(d -> {
+			tv.getDimensionsMap().values().stream().forEach(d -> {
 				Dimension dim = (Dimension)d;
 				String dimensionValue = dim.getDimensionValue();
 				Dimension resDim = result.get(dimensionValue);
 				if(resDim == null){
-					resDim = new Dimension(dimensionValue);
+					resDim = new Dimension(dimensionValue, dim.getHistNbPairs(), dim.getHistApproxMs());
 					result.put(dimensionValue, resDim);
 				}
 				mergeMetricsForDimension(resDim, dim);
+				mergeHistogramsForDimension(resDim, dim);
 			});
 		});
 		return result;
 	}
 	
+	private void mergeHistogramsForDimension(Dimension resDim, Dimension dim) {
+		try {
+			resDim.getHist().merge(dim.getHist());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void mergeMetricsForDimension(Dimension resDim, Dimension dim) {
 		dim.entrySet().stream().forEach(m -> {
 			String metricName = (String) m.getKey();
@@ -83,9 +93,21 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 			else{
 				long save = value.longValue();
 				resDim.remove(metricName);
-				resDim.put(metricName, save + m.getValue());
+				resDim.put(metricName, mergeForMetric(save, m.getValue(), metricName));
 			}
 		});
 		
+	}
+
+	//TODO: Centralize merges via lambda's in AggregationType
+	private Long mergeForMetric(long save, long value, String metricName) {
+		switch(AggregationType.valueOf(metricName.toUpperCase().trim())){
+		case MIN:
+			return save < value ? save : value;
+		case MAX:
+			return save > value ? save : value;
+		default:
+			return null;
+		}
 	}
 }

@@ -25,7 +25,8 @@ import org.rtm.stream.PayloadIdentifier;
 public interface AggregationResult<T> {
 	
 	public PayloadIdentifier<T> getStreamPayloadIdentifier();
+	
 	@SuppressWarnings("rawtypes")
-	public Map getData();
+	public Map getDimensionsMap();
 
 }

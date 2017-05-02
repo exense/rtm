@@ -2,7 +2,8 @@ package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
 import java.util.SortedMap;
-import java.util.TreeMap;
+
+import com.google.common.collect.TreeMultimap;
 
 public class Histogram {
 	
@@ -133,10 +134,19 @@ public class Histogram {
 		}
 	}
 
-	private SortedMap<Long, Integer> buildSortedMap() {
-		SortedMap<Long, Integer> map = new TreeMap<>();
+	private TreeMultimap<Long, Integer> buildSortedMap() {
+		TreeMultimap<Long, Integer> map = TreeMultimap.create();
 		for(int i=0; i<histogram.length; i++)
 			map.put(histogram[i].getAvg(), i);
 		return map;
+	}
+
+	public synchronized void reset() {
+		this.histogram = new CountSumBucket[nbPairs];
+		initArray();
+	}
+	
+	public CountSumBucket[] getHistogramAsArray() {
+		return histogram;
 	}
 }
