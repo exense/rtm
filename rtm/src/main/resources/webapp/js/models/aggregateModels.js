@@ -56,7 +56,7 @@ var Aggregates = Backbone.Collection.extend({
            		if(payload.status === 'ERROR')
 					that.trigger('pauseChartTimer');
 					
-           		if(payload.complete === true)
+           		if(payload.stream.complete === true)
            			that.trigger('streamConsumed');
            		that.trigger('AggregateDatapointsRefreshed');
            	}

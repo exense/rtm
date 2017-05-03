@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
-import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -64,6 +63,7 @@ public class RequestHandler {
 
 			Stream<Long> stream = new Stream<>();
 			stream.setTimeoutDurationSecs(timeout);
+			stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
