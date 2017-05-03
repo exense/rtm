@@ -1,7 +1,6 @@
 package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
-import java.util.SortedMap;
 
 import com.google.common.collect.TreeMultimap;
 

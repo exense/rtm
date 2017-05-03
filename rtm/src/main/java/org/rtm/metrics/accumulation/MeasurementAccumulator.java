@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.rtm.measurement.MeasurementHelper;
-import org.rtm.measurement.MeasurementStatistics.AggregationType;
+import org.rtm.measurement.MeasurementStatistics.AccumulatedAggregationType;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
@@ -41,23 +41,23 @@ public abstract class MeasurementAccumulator {
 		LongAccumulationHelper la = d.getAccumulationHelper();
 		String metric = null;
 		/*// now done via histogram
-		metric = AggregationType.COUNT.getShort();
+		metric = AggregationType.COUNT.toString();
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x+1, 0L);
 		la.accumulateMetric(metric, 1);
 		
-		metric = AggregationType.SUM.getShort();
+		metric = AggregationType.SUM.toString();
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x+y, 0L);
 		la.accumulateMetric(metric, value);
 		*/
 		
-		metric = AggregationType.MIN.getShort();
+		metric = AccumulatedAggregationType.MIN.toString();
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x < y ? x : y, Long.MAX_VALUE);
 		la.accumulateMetric(metric, value);
 		
-		metric = AggregationType.MAX.getShort();
+		metric = AccumulatedAggregationType.MAX.toString();
 		if(la.isInit(metric))
 			la.initializeAccumulatorForMetric(metric, (x,y) -> x > y ? x : y, Long.MIN_VALUE);
 		la.accumulateMetric(metric, value);

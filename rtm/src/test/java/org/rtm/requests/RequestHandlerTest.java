@@ -1,6 +1,5 @@
 package org.rtm.requests;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -23,7 +22,6 @@ import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RequestHandlerTest {
 

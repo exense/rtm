@@ -2,8 +2,9 @@ package org.rtm.pipeline.tasks;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.function.LongBinaryOperator;
 
-import org.rtm.measurement.MeasurementStatistics.AggregationType;
+import org.rtm.measurement.MeasurementStatistics.AccumulatedAggregationType;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.metrics.accumulation.MergingAccumulator;
 import org.rtm.range.RangeBucket;
@@ -99,15 +100,9 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 		
 	}
 
-	//TODO: Centralize merges via lambda's in AggregationType
 	private Long mergeForMetric(long save, long value, String metricName) {
-		switch(AggregationType.valueOf(metricName.toUpperCase().trim())){
-		case MIN:
-			return save < value ? save : value;
-		case MAX:
-			return save > value ? save : value;
-		default:
-			return null;
-		}
+		AccumulatedAggregationType metric = AccumulatedAggregationType.valueOf(metricName);
+		LongBinaryOperator op = metric.getOp();
+		return op.applyAsLong(save, value);
 	}
 }

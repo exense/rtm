@@ -129,7 +129,7 @@ renderTable: function(){
 		
 			template = _.template(that.templateContent, 
 					{
-						aggregates: convertToOld(that.collection.models[0].get('payload').streamData), 
+						aggregates: convertToOld(that.collection.models[0].get('payload').stream.streamData), 
 						metricsList : that.getMetricsList(), 
 						checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
 						dateMetric : that.dateMetrics,
@@ -142,41 +142,9 @@ renderTable: function(){
 isNumeric: function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 },
-	
-	
-getChartableMetricsList: function(){
-	var metricsList = [];
-	var firstModel = this.collection.models[0];
-	var excludes = this.getExcludeList();
-	if(firstModel){
-		for ( var prop in firstModel.attributes.payload[0].data[0]){
-				if (firstModel.attributes.payload[0].data[0].hasOwnProperty(prop)) {
-        		if(this.isNumeric(firstModel.attributes.payload[0].data[0][prop])){
-					metricsList.push(prop);
-    			}
-    		}
-		}
-	}
-	
-	return metricsList;
-},
 
 getMetricsList: function(){
-	var metricsList = [];
-
-	var payload = this.collection.models[0].get('payload');
-	
-	var excludes = this.getExcludeList();
-	
-	if(payload.streamData && Object.keys(payload.streamData).length > 0){
-		var first = payload.streamData[Object.keys(payload.streamData)[0]];
-		var obj = first[Object.keys(first)[0]];
-		for ( var prop in obj){
-			metricsList.push(prop);
-		}
-	}
-
-	return metricsList;
+	return this.collection.models[0].get('payload').metricList;
 },
 
 getExcludeList: function(){ // CONFIGURATIVE

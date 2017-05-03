@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.measurement.MeasurementStatistics;
 import org.rtm.metrics.postprocessing.PostMetricsFilter;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
@@ -68,8 +69,9 @@ public class AggregationServlet {
 		try {
 			@SuppressWarnings("rawtypes")
 			Stream result = new PostMetricsFilter().handle(ssm.getStreamAndFlagForRefresh(body));
+			WrappedResult wr = new WrappedResult(result, MeasurementStatistics.getMetricList());
 			//logger.debug(result.toString());
-			rtmResponse = new SuccessResponse(result,
+			rtmResponse = new SuccessResponse(wr,
 							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with id= " + body; 

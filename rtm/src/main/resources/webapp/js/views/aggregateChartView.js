@@ -90,9 +90,9 @@ renderChart: function(){
 				var payload = this.collection.models[0].get('payload');
 	
 				if(payload && Object.keys(payload).length > 0){
-							if(payload.streamData && Object.keys(payload.streamData).length > 0){
+							if(payload.stream.streamData && Object.keys(payload.stream.streamData).length > 0){
 								var chartParams = { metric : this.currentChartMetricChoice};
-								var convertedResult = convertToOld(payload.streamData);
+								var convertedResult = convertToOld(payload.stream.streamData);
 								this.drawD3Chart(convertedResult, chartParams);
 							}
 				}
@@ -104,18 +104,7 @@ isNumeric: function(n) {
 },
 
 getChartableMetricsList: function(){
-	var metricsList = [];
-	var payload = this.collection.models[0].get('payload');
-	
-	if(payload.streamData && Object.keys(payload.streamData).length > 0){
-		var first = payload.streamData[Object.keys(payload.streamData)[0]];
-		var obj = first[Object.keys(first)[0]];
-	
-		for (key in obj){
-			metricsList.push(key);
-		}
-	}
-	return metricsList;
+	return this.collection.models[0].get('payload').metricList;
 },
 
 getMetricsList: function(){

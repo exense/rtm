@@ -1,5 +1,6 @@
 package org.rtm.stream;
 
+import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.commons.Configuration;
@@ -15,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Stream<T> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(Stream.class);
+
+	public static final String INTERVAL_SIZE_KEY = "intervalSize";
 	
 	private ConcurrentSkipListMap<Long, AggregationResult<T>> streamData;
 	private StreamId id = new StreamId(); 
@@ -26,6 +29,8 @@ public class Stream<T> {
 	private boolean complete = false;
 	private boolean isRefreshedSinceCompletion = false;
 	
+	private Properties streamProp; // pass stream-specific concrete information? currently unused
+	
 	public Stream(){
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());
 		try {
@@ -34,6 +39,7 @@ public class Stream<T> {
 			logger.error("Could not access default timeout value.", e);
 			this.setTimeoutDurationSecs(600);
 		}
+		this.setStreamProp(new Properties());
 	}
 	
 	@JsonIgnore
@@ -96,6 +102,9 @@ public class Stream<T> {
 		newStream.isRefreshedSinceCompletion = this.isRefreshedSinceCompletion;
 		newStream.timeCreated = this.timeCreated;
 		newStream.timeoutDurationSecs = this.timeoutDurationSecs;
+
+		newStream.streamProp = new Properties();
+		newStream.streamProp.putAll(this.streamProp);
 		
 		return newStream;
 	}
@@ -106,5 +115,13 @@ public class Stream<T> {
 	
 	public String toString(){
 		return this.streamData.toString();
+	}
+
+	public Properties getStreamProp() {
+		return streamProp;
+	}
+
+	public void setStreamProp(Properties streamProp) {
+		this.streamProp = streamProp;
 	}
 }
