@@ -2,10 +2,10 @@ package org.rtm.request;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Executors;
 
 import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
+import org.rtm.pipeline.PipelineExecutionHelper;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
 import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
@@ -45,24 +45,16 @@ public class RequestHandler {
 		}
 
 		try {
+			/* Parallization inputs*/
 			int poolSize = 1;
-
 			long timeout = Long.parseLong(prop.getProperty("aggregateService.timeout"));
 			int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 			int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
-
+			
 			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
-			Long optimalSize = null;
-
-			String hardInterval = prop.getProperty("aggregateService.granularity");
-			if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
-			else
-				optimalSize = Long.parseLong(hardInterval);
-
-			Stream<Long> stream = new Stream<>();
-			stream.setTimeoutDurationSecs(timeout);
-			stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
+			Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
+			
+			Stream<Long> stream = initStream(timeout, optimalSize);
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 			logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
@@ -74,22 +66,8 @@ public class RequestHandler {
 
 			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
 
-			Runnable waiter = new Runnable() {
-
-				@Override
-				public void run() {
-					try {
-						pp.execute();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}finally{
-						stream.setComplete(true);
-					}
-				}
-			};
-
-			Executors.newSingleThreadExecutor().submit(waiter);
-
+			PipelineExecutionHelper.executeAndsetListeners(pp, stream);
+			
 			ssm.registerStreamSession(stream);
 			r = new SuccessResponse(stream.getId(), "Stream initialized. Call the streaming service next to start retrieving data.");
 
@@ -99,6 +77,22 @@ public class RequestHandler {
 			r = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
 		}
 		return r;
+	}
+
+	private Stream<Long> initStream(long timeout, Long optimalSize) {
+		Stream<Long> stream = new Stream<>();
+		stream.setTimeoutDurationSecs(timeout);
+		stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
+		return stream;
+	}
+
+	private Long getEffectiveIntervalSize(String hardInterval, LongTimeInterval effective) throws Exception {
+		Long optimalSize = null;
+		if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
+			optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
+		else
+			optimalSize = Long.parseLong(hardInterval);
+		return optimalSize;
 	}
 
 }
