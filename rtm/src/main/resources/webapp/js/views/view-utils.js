@@ -57,7 +57,7 @@ function getNoCacheValue(){
 	}
 }
 function resolveTemplate(templateName){
-	
+
 	return 'js/templates/'+ templateName + '.und'
 	//+ '?'
 	//+ 'nocache='+ getNoCacheValue()
@@ -182,58 +182,56 @@ function guiToBackendInput(guiSelectors){
 }
 
 
-function convertToOld(payload){
+function convertToOld(payload, metrics){
 
-	  var result = [];
-	  var curRow = {};
+	var result = [];
+	var curRow = {};
 
-	  var seriesNb = payload.length;
-	  var series = [];
-	  var metrics = [];
-	  var first = payload[Object.keys(payload)[0]];
-	  if(first){
-		for(attribute in first){
-			series.push(attribute);
-		}
-		
-		for(metric in first[series[0]]){
-			//console.log('-->first'); console.log(JSON.stringify(first));console.log('-->series[0]'); console.log(series[0]);console.log('-->metric'); console.log(metric);
-			metrics.push(metric)
-		}
+	var seriesNb = payload.length;
+	var series = [];
 
-		//console.log('-->metrics'); console.log(JSON.stringify(metrics));
-		
+	var first = payload[Object.keys(payload)[0]];
+	if(first){
+
+		series = getSeriesFullTraversal(payload);
+
 		_.each(series, function(sery){ 
+
 			var seriesData = {"groupby" : sery, "data" : []};
-			
-			//console.log(JSON.stringify(payload));
+
 			for(dot in payload){
-				//console.log(JSON.stringify(dot));
+
 				if(dot){
 					var thisMeasure = {};
 					thisMeasure['begin'] = parseInt(dot);
 					var complete = true;
 					_.each(metrics, function(metric){
-						//console.log('-->metric'); console.log(metric); console.log('-->dot'); console.log(dot); console.log('-->sery'); console.log(sery);
-						/*if(!payload[dot][sery]){
-						console.log(' ---> payload[dot][sery]');console.log(JSON.stringify(payload[dot][sery]));
-						console.log(' ---> payload[dot]');console.log(JSON.stringify(payload[dot]));
-						console.log(' ---> payload');console.log(JSON.stringify(payload));
-						}*/
 						if(payload[dot][sery]){
 							thisMeasure[metric] = payload[dot][sery][metric];
 						}else
-						    complete = false;
+							complete = false;
 					});
-				
+
 					if(complete){
 						seriesData.data.push(thisMeasure);
 					}
 				}
 			}
-		result.push(seriesData);
+			result.push(seriesData);
+
 		});
-	  }
-	  
-	  return result;
+	}
+
+	return result;
+}
+
+function getSeriesFullTraversal(payload){
+	var series = [];
+	for(dot in payload){
+		for(sery in  payload[dot]){
+			if($.inArray(sery, series) < 0)
+				series.push(sery);
+		}
+	}
+	return series;
 }

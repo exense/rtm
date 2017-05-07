@@ -129,7 +129,7 @@ renderTable: function(){
 		
 			template = _.template(that.templateContent, 
 					{
-						aggregates: convertToOld(that.collection.models[0].get('payload').stream.streamData), 
+						aggregates: convertToOld(that.collection.models[0].get('payload').stream.streamData, this.getMetricsList()), 
 						metricsList : that.getMetricsList(), 
 						checkedAggTableMetrics : that.getCurrentTableMetricChoices(),
 						dateMetric : that.dateMetrics,
