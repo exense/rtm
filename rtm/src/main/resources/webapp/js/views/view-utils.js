@@ -58,9 +58,10 @@ function getNoCacheValue(){
 }
 function resolveTemplate(templateName){
 	
-	return 'js/templates/'+ templateName + '.js'
-	+ '?'
-	+ 'nocache='+ getNoCacheValue();
+	return 'js/templates/'+ templateName + '.und'
+	//+ '?'
+	//+ 'nocache='+ getNoCacheValue()
+	;
 }
 
 function pad(num, size) {

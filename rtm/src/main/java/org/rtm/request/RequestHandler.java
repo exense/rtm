@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
+import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -37,10 +38,8 @@ public class RequestHandler {
 
 		//TODO: expose to client
 		try {
-			//prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
-			//prop.put("histogram.approxMs", Configuration.getInstance().getProperty("histogram.approxMs"));
-			prop.put("histogram.nbPairs", "20");
-			prop.put("histogram.approxMs", "500");
+			prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
+			prop.put("histogram.approxMs", Configuration.getInstance().getProperty("histogram.approxMs"));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -57,7 +56,7 @@ public class RequestHandler {
 
 			String hardInterval = prop.getProperty("aggregateService.granularity");
 			if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), 60);
+				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
 			else
 				optimalSize = Long.parseLong(hardInterval);
 
@@ -66,7 +65,7 @@ public class RequestHandler {
 			stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
 			ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
+			logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
 
 			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 			PullPipelineBuilder ppb = new SimplePipelineBuilder(
