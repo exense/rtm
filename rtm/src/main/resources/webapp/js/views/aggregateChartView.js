@@ -92,7 +92,7 @@ renderChart: function(){
 				if(payload && Object.keys(payload).length > 0){
 							if(payload.stream.streamData && Object.keys(payload.stream.streamData).length > 0){
 								var chartParams = { metric : this.currentChartMetricChoice};
-								var convertedResult = convertToOld(payload.stream.streamData);
+								var convertedResult = convertToOld(payload.stream.streamData, this.getChartableMetricsList());
 								this.drawD3Chart(convertedResult, chartParams);
 							}
 				}
@@ -360,7 +360,9 @@ convertToTable: function (payload, pChartParams){
 	  for (var i = 0; i < payloadLen; i++) {
 	    curRow.date = new Date(payload[0].data[i].begin);
 	    _.each(headers, function(h){
-	        curRow[h] = +payload[headers.indexOf(h)].data[i][pChartParams.metric];
+	    	var index = headers.indexOf(h);
+	    	if(payload[index].data[i])
+	    		curRow[h] = +payload[index].data[i][pChartParams.metric];
 	    });
 	    result.push(curRow);
 	    curRow = {};
@@ -377,13 +379,16 @@ convertToSeries: function (payload, pChartParams){
 	  var result = [];
 	  var curSeries = [];
 
+	  console.log('payload = ' + JSON.stringify(payload));
+	  
 	  var seriesNb = payload.length;
 	  var payloadLen = payload[0].data.length;
 
-	  //console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
+	  console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
 	  _.each(payload, function(series){
 	      for (var i = 0; i < payloadLen; i++) {
-	        curSeries.push({ 'date' : new Date(series.data[i].begin), 'metricVal' : +series.data[i][pChartParams.metric] });
+	    	  if(series.data[i])
+	    		  curSeries.push({ 'date' : new Date(series.data[i].begin), 'metricVal' : +series.data[i][pChartParams.metric] });
 	      }
 
 	      result.push({ 'id' : series.groupby, 'values' : curSeries})
