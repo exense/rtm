@@ -10,8 +10,12 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.rtm.jetty.JettyStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-config=src/main/resources/rtm.properties"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="rtm"/>
+<<<<<<< HEAD
 <<<<<<< Upstream, based on origin/master
 =======
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
 >>>>>>> d67c5bb committing run config
+=======
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+>>>>>>> refs/heads/rtm-2.0.0-v1client
 </launchConfiguration>
