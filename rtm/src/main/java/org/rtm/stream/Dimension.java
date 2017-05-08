@@ -7,7 +7,7 @@ import org.rtm.metrics.accumulation.histograms.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Dimension extends HashMap<String, Long>{
+public class Dimension extends HashMap<String, Object>{
 	private static final long serialVersionUID = 5989391368060961616L;
 	private static final Logger logger = LoggerFactory.getLogger(Dimension.class);
 
