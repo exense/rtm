@@ -86,15 +86,15 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 	private void mergeMetricsForDimension(Dimension resDim, Dimension dim) {
 		dim.entrySet().stream().forEach(m -> {
 			String metricName = (String) m.getKey();
-			Long value = resDim.get(metricName);
+			Long value = (Long)resDim.get(metricName);
 			if(value == null){
-				value = new Long(m.getValue().longValue());
+				value = new Long((Long)m.getValue());
 				resDim.put(metricName, value);
 			}
 			else{
 				long save = value.longValue();
 				resDim.remove(metricName);
-				resDim.put(metricName, mergeForMetric(save, m.getValue(), metricName));
+				resDim.put(metricName, mergeForMetric(save, (Long)m.getValue(), metricName));
 			}
 		});
 		

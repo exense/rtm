@@ -54,10 +54,10 @@ public class MeasurementStatistics {
 				//TODO: implement via running algorithm (store running mean deviation, and merge via squares) 
 				break;*/
 			case TPS:
-				data.put(PostprocessedAggregationType.TPS.toString(), (data.getHist().getTotalCount() / intervalSize) * 1000);
+				data.put(PostprocessedAggregationType.TPS.toString(), ((float)data.getHist().getTotalCount() / (float)intervalSize) * 1000F);
 				break;
 			case TPM:
-				data.put(PostprocessedAggregationType.TPM.toString(), (data.getHist().getTotalCount() / intervalSize) * 60000);
+				data.put(PostprocessedAggregationType.TPM.toString(), ((float)data.getHist().getTotalCount() / (float)intervalSize) * 60000F);
 				break;
 			case PCL50:
 				data.put(PostprocessedAggregationType.PCL50.toString(), getValueForMark(0.5F, data.getHist()));
