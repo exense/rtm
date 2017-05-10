@@ -8,6 +8,8 @@ java -cp "{pathToJar}\rtm-{version}-jar-with-dependencies.jar" org.rtm.jetty.Jet
 
 
 
+--> Measurement ingestion :
 
+curl localhost:8099/rtm/rest/ingest/structured/myMeasurementGroup/1494428139000/myMeasurementName/1234
 
---> RTM is then accessible through the url http://localhost:8099/rtm
+--> the webapp is then accessible through the url http://localhost:8099/rtm
