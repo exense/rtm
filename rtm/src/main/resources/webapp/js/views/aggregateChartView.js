@@ -367,9 +367,6 @@ convertToTable: function (payload, pChartParams){
 	    result.push(curRow);
 	    curRow = {};
 	  }
-	  //console.log('result = ');
-	  //console.log(result);
-
 	  return result;
 },
 
@@ -379,12 +376,9 @@ convertToSeries: function (payload, pChartParams){
 	  var result = [];
 	  var curSeries = [];
 
-	  console.log('payload = ' + JSON.stringify(payload));
-	  
 	  var seriesNb = payload.length;
 	  var payloadLen = payload[0].data.length;
 
-	  console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
 	  _.each(payload, function(series){
 	      for (var i = 0; i < payloadLen; i++) {
 	    	  if(series.data[i])

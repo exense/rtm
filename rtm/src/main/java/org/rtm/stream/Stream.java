@@ -24,6 +24,7 @@ public class Stream<T> {
 	private boolean isClone = false; 
 	
 	private long timeCreated = System.currentTimeMillis();
+	private long timeEnded = 0;
 	private long timeoutDurationSecs;
 	
 	private boolean complete = false;
@@ -53,6 +54,7 @@ public class Stream<T> {
 
 	public synchronized void setComplete(boolean isComplete) {
 		this.complete = isComplete;
+		this.timeEnded = System.currentTimeMillis();
 	}
 
 	@JsonIgnore
@@ -123,5 +125,12 @@ public class Stream<T> {
 
 	public void setStreamProp(Properties streamProp) {
 		this.streamProp = streamProp;
+	}
+	
+	public long getDurationMs() {
+		if(this.timeEnded > 0)
+			return this.timeEnded - this.timeCreated;
+		else
+			return System.currentTimeMillis() - this.timeCreated;
 	}
 }

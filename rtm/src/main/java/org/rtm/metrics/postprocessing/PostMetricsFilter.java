@@ -44,26 +44,4 @@ public class PostMetricsFilter {
 			});
 		});	
 	}
-
-	//TODO: use RangeBucket or extend identifier to provide duration value
-	/*
-	private Long getIntervalSize(Map<Long, AggregationResult> map) {
-		TimeBasedPayloadIdentifier first = null;
-		for(AggregationResult ar : map.values()){
-			if(ar != null){
-				PayloadIdentifier id = ((LongRangeValue) ar).getStreamPayloadIdentifier();
-				if(id != null){
-					first = (TimeBasedPayloadIdentifier) id;
-					break;
-				}
-			}
-		}
-		if(first == null){
-			return null;
-		}else{
-			return ((long)first.getUpperBound()) - ((long)first.getLowerBound());
-		}
-	}*/
-
-
 }
