@@ -43,7 +43,7 @@ public class MeasurementAccessor implements TransportClient{
 		Integer intAttempt1 = null;
 		Integer intAttempt2 = null;
 		try { intAttempt1 = conf.getPropertyAsInteger("db.port"); } catch (Exception e) { /* fail silently */	}
-		try { intAttempt2 = conf.getPropertyAsInteger("port"); } catch (Exception e) { /* fail silently */	}
+		try { intAttempt2 = conf.getPropertyAsInteger("ds.port"); } catch (Exception e) { /* fail silently */	}
 		port = (intAttempt1 == null || intAttempt1 <= 0)?((intAttempt2 == null || intAttempt2 <= 0)?27017:intAttempt2):intAttempt1;
 
 		stringAttempt1 = null;
