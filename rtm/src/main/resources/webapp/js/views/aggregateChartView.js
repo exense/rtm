@@ -346,19 +346,19 @@ convertToTable: function (payload, pChartParams){
 	  var curRow = {};
 
 	  var seriesNb = payload.length;
-	  var payloadLen = payload[0].data.length;
+
+	  //console.log(payload);
+	  
+	  var beginArray = this.getBeginArray(payload);
+	  var payloadLen = beginArray.length;
 	  var headers = [];
 
-	  //console.log('seriesNb = ' + seriesNb + '; ' + 'payloadLen = ' + payloadLen + ';');
 	  _.each(payload, function(series){
-	    //console.log("series =");
-	    //console.log(series);
 	    headers.push(series.groupby);
 	  });
-	  /**/
 
 	  for (var i = 0; i < payloadLen; i++) {
-	    curRow.date = new Date(payload[0].data[i].begin);
+		curRow.date = new Date(beginArray[i]);
 	    _.each(headers, function(h){
 	    	var index = headers.indexOf(h);
 	    	if(payload[index].data[i])
@@ -370,6 +370,17 @@ convertToTable: function (payload, pChartParams){
 	  return result;
 },
 
+getBeginArray: function (payload){
+	var bArray = [];
+	_.each(payload, function(series){
+		_.each(series.data, function(datapoint){
+			if(!_.contains(bArray, datapoint.begin))
+				bArray.push(datapoint.begin);
+		});
+	});
+	return bArray.sort();
+},
+
 convertToSeries: function (payload, pChartParams){
 
 
@@ -377,9 +388,9 @@ convertToSeries: function (payload, pChartParams){
 	  var curSeries = [];
 
 	  var seriesNb = payload.length;
-	  var payloadLen = payload[0].data.length;
 
 	  _.each(payload, function(series){
+		  var payloadLen = series.data.length;
 	      for (var i = 0; i < payloadLen; i++) {
 	    	  if(series.data[i])
 	    		  curSeries.push({ 'date' : new Date(series.data[i].begin), 'metricVal' : +series.data[i][pChartParams.metric] });
