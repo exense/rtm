@@ -10,28 +10,13 @@ import org.slf4j.LoggerFactory;
 
 public class Configuration{
 
-	/*Config file keys*/
-	public static final String DSHOST_KEY = "ds.host";
-	public static final String DSNAME_KEY = "ds.dbname";
-	public static final String MEASUREMENTSCOLL_KEY = "ds.measurements.collectionName";
-	public static final String DEBUG_KEY = "server.debug";
-
-	public static final String GRANULARITY_KEY = "granularity";
-	public static final String GROUPBY_KEY = "groupby";
-
 	private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
 	private static final String CONFIG_FILENAME = "rtm.properties";
 
 	private static Configuration INSTANCE;
-
-	// use to be initialized to new Configuration()
-	private static Configuration NEW_INSTANCE;
-	private static boolean reloadTriggered = false;
 	private Properties properties = new Properties();
-	private static boolean initialized = false;
 
-	// Deprecated : moving to jetty we're initializing the config explicitely
 	@Deprecated
 	private Configuration() {
 		super();
@@ -41,7 +26,6 @@ public class Configuration{
 			InputStream instream = this.getClass().getClassLoader().getResourceAsStream(configFile);
 			properties.load(instream);
 			INSTANCE = this;
-			initialized = true;
 		} catch (Exception e) {
 			String msg = "Could not read configuration file from the classpath: " + configFile;
 			logger.error(msg, e);
@@ -49,7 +33,6 @@ public class Configuration{
 		}
 	}
 
-	// Now initializing explicitly with the properties file
 	private Configuration(File f) {
 		super();
 
@@ -58,7 +41,6 @@ public class Configuration{
 			InputStream instream = new FileInputStream(f);
 			properties.load(instream);
 			INSTANCE = this;
-			initialized = true;
 		} catch (Exception e) {
 			String msg = "Could not read configuration file from the classpath: " + configFile;
 			logger.error(msg, e);
@@ -66,30 +48,13 @@ public class Configuration{
 		}
 	}
 
-	// To be called explicitly prior to using getInstance() - jetty compat
 	public static void initSingleton(File f){
 		INSTANCE = new Configuration(f);
 	}
 
-	public static synchronized void triggerReload(){
-		NEW_INSTANCE = new Configuration();
-		reloadTriggered = true;
-	}
-
 	public static Configuration getInstance() {
-		if(reloadTriggered)
-		{
-			synchronized(Configuration.class)
-			{
-				INSTANCE = NEW_INSTANCE;
-				NEW_INSTANCE = null;
-				reloadTriggered = false;
-			}
-
-		}
-
 		// For compatibility with war (no explicit properties linkage)
-		if(initialized == false || INSTANCE == null){
+		if(INSTANCE == null){ // we can take the risk of initializing twice, doesn't matter
 			synchronized(Configuration.class){
 				INSTANCE = new Configuration();
 			}
