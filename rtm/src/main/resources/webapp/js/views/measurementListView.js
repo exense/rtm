@@ -94,14 +94,19 @@ var MeasurementListView = Backbone.View.extend({
 	},
 	getMetricsList: function(){
 		var metricsList = [];
-		var firstModel = this.collection.models[0].get('payload')[0];
-		var excludes = this.getExcludeList();
-		
-		if(firstModel){
-			for ( var key in firstModel){
-				metricsList.push(key);
-			}
-		}
+		var models = this.collection.models[0].get('payload');
+
+		//var excludes = this.getExcludeList();
+    _.each(models, function(model){
+
+      for(var prop in model){
+        if(metricsList.indexOf(prop) < 0){
+            metricsList.push(prop);
+        }
+      }
+    });
+
+    
 		return metricsList;
 	},
 	clearAll: function () {
