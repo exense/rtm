@@ -24,13 +24,13 @@ var MeasurementListView = Backbone.View.extend({
 	},
 	getServiceFragment :function(){
 		return {
-				'nextFactor' : this.getNextFactor()
+				'nextFactor' : this.getNextFactor().toString()
 			};
 	},
 
 	getGuiFragment :function(){
 		return {
-				'nextFactor' : this.getNextFactor(),
+				'nextFactor' : this.getNextFactor().toString(),
 				'tableMetricChoice' : this.getCurrentMetricChoices(),
 			};
 	},
@@ -109,7 +109,7 @@ var MeasurementListView = Backbone.View.extend({
 	},
 	loadGuiState: function (guiParams) {
 		this.checkedTableMetrics = guiParams.tableMetricChoice;
-		this.nextFactor = guiParams.nextFactor;
+		this.nextFactor = parseInt(guiParams.nextFactor);
 	},
 	updateTableMetricChoice: function (e) {
 		var choice = e.currentTarget.id;
