@@ -286,11 +286,10 @@ var that = this;
 									.append("button")
 									.attr("class","btn btn-default btn-sm")
 									.each(function(d, i){
-											var thisSeries = d3.select("#" + d.id);
-											var path = thisSeries.select("path");
-											var rgbStyle= that.getRGB(path.attr("style"));
-											//console.log(rgbStyle);
-											d3.select(this).attr("style", "border-width: 2px; border-color: " + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
+									  var thisSeries = d3.select("#" + CSS.escape(d.id.toString()));
+									  var path = thisSeries.select("path");
+									  var rgbStyle= that.getRGB(path.attr("style"));
+									  d3.select(this).attr("style", "border-width: 2px; border-color: " + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
 									})
 									.on("click", function(d, i){
 										var thisSeries = d3.select("#" + d.id);
