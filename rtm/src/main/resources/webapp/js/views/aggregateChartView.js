@@ -292,7 +292,7 @@ var that = this;
 									  d3.select(this).attr("style", "border-width: 2px; border-color: " + rgbStyle +"; display: inline-block; margin-left: 10px; margin-bottom: 5px;");
 									})
 									.on("click", function(d, i){
-										var thisSeries = d3.select("#" + d.id);
+										var thisSeries = d3.select("#" + CSS.escape(d.id.toString()));
 										var path = thisSeries.select("path");
 										var originalStrokeStyle = path.attr("originalStyle");
 										var originalWidth = path.attr("originalWidth");
