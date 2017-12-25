@@ -29,6 +29,7 @@ import org.rtm.measurement.MeasurementStatistics;
 import org.rtm.metrics.postprocessing.PostMetricsFilter;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
+import org.rtm.request.ComparisonRequest;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
@@ -55,8 +56,33 @@ public class AggregationServlet {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getResutStreamForQuery(final AggregationRequest body) {
-		AbstractResponse response = rh.handle(body);
-		return Response.status(200).entity(response).build();
+		AbstractResponse rtmResponse = null;
+		try{
+		 rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+		} catch (Exception e) {
+			String message = "A problem occured while retrieving stream with id= " + body; 
+			logger.error(message, e);
+			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+		}
+			return Response.status(200).entity(rtmResponse).build();
+		
+	}
+	
+	@POST
+	@Path(AggregationConstants.comparepath)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getResutStreamForQuery(final ComparisonRequest body) {
+		AbstractResponse rtmResponse = null;
+		try{
+			rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+		} catch (Exception e) {
+			String message = "A problem occured while retrieving stream with id= " + body; 
+			logger.error(message, e);
+			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+		}
+			return Response.status(200).entity(rtmResponse).build();
+		
 	}
 	
 	@POST
@@ -65,7 +91,6 @@ public class AggregationServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response refreshResutStreamForId(StreamId body) {
 		AbstractResponse rtmResponse = null;
-		Response jettyResponse;
 		try {
 			@SuppressWarnings("rawtypes")
 			Stream result = new PostMetricsFilter().handle(ssm.getStreamAndFlagForRefresh(body));
@@ -77,9 +102,7 @@ public class AggregationServlet {
 			String message = "A problem occured while retrieving stream with id= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
-		}finally{
-			jettyResponse = Response.status(200).entity(rtmResponse).build();
 		}
-		return jettyResponse;
+		return Response.status(200).entity(rtmResponse).build();
 	}
 }

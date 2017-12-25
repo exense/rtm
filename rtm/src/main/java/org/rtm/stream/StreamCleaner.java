@@ -68,6 +68,7 @@ public class StreamCleaner implements Runnable{
 			
 			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
 				Stream thisStream = registry.get(id);
+				//TODO: close should not be needed. remove this line and check for no mem leak 
 				thisStream.closeStream();
 				registry.remove(id);
 				logger.info("Evicted stream " + id + " - Duration: "+s.getDurationMs()+" ms. Reason: consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));

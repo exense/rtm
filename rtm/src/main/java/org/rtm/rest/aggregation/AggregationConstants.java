@@ -26,5 +26,6 @@ public class AggregationConstants {
 
 	public static final String servletPrefix = "/aggregate";
 	public static final String getpath = "/get";
+	public static final String comparepath = "/compare";
 	public static final String refreshpath = "/refresh";
 }

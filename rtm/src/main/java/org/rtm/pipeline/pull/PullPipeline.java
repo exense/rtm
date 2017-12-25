@@ -36,8 +36,9 @@ public class PullPipeline{
 		
 		//logger.debug("Starting Pool execution with " + this.poolSize + " threads.");
 		IntStream.rangeClosed(1, poolSize).forEach( i -> singlePullPool.submit(pb.buildRunnable()));
-
+		
 		singlePullPool.shutdown();
+		
 		if(this.mode.equals(BlockingMode.BLOCKING)){
 			long start = System.currentTimeMillis();
 			singlePullPool.awaitTermination(this.timeoutSecs, TimeUnit.SECONDS);

@@ -16,6 +16,8 @@ import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
+import org.rtm.stream.StreamComparator;
+import org.rtm.stream.StreamId;
 import org.rtm.stream.result.ResultHandler;
 import org.rtm.stream.result.StreamResultHandler;
 import org.slf4j.Logger;
@@ -23,60 +25,50 @@ import org.slf4j.LoggerFactory;
 
 public class RequestHandler {
 
-	private StreamBroker ssm;
+	private StreamBroker sb;
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
 	public RequestHandler(StreamBroker ssm){
-		this.ssm = ssm;
+		this.sb = ssm;
 	}
 
-	public AbstractResponse handle(AggregationRequest aggReq){
+	public StreamId handle(AggregationRequest aggReq) throws Exception{
 		List<Selector> sel = aggReq.getSelectors();
 		LongTimeInterval lti = aggReq.getTimeWindow();
 		Properties prop = aggReq.getServiceParams();
-		AbstractResponse r = null;
 
-		//TODO: expose to client
-		try {
+		try {//TODO: expose to client
 			prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
 			prop.put("histogram.approxMs", Configuration.getInstance().getProperty("histogram.approxMs"));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 
-		try {
-			/* Parallization inputs*/
-			int poolSize = 1;
-			long timeout = Long.parseLong(prop.getProperty("aggregateService.timeout"));
-			int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
-			int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
-			
-			LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
-			Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
-			
-			Stream<Long> stream = initStream(timeout, optimalSize);
-			ResultHandler<Long> rh = new StreamResultHandler(stream);
+		/* Parallization inputs*/
+		int poolSize = 1;
+		long timeout = Long.parseLong(prop.getProperty("aggregateService.timeout"));
+		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
+		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
 
-			logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
+		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
+		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
-			PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
-			PullPipelineBuilder ppb = new SimplePipelineBuilder(
-					effective.getBegin(), effective.getEnd(),
-					optimalSize, rh, tb);
+		Stream<Long> stream = initStream(timeout, optimalSize);
+		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-			PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
+		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
 
-			PipelineExecutionHelper.executeAndsetListeners(pp, stream);
-			
-			ssm.registerStreamSession(stream);
-			r = new SuccessResponse(stream.getId(), "Stream initialized. Call the streaming service next to start retrieving data.");
+		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
+		PullPipelineBuilder ppb = new SimplePipelineBuilder(
+				effective.getBegin(), effective.getEnd(),
+				optimalSize, rh, tb);
 
-		} catch (Exception e) {
-			String message = "Request processing failed. "; 
-			logger.error(message, e);
-			r = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
-		}
-		return r;
+		PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
+
+		PipelineExecutionHelper.executeAndsetListeners(pp, stream);
+
+		sb.registerStreamSession(stream);
+		return stream.getId();
 	}
 
 	private Stream<Long> initStream(long timeout, Long optimalSize) {
@@ -88,11 +80,58 @@ public class RequestHandler {
 
 	private Long getEffectiveIntervalSize(String hardInterval, LongTimeInterval effective) throws Exception {
 		Long optimalSize = null;
-		if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0) && (hardInterval.equals("auto")))
-			optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
-		else
-			optimalSize = Long.parseLong(hardInterval);
+		if( (hardInterval != null) && (hardInterval.toLowerCase().trim().length() > 0))
+		{
+			switch(hardInterval){
+			case "auto":
+				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
+				break;
+			case "max":
+				optimalSize = effective.getSpan();
+				break;
+			default:
+				optimalSize = Long.parseLong(hardInterval);
+			}
+		}
 		return optimalSize;
+	}
+
+	//TODO: implement concurrent comparator (instead of waiting for both streams to complete)
+	@SuppressWarnings("rawtypes")
+	public StreamId handle(ComparisonRequest aggReq) throws Exception {
+		AggregationRequest request1 = new AggregationRequest(aggReq.getTimeWindow1(), aggReq.getSelectors1(), aggReq.getServiceParams());
+		AggregationRequest request2 = new AggregationRequest(aggReq.getTimeWindow2(), aggReq.getSelectors2(), aggReq.getServiceParams());
+
+		Stream s1 = sb.getStream(handle(request1));
+		Stream s2 = sb.getStream(handle(request2));
+
+		long timeout = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout"));
+		long start = System.currentTimeMillis();
+		
+		while(!s1.isComplete() || !s2.isComplete()){
+			if(System.currentTimeMillis() > (start + timeout))
+				throw new Exception("Timeout reached while waiting for compared streams to complete.");
+			else
+				Thread.currentThread().sleep(300);
+		}
+		
+		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
+		
+		Stream<Long> outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize);
+
+		new StreamComparator(sb.getStream(s1.getId()), sb.getStream(s2.getId()), outStream, intervalSize).compare();
+
+		outStream.setComplete(true);
+		
+		//TODO: implement a simple and clean close method
+		s1.closeStream();
+		sb.getStreamRegistry().remove(s1.getId().getStreamedSessionId());
+		
+		s2.closeStream();
+		sb.getStreamRegistry().remove(s2.getId().getStreamedSessionId());
+
+		sb.registerStreamSession(outStream);
+		return outStream.getId();
 	}
 
 }
