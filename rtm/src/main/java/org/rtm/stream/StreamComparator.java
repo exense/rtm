@@ -23,7 +23,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.range.RangeBucket;
+import org.rtm.request.RequestHandler;
 import org.rtm.stream.result.AggregationResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author doriancransac
@@ -32,11 +35,13 @@ import org.rtm.stream.result.AggregationResult;
  */
 public class StreamComparator<T> {
 
+	private static final Logger logger = LoggerFactory.getLogger(StreamComparator.class);
+
 	private Stream s1;
 	private Stream s2;
 	private Stream outStream;
 	private long intervalSize;
-	
+
 	public StreamComparator(Stream s1, Stream s2, Stream outStream, long intervalSize) {
 		this.s1 = s1;
 		this.s2 = s2;
@@ -45,52 +50,52 @@ public class StreamComparator<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void compare() {
+	public void compare() throws Exception {
 		ConcurrentSkipListMap<Long, AggregationResult<T>> data1 = s1.getStreamData();
 		ConcurrentSkipListMap<Long, AggregationResult<T>> data2 = s2.getStreamData();
-		
+
 		Iterator<Entry<Long, AggregationResult<T>>> it1 = data1.entrySet().iterator();
 		Iterator<Entry<Long, AggregationResult<T>>> it2 = data2.entrySet().iterator();
 
 		long currRange = 0L;
-		
+
 		while(it1.hasNext() && it2.hasNext()){
 			Entry<Long, AggregationResult<T>> res1 = it1.next();
 			Entry<Long, AggregationResult<T>> res2 = it2.next();
-			
+
 			addDiff(diff(res1.getValue(), res2.getValue(), currRange), currRange);
+
 			currRange+=this.intervalSize;
 		}
 
 	}
 
-	private AggregationResult<T> diff(AggregationResult<T> value, AggregationResult<T> value2, long l) {
+	private AggregationResult<T> diff(AggregationResult<T> value, AggregationResult<T> value2, long l) throws Exception {
 		LongRangeValue result = new LongRangeValue(new RangeBucket<Long>(l, l + this.intervalSize));
-		
+
 		for(Object o : value.getDimensionsMap().entrySet())
 		{
 			Dimension dim1 = ((Entry<String, Dimension>) o).getValue();
 			String dimName = ((Entry<String, Dimension>) o).getKey();
-			result.put(dimName, metricDiff(dim1, (Dimension)value2.getDimensionsMap().get(dimName)));
+			if(value2.getDimensionsMap() == null)
+				throw new Exception("Null dimension map for value2="+ value2);
+			Dimension compareTo = (Dimension)value2.getDimensionsMap().get(dimName);
+			Dimension dimResult = null;
+			try{
+				dimResult = dim1.diff(compareTo);
+			}catch(NoDimensionException e){
+				logger.debug("Dimension=" +dimName+ " not found, skipping.", e);
+				continue;
+			}
+			result.put(dimName, dimResult);
 		}
 		return (AggregationResult<T>)result;
-	}
-
-	private Dimension metricDiff(Dimension dim1, Dimension dim2) {
-		Dimension res = new Dimension(dim1.getDimensionValue(), dim1.getHistNbPairs(), dim1.getHistApproxMs());
-		
-		for(Object o : dim1.entrySet())
-		{
-			Entry<String, Long> e = (Entry<String, Long>) o;
-			res.put(e.getKey(), (Long)dim2.get(e.getKey()) - e.getValue());
-		}
-		return res;
 	}
 
 	private void addDiff(AggregationResult<T> diff, long l) {
 		this.outStream.getStreamData().put( l, diff);
 	}
-	
-	
+
+
 
 }

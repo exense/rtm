@@ -93,7 +93,12 @@ public class AggregationServlet {
 		AbstractResponse rtmResponse = null;
 		try {
 			@SuppressWarnings("rawtypes")
-			Stream result = new PostMetricsFilter().handle(ssm.getStreamAndFlagForRefresh(body));
+			Stream s = ssm.getStreamAndFlagForRefresh(body);
+			Stream result = null;
+			if(s.isCompositeStream())
+				result = s;
+			else
+				result = new PostMetricsFilter().handle(s);
 			WrappedResult wr = new WrappedResult(result, MeasurementStatistics.getMetricList());
 			//logger.debug(result.toString());
 			rtmResponse = new SuccessResponse(wr,

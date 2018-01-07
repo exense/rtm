@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
+import org.rtm.metrics.postprocessing.PostMetricsFilter;
 import org.rtm.pipeline.PipelineExecutionHelper;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -46,24 +47,24 @@ public class RequestHandler {
 
 		/* Parallization inputs*/
 		int poolSize = 1;
-		long timeout = Long.parseLong(prop.getProperty("aggregateService.timeout"));
+		long timeoutSecs = Long.parseLong(prop.getProperty("aggregateService.timeout"));
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
 
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
-		Stream<Long> stream = initStream(timeout, optimalSize);
+		Stream<Long> stream = initStream(timeoutSecs, optimalSize);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
-		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
+		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
 				effective.getBegin(), effective.getEnd(),
 				optimalSize, rh, tb);
 
-		PullPipeline pp = new PullPipeline(ppb, poolSize, timeout, BlockingMode.BLOCKING);
+		PullPipeline pp = new PullPipeline(ppb, poolSize, timeoutSecs, BlockingMode.BLOCKING);
 
 		PipelineExecutionHelper.executeAndsetListeners(pp, stream);
 
@@ -87,7 +88,7 @@ public class RequestHandler {
 				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
 				break;
 			case "max":
-				optimalSize = effective.getSpan();
+				optimalSize = effective.getSpan() + 1;
 				break;
 			default:
 				optimalSize = Long.parseLong(hardInterval);
@@ -107,11 +108,11 @@ public class RequestHandler {
 		Stream s1 = sb.getStream(handle(request1));
 		Stream s2 = sb.getStream(handle(request2));
 
-		long timeout = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout"));
+		long timeoutSecs = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout")) * 1000;
 		long start = System.currentTimeMillis();
 		
 		while(!s1.isComplete() || !s2.isComplete()){
-			if(System.currentTimeMillis() > (start + timeout))
+			if(System.currentTimeMillis() > (start + timeoutSecs))
 				throw new Exception("Timeout reached while waiting for compared streams to complete.");
 			else
 				Thread.currentThread().sleep(300);
@@ -119,9 +120,13 @@ public class RequestHandler {
 		
 		logger.info("Comparison streams completed. Creating diff result stream.");
 		
+		s1 = new PostMetricsFilter().handle(s1);
+		s2 = new PostMetricsFilter().handle(s2);
+		
 		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 		
 		Stream<Long> outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize);
+		outStream.setCompositeStream(true);
 
 		new StreamComparator(sb.getStream(s1.getId()), sb.getStream(s2.getId()), outStream, intervalSize).compare();
 

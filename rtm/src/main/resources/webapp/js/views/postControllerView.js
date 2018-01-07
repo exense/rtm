@@ -58,6 +58,7 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			setDefaultKey :function (e) {
+				var instId = this.getEventInstanceId(e);
 				var splitArray = e.currentTarget.id.split("_");
 				var selId = splitArray[0];
 				var filId = splitArray[1];
@@ -200,10 +201,10 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			hasValidFilters: function(){
-				if(this.activeContext === 'Aggregate')
+				if(this.activeContext === 'Compare')
+					return this.hasValidFiltersForSelector(1) && this.hasValidFiltersForSelector(2);
+				 else
 					return this.hasValidFiltersForSelector(1);
-				else
-				 return this.hasValidFiltersForSelector(1) && this.hasValidFiltersForSelector(2);
 			},
 			
 			hasValidFiltersForSelector: function(instId){

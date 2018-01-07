@@ -148,4 +148,18 @@ public class Histogram {
 	public CountSumBucket[] getHistogramAsArray() {
 		return histogram;
 	}
+	
+	public Histogram diff(Histogram histogram2) throws Exception{
+		
+		if(this.nbPairs != histogram2.nbPairs)
+			throw new Exception("Inconsistent number of pairs=" + this.nbPairs +" vs "+ histogram2.nbPairs);
+		
+		Histogram res = new Histogram(this.nbPairs, this.approxMs);
+		CountSumBucket[] histogram2array = histogram2.getHistogramAsArray();
+		CountSumBucket[] resArray = res.getHistogramAsArray();
+		for(int i=0; i < this.nbPairs; i++){
+			resArray[i] = this.histogram[i].diff(histogram2array[i]);
+		}
+		return res;
+	} 
 }

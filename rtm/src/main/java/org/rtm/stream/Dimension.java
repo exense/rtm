@@ -77,5 +77,30 @@ public class Dimension extends HashMap<String, Object>{
 	public int getHistApproxMs() {
 		return histApproxMs;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Dimension diff(Dimension dim2) throws Exception {
+		if(dim2 == null)
+			throw new NoDimensionException("Null dimension, can't diff.");
+		Dimension res = new Dimension(this.getDimensionValue(), this.getHistNbPairs(), this.getHistApproxMs());
+		
+		// Not actually needed in a context of a composite stream (since we don't post process metrics) 
+		//res.hist = this.hist.diff(dim2.getHist());
+		
+		for(Object o : this.entrySet())
+		{
+			Entry<String, Object> e = (Entry<String, Object>) o;
+			if(e == null || e.getKey() == null)
+				throw new Exception("Null entry or null entry key for entry="+e);
+			Object value2 = dim2.get(e.getKey());
+			Object value1 = e.getValue();
+			if(value2 instanceof Long)
+				res.put(e.getKey(), (Long)dim2.get(e.getKey()) - (Long)e.getValue());
+			if(value2 instanceof Float)
+				res.put(e.getKey(), (Float)dim2.get(e.getKey()) - (Float)e.getValue());
+		}
+		
+		return res;
+	}
 
 }

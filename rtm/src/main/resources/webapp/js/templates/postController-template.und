@@ -79,7 +79,7 @@ Selectors
     <% if(f.getValueGeneric('type') === 'text'){%>
 
       <div class="date col-md-3" style="padding: 0; margin: 0;">
-        <input type="text" class="form-control tkey sinp" style="height: 20 px;" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
+        <input type="text" class="form-control tkey sinp" style="height: 20 px;" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
       </div>
 
       <div class="col-md-1"  style="padding: 0; margin: 0;" >
@@ -89,20 +89,20 @@ Selectors
          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" >
             <% var length = defaultTextKeys.length %>
             <% for (i = 0; i < length; i++) { %>
-            <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultTextKeys[i]%> defaultKey" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultTextKeys[i]%>"><%=defaultTextKeys[i]%></a></li>
+            <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultTextKeys[i]%> defaultKey" instId="<%= instId %>" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultTextKeys[i]%>"><%=defaultTextKeys[i]%></a></li>
             <% } %>
          </ul>
 
       </div>
 
-      <div class="date col-md-3"><input type="text" class="form-control tval sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="value" value="<%= f.getValueGeneric('value') %>"></div>
+      <div class="date col-md-3"><input type="text" class="form-control tval sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="value" value="<%= f.getValueGeneric('value') %>"></div>
 
       <% if(f.getValueGeneric('regex') === 'regex') {%>
-        <div class="date col-md-3"><input type="checkbox" class="treg sinp" id="<%= selectorIndex %>_<%= fIndex %>" value="<%= f.getValueGeneric('regex') %>" checked="checked"><label>regex</label></div>
+        <div class="date col-md-3"><input type="checkbox" class="treg sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" value="<%= f.getValueGeneric('regex') %>" checked="checked"><label>regex</label></div>
       <% }else{%>
 
           <div class="date col-md-3">
-          <input type="checkbox" class="treg sinp" id="<%= selectorIndex %>_<%= fIndex %>" value="<%= f.getValueGeneric('regex') %>">
+          <input type="checkbox" class="treg sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" value="<%= f.getValueGeneric('regex') %>">
           <label>regex</label>
           </div>
 
@@ -114,7 +114,7 @@ Selectors
     <%} if(f.getValueGeneric('type') === 'numerical') {%>
 
             <div class="date col-md-3" style="padding: 0; margin: 0;">
-            <input type="text" class="form-control nkey sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
+            <input type="text" class="form-control nkey sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
             </div>
             <div class="col-md-1"  style="padding: 0; margin: 0;" >
             <a  id="dLabel" class="btn btn-default metricChooser" role="button" data-toggle="dropdown" data-target="#" href="" >
@@ -123,21 +123,21 @@ Selectors
             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" >
               <% var length = defaultNumericalKeys.length %>
               <% for (i = 0; i < length; i++) { %>
-              <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultNumericalKeys[i]%> defaultKey" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultNumericalKeys[i]%>"><%=defaultNumericalKeys[i]%></a></li>
+              <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultNumericalKeys[i]%> defaultKey" instId="<%= instId %>" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultNumericalKeys[i]%>"><%=defaultNumericalKeys[i]%></a></li>
               <% } %>
             </ul>
             </div>
 
             <div class="input-group date col-md-3">
-            <input type="text" class="form-control nmin sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="minValue" value="<%= f.getValueGeneric('minValue') %>">
+            <input type="text" class="form-control nmin sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="minValue" value="<%= f.getValueGeneric('minValue') %>">
             </div><div class="input-group date col-md-3">
-            <input type="text" class="form-control nmax sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="maxValue" value="<%= f.getValueGeneric('maxValue') %>">
+            <input type="text" class="form-control nmax sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="maxValue" value="<%= f.getValueGeneric('maxValue') %>">
             </div
             </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rnf btn-danger" instId="<%= instId %>">X</button></span></th>
 
     <%} if(f.getValueGeneric('type') === 'date') {%>
               <div class="date col-md-3" style="padding: 0; margin: 0;">
-              <input type="text" class="form-control dkey sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
+              <input type="text" class="form-control dkey sinp" id="<%= selectorIndex %>_<%= fIndex %>" instId="<%= instId %>" placeholder="key" value="<%= f.getValueGeneric('key') %>">
               </div>
               <div class="col-md-1"  style="padding: 0; margin: 0;" >
                 <a  id="dLabel" class="btn btn-default metricChooser" role="button" data-toggle="dropdown" data-target="#" href="" >
@@ -146,17 +146,17 @@ Selectors
               <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" >
                 <% var length = defaultDateKeys.length %>
                 <% for (i = 0; i < length; i++) { %>
-                <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultDateKeys[i]%> defaultKey" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultDateKeys[i]%>"><%=defaultDateKeys[i]%></a></li>
+                <li role="presentation" ><a  role="menuitem" tabindex="-1" href="#" class="<%=defaultDateKeys[i]%> defaultKey" instId="<%= instId %>" id="<%= selectorIndex %>_<%= fIndex %>_<%=defaultDateKeys[i]%>"><%=defaultDateKeys[i]%></a></li>
                 <% } %>
               </ul>
               </div>
 
               <div class="input-group date form_datetime col-md-4" data-date-format="yyyy.mm.dd hh:ii:ss" data-link-field="dtp_input1">
-              <input class="form-control dmin sinp ptBtn" size="16" type="text" value="<%= f.getValueGeneric('minDate') %>" placeholder="minDate" id="<%= selectorIndex %>_<%= fIndex %>">
+              <input class="form-control dmin sinp ptBtn" size="16" type="text" value="<%= f.getValueGeneric('minDate') %>" instId="<%= instId %>" placeholder="minDate" id="<%= selectorIndex %>_<%= fIndex %>">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
               </div>
               <div class="input-group date form_datetime col-md-4" data-date-format="yyyy.mm.dd hh:ii:ss" data-link-field="dtp_input1">
-              <input class="form-control dmax sinp ptBtn" size="16" type="text" value="<%= f.getValueGeneric('maxDate') %>" placeholder="maxDate" id="<%= selectorIndex %>_<%= fIndex %>">
+              <input class="form-control dmax sinp ptBtn" size="16" type="text" value="<%= f.getValueGeneric('maxDate') %>" instId="<%= instId %>" placeholder="maxDate" id="<%= selectorIndex %>_<%= fIndex %>">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
               </div>
               </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rdf btn-danger" instId="<%= instId %>">X</button></span></th>

@@ -21,8 +21,12 @@ var Aggregates = Backbone.Collection.extend({
             //console.log(response.models[0].get('warning'));
         	//console.log(JSON.stringify(response.models[0]));
         	//console.log(JSON.stringify(response.models[0].get('payload')));
+           if(response.models[0].get('status') !== 'SUCCESS')
+           		displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response.models[0].get('metaMessage')));
+           else{
            if(response.models[0].get('payload') && Object.keys(response.models[0].get('payload')).length > 0){
            		that.trigger('AggregatesRefreshed');
+           	}
            	}
          },
          error: function( model, response, options ){

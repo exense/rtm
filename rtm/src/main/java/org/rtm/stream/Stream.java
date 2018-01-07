@@ -30,6 +30,8 @@ public class Stream<T> {
 	private boolean complete = false;
 	private boolean isRefreshedSinceCompletion = false;
 	
+	boolean isCompositeStream = false;
+
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
 	
 	public Stream(){
@@ -108,6 +110,8 @@ public class Stream<T> {
 		newStream.streamProp = new Properties();
 		newStream.streamProp.putAll(this.streamProp);
 		
+		newStream.isCompositeStream = this.isCompositeStream;
+		
 		return newStream;
 	}
 
@@ -132,5 +136,13 @@ public class Stream<T> {
 			return this.timeEnded - this.timeCreated;
 		else
 			return System.currentTimeMillis() - this.timeCreated;
+	}
+	
+	public boolean isCompositeStream() {
+		return isCompositeStream;
+	}
+
+	public void setCompositeStream(boolean isCompositeStream) {
+		this.isCompositeStream = isCompositeStream;
 	}
 }
