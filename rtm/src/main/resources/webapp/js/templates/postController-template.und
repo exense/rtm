@@ -1,12 +1,12 @@
 <div class="panel panel-primary">
 <div class="panel-heading">
 <h4 class="panel-title">
-<a data-toggle="collapse" data-parent="#accordion" href="#collapseSelectors">
-Selectors
+<a data-toggle="collapse" data-parent="#accordion" href="#collapseSelectors<%= instId %>">
+Selectors Group <%= instId %>
 </a>
 </h4>
 </div>
-<div id="collapseSelectors" class="panel-collapse collapse in">
+<div id="collapseSelectors<%= instId %>" class="panel-collapse collapse in">
 <div class="panel-body">
 
 <div style="display: inline-block;">
