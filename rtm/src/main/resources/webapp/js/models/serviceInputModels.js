@@ -7,13 +7,25 @@
  */
 function ServiceInput(){
 
-	this.selectors = [];
+	this.selectors1 = undefined;
+	this.selectors2 = undefined;
 	this.serviceParams = {};
 
-	this.getSelectors = function(){ return this.selectors;};
+	this.getSelectors = function(context){
+		var selectors = { 'selectors1' : this.selectors1 }
+		
+		if(context === 'Compare')
+			selectors.selectors2 = this.selectors2;
+		return selectors;
+	};
 	this.getServiceParams = function(){ return this.serviceParams;};
 
-	this.setSelectors = function(selectors){ this.selectors = selectors;};
+	this.setSelectors = function(selectors, context){
+		this.selectors1 = selectors.selectors1;
+		if(context === 'Compare')
+			this.selectors2 = selectors.selectors2;
+	};
+	
 	this.setServiceParams = function(serviceParams){
 		this.serviceParams = serviceParams;
 	};

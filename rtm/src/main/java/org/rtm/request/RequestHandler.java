@@ -33,8 +33,8 @@ public class RequestHandler {
 	}
 
 	public StreamId handle(AggregationRequest aggReq) throws Exception{
-		List<Selector> sel = aggReq.getSelectors();
-		LongTimeInterval lti = aggReq.getTimeWindow();
+		List<Selector> sel = aggReq.getSelectors1();
+		LongTimeInterval lti = aggReq.getTimeWindow1();
 		Properties prop = aggReq.getServiceParams();
 
 		try {//TODO: expose to client
@@ -56,7 +56,7 @@ public class RequestHandler {
 		Stream<Long> stream = initStream(timeout, optimalSize);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors() + "; streamId=" + stream.getId());
+		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
 		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeout);
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
@@ -102,6 +102,8 @@ public class RequestHandler {
 		AggregationRequest request1 = new AggregationRequest(aggReq.getTimeWindow1(), aggReq.getSelectors1(), aggReq.getServiceParams());
 		AggregationRequest request2 = new AggregationRequest(aggReq.getTimeWindow2(), aggReq.getSelectors2(), aggReq.getServiceParams());
 
+		logger.info("Launching comparison streams with request1=" + request1 + ", and request2=" + request2); 
+		
 		Stream s1 = sb.getStream(handle(request1));
 		Stream s2 = sb.getStream(handle(request2));
 
@@ -114,6 +116,8 @@ public class RequestHandler {
 			else
 				Thread.currentThread().sleep(300);
 		}
+		
+		logger.info("Comparison streams completed. Creating diff result stream.");
 		
 		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 		
@@ -131,6 +135,9 @@ public class RequestHandler {
 		sb.getStreamRegistry().remove(s2.getId().getStreamedSessionId());
 
 		sb.registerStreamSession(outStream);
+		
+		logger.info("Diff stream completed, results are available at id=" + outStream.getId());
+		
 		return outStream.getId();
 	}
 

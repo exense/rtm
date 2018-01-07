@@ -10,11 +10,12 @@ Selectors
 <div class="panel-body">
 
 <div style="display: inline-block;">
-<button type="submit" id="addSelector" class="btn btn-default">Add Selector</button>
+<button type="submit" id="addSelector" class="btn btn-default" instId="<%= instId %>">Add Selector</button>
 </div>
 <div style="display: inline-block;">
-<button type="submit" id="clearAll" class="btn btn-default">Clear All</button>
+<button type="submit" id="clearAll" class="btn btn-default" instId="<%= instId %>">Clear All</button>
 </div>
+<% if(instId === 1) {%>
 <div style="display: inline-block;">
 <button type="submit" id="sendSearch" class="btn btn-success">Search</button>
 </div>
@@ -24,6 +25,7 @@ Selectors
 <div style="display: inline-block;">
 <button type="submit" id="resume" class="btn btn-info">Resume</button>
 </div>
+<% } %>
 <div style="display: inline-block;">
 &nbsp
 </div>
@@ -56,11 +58,11 @@ Selectors
   <th style="text-align : left;">OR</th>
 
   <th>
-  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn at btn-warning">Add Text Filter</button></span>
-  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn an btn-warning">Add Numerical Filter</button></span>
-  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn ad btn-warning">Add Date Filter</button></span>
+  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn at btn-warning" instId="<%= instId %>">Add Text Filter</button></span>
+  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn an btn-warning" instId="<%= instId %>">Add Numerical Filter</button></span>
+  <span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn ad btn-warning" instId="<%= instId %>">Add Date Filter</button></span>
   </th>
-  <th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn rs btn-danger">X</button></span></th>
+  <th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>" class="btn rs btn-danger" instId="<%= instId %>">X</button></span></th>
   </tr>
 
 
@@ -107,7 +109,7 @@ Selectors
       <% }%>
 
 
-      </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rtf btn-danger">X</button></span></th>
+      </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rtf btn-danger" instId="<%= instId %>">X</button></span></th>
       
     <%} if(f.getValueGeneric('type') === 'numerical') {%>
 
@@ -131,7 +133,7 @@ Selectors
             </div><div class="input-group date col-md-3">
             <input type="text" class="form-control nmax sinp" id="<%= selectorIndex %>_<%= fIndex %>" placeholder="maxValue" value="<%= f.getValueGeneric('maxValue') %>">
             </div
-            </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rnf btn-danger">X</button></span></th>
+            </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rnf btn-danger" instId="<%= instId %>">X</button></span></th>
 
     <%} if(f.getValueGeneric('type') === 'date') {%>
               <div class="date col-md-3" style="padding: 0; margin: 0;">
@@ -157,7 +159,7 @@ Selectors
               <input class="form-control dmax sinp ptBtn" size="16" type="text" value="<%= f.getValueGeneric('maxDate') %>" placeholder="maxDate" id="<%= selectorIndex %>_<%= fIndex %>">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
               </div>
-              </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rdf btn-danger">X</button></span></th>
+              </th><th><span class="btn-group-xs"><button type="submit" id="<%= selectorIndex %>_<%= fIndex %>" class="btn rdf btn-danger" instId="<%= instId %>">X</button></span></th>
               <%}%>
 
               <% fIndex = fIndex + 1%>

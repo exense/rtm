@@ -60,7 +60,7 @@ public class AggregationServlet {
 		try{
 		 rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with id= " + body; 
+			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
 		}
@@ -77,7 +77,7 @@ public class AggregationServlet {
 		try{
 			rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with id= " + body; 
+			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
 		}
@@ -99,7 +99,7 @@ public class AggregationServlet {
 			rtmResponse = new SuccessResponse(wr,
 							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with id= " + body; 
+			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
 		}

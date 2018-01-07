@@ -138,8 +138,10 @@ function guiSelectorParseDate(input) {
 	return new Date(dotSplit[0], dotSplit[1]-1, dotSplit[2], columnSplit[0], columnSplit[1], columnSplit[2]).getTime();
 }
 
-function guiToBackendInput(guiSelectors){
+function guiToBackendInputForSelector(guiSelectors){
 
+console.log('guiToBackendInputForSelector');
+console.log(guiSelectors);
 	var selPayload = [];
 
 	// iterate over selectors
@@ -181,6 +183,18 @@ function guiToBackendInput(guiSelectors){
 	return selPayload;
 }
 
+
+function guiToBackendInput(guiSelectors){
+
+	console.log('guiToBackendInput');
+	console.log(guiSelectors);
+	var selPayload = { 'selectors1' : guiToBackendInputForSelector(guiSelectors.selectors1) };
+
+	if(guiSelectors.selectors2)
+		selPayload.selectors2 = guiToBackendInputForSelector(guiSelectors.selectors2);
+
+	return selPayload;
+}
 
 function convertToOld(payload, metrics){
 

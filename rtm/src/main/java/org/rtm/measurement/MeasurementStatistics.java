@@ -51,7 +51,11 @@ public class MeasurementStatistics {
 			value = h.getTotalSum();
 			break;
 		case AVG:
-			value = h.getTotalSum() / h.getTotalCount();
+			try{
+				value = h.getTotalSum() / h.getTotalCount();
+			}catch(ArithmeticException e){
+				value = 0;
+			}
 			break;
 			/*case STD:
 				//TODO: implement via running algorithm (store running mean deviation, and merge via squares) 

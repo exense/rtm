@@ -57,5 +57,9 @@ public class ComparisonRequest extends Request{
 		return serviceParams;
 	}
 
+	public String toString(){
+		return "timeWindow1={" + this.timeWindow1 + "}, timeWindow2={" + this.timeWindow2 + "}, selectors1={" + this.selectors1 + "}, selectors2={" + this.selectors1 + "}, serviceParams={" + this.serviceParams + "}";
+	}
+
 
 }

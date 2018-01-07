@@ -20,6 +20,13 @@ function initApplication() {
 		mediator.renderDefaultViews();
 		mediator.renderAggregateViews();
 	});
+	
+		router.on('route:Compare', function() {
+		mediator.setActiveContext('Compare');
+		mediator.cleanupViews();
+		mediator.renderDefaultViews();
+		mediator.renderAggregateViews();
+	});
 
 	router.on('route:Measurement/selected', function(guiState,
 			id) {
@@ -44,8 +51,7 @@ function initApplication() {
 				mediator.setActiveContext('Aggregate');
 
 				var guiStateText = decodeURIComponent(guiState);
-				var guiStateObj = JSON
-				.parse(guiStateText);
+				var guiStateObj = JSON.parse(guiStateText);
 
 				mediator.loadGuiState(guiStateObj);
 				mediator.cleanupViews();
@@ -60,5 +66,23 @@ function initApplication() {
 				// or 2-go back to listening to the collection change event and find out why 'add' was needed, when change is what's really supposed to work (1 call to render instead of n)
 			});
 
+	router
+	.on(
+			'route:Compare/selected',
+			function(guiState, id) {
+				mediator.setActiveContext('Compare');
+				//console.log(guiState);
+				var guiStateText = decodeURIComponent(guiState);
+				//console.log(guiStateText);
+				var guiStateObj = JSON
+				.parse(guiStateText);
+
+				mediator.loadGuiState(guiStateObj);
+				mediator.cleanupViews();
+				mediator.renderDefaultViews();
+				mediator.renderControllerForAggregate();
+				mediator.refreshCompareModel();
+	});
+			
 	Backbone.history.start();
 }

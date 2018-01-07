@@ -55,7 +55,7 @@ public class MeasurementServlet {
 			int pager = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
 			int pageSize = Configuration.getInstance().getPropertyAsInteger("client.MeasurementListView.pagingValue");
 			
-			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors(), MeasurementConstants.BEGIN_KEY, pager * pageSize, pageSize), "ok");
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, pager * pageSize, pageSize), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());

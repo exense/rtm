@@ -8,8 +8,8 @@ import org.rtm.request.selection.Selector;
 
 public class AggregationRequest extends Request{
 	
-	private LongTimeInterval timeWindow;
-	private List<Selector> selectors;
+	private LongTimeInterval timeWindow1;
+	private List<Selector> selectors1;
 	//private Properties properties;
 	private Properties serviceParams;
 	
@@ -17,28 +17,31 @@ public class AggregationRequest extends Request{
 		super();
 	}
 	
-	public AggregationRequest(LongTimeInterval timeWindow, List<Selector> selectors, Properties serviceParams) {
+	public AggregationRequest(LongTimeInterval timeWindow1, List<Selector> selectors1, Properties serviceParams) {
 		super();
-		this.timeWindow = timeWindow;
+		this.timeWindow1 = timeWindow1;
 		this.serviceParams = serviceParams;
-		this.selectors = selectors;
+		this.selectors1 = selectors1;
 	}
 
-	public LongTimeInterval getTimeWindow() {
-		return timeWindow;
+	public LongTimeInterval getTimeWindow1() {
+		return timeWindow1;
 	}
 
 	public void setTimeWindow(LongTimeInterval timeWindow) {
-		this.timeWindow = timeWindow;
+		this.timeWindow1 = timeWindow;
 	}
 
-	public List<Selector> getSelectors() {
-		return selectors;
+	public List<Selector> getSelectors1() {
+		return selectors1;
 	}
 
 	public Properties getServiceParams() {
 		return serviceParams;
 	}
 
+	public String toString(){
+		return "timeWindow={" + this.timeWindow1 + "}, selectors={" + this.selectors1 + "}, serviceParams={" + this.serviceParams + "}";
+	}
 
 }

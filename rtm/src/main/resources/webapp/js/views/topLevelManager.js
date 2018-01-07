@@ -25,6 +25,8 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.measurements = new Measurements();
 		this.aggregates = new Aggregates();
 		this.aggregateDatapoints = new AggregateDatapoints();
+		
+		this.compares = new Compares();
 
 		// These views are static to the context :
 		this.navbarView = new NavBarView();
@@ -38,7 +40,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		//this.dynamicViewsManager.push({view : this.aggregateListView, contextRelevancy : ['Measurement']});
 
 		this.aggSPControllerView = new AggSPControllerView();
-		this.postControllerView = new PostControllerView();
+		this.postControllerView = new PostControllerView({context : this.activeContext});
 
 		this.listenTo( this.postControllerView, 'globalSearchEvent', this.dispatchTopLevelSearch );
 		this.listenTo( this.postControllerView, 'pauseEvent', this.dispatchPause );
@@ -46,6 +48,7 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.listenTo( this.aggSPControllerView, 'globalSearchEvent', this.dispatchTopLevelSearch );
 		this.listenTo( this.measurements, 'MeasurementsRefreshed', this.dispatchMeasurementsRefreshed );
 		this.listenTo( this.aggregates, 'AggregatesRefreshed', this.dispatchAggregatesRefreshed );
+		this.listenTo( this.compares, 'ComparesRefreshed', this.dispatchComparesRefreshed );
 		this.listenTo( this.aggregateDatapoints, 'streamConsumed', this.dispatchStreamConsumed );
 		this.listenTo( this.aggregateDatapoints, 'pauseChartTimer', this.dispatchPause );
 		this.listenTo( this.aggregateDatapoints, 'AggregateDatapointsRefreshed', this.dispatchAggregateDatapointsRefreshed );
@@ -78,6 +81,16 @@ dispatchResume : function(){
 		var that = this;
 		var streamId = this.aggregates.models[0].get('payload');
 		this.curStreamId = streamId;
+		this.refreshStart = Date.now();
+		this.maxDate = this.refreshStart + (parseInt(this.timeout) * 1000);
+		this.setRefresh();
+	},
+		
+dispatchComparesRefreshed: function(){
+		var that = this;
+		var streamId = this.compares.models[0].get('payload');
+		this.curStreamId = streamId;
+//		console.log(streamId);
 		this.refreshStart = Date.now();
 		this.maxDate = this.refreshStart + (parseInt(this.timeout) * 1000);
 		this.setRefresh();
@@ -115,15 +128,20 @@ dispatchResume : function(){
 	serializeInput: function(){
 		
 		var selPayload = this.postControllerView.getServiceFragment();
-
+		console.log('serializeInput')
+		console.log(selPayload);
 		var serviceParams = new ServiceParams();
 		
 		serviceParams.setFragment(this.measurementListView.getServiceDomain(), this.measurementListView.getServiceFragment()); // toSkipValue()
 		serviceParams.setFragment(this.aggSPControllerView.getServiceDomain(), this.aggSPControllerView.getServiceFragment());
 
 		var serviceInput = new ServiceInput();
-		serviceInput.setSelectors(selPayload);
+		serviceInput.setSelectors(selPayload, this.activeContext);
 		serviceInput.setServiceParams(serviceParams);
+		
+		//console.log('serializeInput');
+		//console.log(selPayload);
+		//console.log(serviceInput);		
 		
 		return serviceInput;
 	},
@@ -131,7 +149,6 @@ dispatchResume : function(){
 	serializeGui: function(){
 
 		var guiState = new GuiState();
-		
 		guiState.setGuiParam(this.postControllerView.getGuiDomain(), this.postControllerView.getGuiFragment());
 		guiState.setGuiParam(this.measurementListView.getGuiDomain(), this.measurementListView.getGuiFragment());
 		guiState.setGuiParam(this.aggSPControllerView.getGuiDomain(), this.aggSPControllerView.getGuiFragment());
@@ -145,6 +162,7 @@ dispatchResume : function(){
 		this.activeContext = context;
 		this.navbarView.setActiveContext(context);
 		this.mainHeaderView.setTitle(context);
+		this.postControllerView.setContext(context);
 	},
 
 	getActiveContext: function(){
@@ -224,15 +242,22 @@ dispatchResume : function(){
 
 	refreshMeasurementModel: function(){
 		var serviceInput = this.serializeInput();
-		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors()));
+		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors(this.activeContext)), this.activeContext);
 		this.measurements.refreshData(serviceInput);
 	},
 
 	refreshAggregateModel: function(){
 		var serviceInput = this.serializeInput();
-		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors()));
-		
+		console.log('refreshAggregateModel');
+		console.log(serviceInput);
+		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors(this.activeContext)), this.activeContext);
 		this.aggregates.refreshData(serviceInput);
+	},
+	
+	refreshCompareModel: function(){
+		var serviceInput = this.serializeInput();
+		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors(this.activeContext)), this.activeContext);
+		this.compares.refreshData(serviceInput);
 	},
 
 	hasControllerData: function(input){

@@ -8,6 +8,7 @@ var NavBarView = Backbone.View.extend({
 
     this.contexts.Measurement = {active : true};
     this.contexts.Aggregate = {active : false};
+    this.contexts.Compare = {active : false};
   },
   getContextKeysArrays: function() {
     var keys = [];

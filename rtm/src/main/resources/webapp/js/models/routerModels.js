@@ -8,6 +8,10 @@ var Router = Backbone.Router
 
 			"Aggregate" : "Aggregate",
 			"Aggregate/select/:guiState" : "Aggregate/selected",
-			"Aggregate/select/:guiState/:id" : "Aggregate/selected"
+			"Aggregate/select/:guiState/:id" : "Aggregate/selected",
+
+			"Compare" : "Compare",
+			"Compare/select/:guiState" : "Compare/selected",
+			"Compare/select/:guiState/:id" : "Compare/selected"
 		}
 	});

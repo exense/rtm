@@ -11,6 +11,7 @@ var PostControllerView = Backbone.View.extend(
 				"click .rtf" : "remFilter",
 				"click .rnf" : "remFilter",
 				"click .rdf" : "remFilter",
+				
 				"change .sinp": "refreshController",
 				"click #sendSearch" : "sendSearch",
 				"click #pause" : "pauseEvent",
@@ -34,7 +35,8 @@ var PostControllerView = Backbone.View.extend(
 				return 'default';
 			},
 
-			guiSelectors : [],
+			selectors1 : [],
+			selectors2 : [],
 
 			hijackEnter : function(e){
 				if(e.keyCode === 13){
@@ -44,10 +46,15 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			initialize : function(){
+			this.activeContext = this.context;
+			},
+			
+			setContext : function (context) {
+				this.activeContext = context;
 			},
 
 			hasData : function () {
-				return (this.guiSelectors.length > 0);
+				return (this.selectors1.length > 0) || (this.selectors2.length > 0);
 			},
 
 			setDefaultKey :function (e) {
@@ -55,44 +62,66 @@ var PostControllerView = Backbone.View.extend(
 				var selId = splitArray[0];
 				var filId = splitArray[1];
 				var value = splitArray[2];
-				this.guiSelectors[selId].getFilter(filId).setValueGeneric('key',value);
+				var instId = this.getEventInstanceId(e);
+				this['selectors' + instId][selId].getFilter(filId).setValueGeneric('key',value);
 				this.render();
 				e.preventDefault();
 			},
 
 			addTextFilter: function (e) {
-				this.guiSelectors[e.currentTarget.id].pushFilter(new TextFilter());
+				var instId = this.getEventInstanceId(e);
+				this['selectors' + instId][e.currentTarget.id].pushFilter(new TextFilter());
 				this.render();
 				e.preventDefault();
 			},
 			addNumFilter: function (e) {
-				this.guiSelectors[e.currentTarget.id].pushFilter(new NumericalFilter());
+				var instId = this.getEventInstanceId(e);
+				this['selectors' + instId][e.currentTarget.id].pushFilter(new NumericalFilter());
 				this.render();
 				e.preventDefault();
 			},
 			addDateFilter: function (e) {
-				this.guiSelectors[e.currentTarget.id].pushFilter(new DateFilter());
+				var instId = this.getEventInstanceId(e);
+				this['selectors' + instId][e.currentTarget.id].pushFilter(new DateFilter());
 				this.render();
 				e.preventDefault();
 			},
 			remSelector: function (e) {
-				this.guiSelectors.splice(e.currentTarget.id,1);
+				var instId = this.getEventInstanceId(e);
+				this['selectors' + instId].splice(e.currentTarget.id,1);
 				this.render();
 				e.preventDefault();
 			},
-
+			getEventInstanceId: function (e) {
+			return e.currentTarget.getAttribute("instid");
+			},
 			render: function () {
 
 				var that = this;
 				jQuery.get(resolveTemplate('postController-template'), function (data) {
 					template = _.template(data, {
-						controller: {text : 'Add Selector'},
-						selectors : that.guiSelectors,
+						controller: {text : 'Add Selector 1'},
+						selectors : that.selectors1,
 						defaultTextKeys : that.defaultTextKeys,
 						defaultNumericalKeys : that.defaultNumericalKeys,
-						defaultDateKeys : that.defaultDateKeys
+						defaultDateKeys : that.defaultDateKeys,
+						instId : 1
 					});
-					that.$el.html(template);  
+					
+					if(that.activeContext === 'Compare'){
+					template2 = _.template(data, {
+						controller: {text : 'Add Selector 2'},
+						selectors : that.selectors2,
+						defaultTextKeys : that.defaultTextKeys,
+						defaultNumericalKeys : that.defaultNumericalKeys,
+						defaultDateKeys : that.defaultDateKeys,
+						instId : 2
+					});
+					
+					that.$el.html(template + template2);
+					}else{
+					that.$el.html(template);
+					}  
 				}, 'html')
 				.success(function(){
 					$('.form_datetime').datetimepicker({
@@ -132,45 +161,58 @@ var PostControllerView = Backbone.View.extend(
 				$('#spinner').empty();
 			},
 			addSelector : function(event){
-
-				this.guiSelectors.push(new GuiSelector());
+				var instId = this.getEventInstanceId(event);
+				this['selectors' + instId].push(new GuiSelector());
 				this.render();
 				event.preventDefault();
 			},
 
 			clearAll: function(event){
-				this.guiSelectors = [];
+				var instId = this.getEventInstanceId(event);
+				this['selectors' + instId] = [];
 				this.render();
 				event.preventDefault();
 			},
 
 			getGuiFragment: function(event){
-				//console.log('postControllerView-getSelectorFragment ---> this.guiSelectors =');
-				//console.log(this.guiSelectors);
-				return this.guiSelectors;
+				if(this.activeContext === 'Compare')
+					return { 'selectors1' : this.selectors1, 'selectors2' : this.selectors2};
+				else{
+					return { 'selectors1' : this.selectors1};
+				}
 			},
 			getServiceFragment: function(event){
-				//console.log('postControllerView-getSelectorFragment ---> this.guiSelectors =');
-				//console.log(this.guiSelectors);
-				return this.guiSelectors;
+				if(this.activeContext === 'Compare')
+					return { 'selectors1' : this.selectors1, 'selectors2' : this.selectors2};
+				else{
+					return { 'selectors1' : this.selectors1};
+				}
 			},
 
 			remFilter : function(e){
+				var instId = this.getEventInstanceId(e);
 				var id = e.currentTarget.id.split("_");
 				var selId = id[0];
 				var filterId = id[1];
-				this.guiSelectors[selId].popFilter(filterId,1);
+				this['selectors' + instId][selId].popFilter(filterId,1);
 				this.render();
 				e.preventDefault();
 			},
 
 			hasValidFilters: function(){
+				if(this.activeContext === 'Aggregate')
+					return this.hasValidFiltersForSelector(1);
+				else
+				 return this.hasValidFiltersForSelector(1) && this.hasValidFiltersForSelector(2);
+			},
+			
+			hasValidFiltersForSelector: function(instId){
 				var result = false;
-				var l = this.guiSelectors.length;
+				var l = this['selectors' + instId].length;
 				if(l < 1)
 					return false;
 				for(i = 0; i < l; i++){
-					var thisSelector = this.guiSelectors[i];
+					var thisSelector = this['selectors' + instId][i];
 					var l2 = thisSelector.getFilters().length;
 					if(l2 < 1)
 						continue;
@@ -197,8 +239,8 @@ var PostControllerView = Backbone.View.extend(
 				e.preventDefault();
 			},
 			refreshController: function(e){
-
-				var sel = this.guiSelectors;
+				var instId = this.getEventInstanceId(e);
+				var sel = this['selectors' + instId];
 
 				if(e.currentTarget.className.indexOf("treg") > -1){
 					$(".treg").each(function(idx, itemZ){
@@ -276,13 +318,17 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			loadGuiState: function(input){
-
-				this.guiSelectors = [];
-
-				//console.log('loadInput');
-				//console.log(input);
-
-				// add functionality
+				this.selectors1 = [];
+				this.selectors2 = [];
+			
+				console.log(input);
+				this.selectors1 = this.addFunctionality(input, 1);
+				if(this.activeContext === 'Compare')
+					this.selectors2 = this.addFunctionality(input, 2);
+			},
+			
+			addFunctionality: function(inputObject, index){
+				var input = inputObject['selectors' + index];
 				var al = input.length;
 				//console.log(al);
 				for(i = 0; i < al; i++){
@@ -297,8 +343,7 @@ var PostControllerView = Backbone.View.extend(
 					}
 				}
 
-				this.guiSelectors = input;
-
+				return input;
 			}
 
 		});
