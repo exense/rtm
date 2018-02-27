@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.range.RangeBucket;
-import org.rtm.request.RequestHandler;
 import org.rtm.stream.result.AggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  *
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class StreamComparator<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(StreamComparator.class);
@@ -49,7 +49,6 @@ public class StreamComparator<T> {
 		this.intervalSize = intervalSize;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void compare() throws Exception {
 		ConcurrentSkipListMap<Long, AggregationResult<T>> data1 = s1.getStreamData();
 		ConcurrentSkipListMap<Long, AggregationResult<T>> data2 = s2.getStreamData();
@@ -71,7 +70,7 @@ public class StreamComparator<T> {
 	}
 
 	private AggregationResult<T> diff(AggregationResult<T> value, AggregationResult<T> value2, long l) throws Exception {
-		LongRangeValue result = new LongRangeValue(new RangeBucket<Long>(l, l + this.intervalSize));
+		LongRangeValue result = new LongRangeValue(new RangeBucket<Long>(l, l + this.intervalSize).getLowerBound());
 
 		for(Object o : value.getDimensionsMap().entrySet())
 		{

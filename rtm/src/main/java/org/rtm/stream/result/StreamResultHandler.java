@@ -16,26 +16,17 @@ public class StreamResultHandler implements ResultHandler<Long>{
 	}
 
 	public void attachResult(AggregationResult<Long> tv) {
-		//logger.debug("Attaching result for bucket " + tv.getStreamPayloadIdentifier().getIdAsTypedObject());
+
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
-		/* Check only relevant for MergeAccumulator*/
-		//if(stream.get(id) != null)
-		//		logger.error("There's already a result for id=" + id.getIdAsTypedObject());
-		
 		
 		if(stream == null){
 			logger.error("Can not attach result to null stream. Stream with id " + stream.getId() + " was probably evicted too early.");
 		}else{
-			try{
+			if(stream == null || stream.getStreamData() == null)
+				throw new RuntimeException("Null Stream or Stream Data. Stream may have timed out : " + stream.getId());
+			else
 				stream.getStreamData().put(id.getIdAsTypedObject(), tv);
-			}catch(NullPointerException e){
-				//logger.error("Can not attach result to null collection. Stream with id " + stream.getId() + " has probably timed out.");// prettier than : , e);
-				//throw new RuntimeException("Propagating error to shutdown tasks.");
-				
-				throw new RuntimeException("Stream timed out : " + stream.getId());
-			}
 		}
-
 	}
 
 	public Stream<Long> getStream() {

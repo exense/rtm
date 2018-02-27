@@ -23,7 +23,7 @@ package org.rtm.range;
  *
  */
 
-public interface Identifier<T> extends Comparable<T>{
+public interface Identifier<T> extends Comparable<Identifier<T>>{
 	
 	public Identifier<T> getId();
 	public T getIdAsTypedObject();

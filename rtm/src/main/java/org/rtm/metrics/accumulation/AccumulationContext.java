@@ -18,7 +18,6 @@
  *******************************************************************************/
 package org.rtm.metrics.accumulation;
 
-import org.rtm.range.Identifier;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
 
@@ -26,7 +25,7 @@ public class AccumulationContext extends LongRangeValue{
 
 	private static final long serialVersionUID = -1234819766224267981L;
 	
-	public AccumulationContext(Identifier<Long> id){
+	public AccumulationContext(Long id){
 		super(id);
 	}
 	

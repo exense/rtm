@@ -138,10 +138,11 @@ public class IngestionClient {
 	@After
 	public void close(){
 		tc.close();
+		removeAllData();
 	} 
 
 	public synchronized void removeAllData() {
-		ma.removeManyViaPattern(new HashMap<>());
+		//ma.removeManyViaPattern(new HashMap<>());
 	}
 
 	public synchronized void removeTestData() {

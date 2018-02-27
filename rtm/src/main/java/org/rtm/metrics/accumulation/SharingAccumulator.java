@@ -15,7 +15,7 @@ public class SharingAccumulator extends MeasurementAccumulator{
 	
 	public SharingAccumulator(Properties prop, RangeBucket<Long> myBucket){
 		super(prop);
-		sc = new AccumulationContext(myBucket);
+		sc = new AccumulationContext(myBucket.getLowerBound());
 	}
 
 	public AccumulationContext getAccumulationContext() {

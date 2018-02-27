@@ -2,7 +2,7 @@ package org.rtm.range;
 
 import org.rtm.range.time.LongTimeInterval;
 
-public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
+public class RangeBucket<T>{
 
 	private T lowerBound;
 	private T upperBound;
@@ -30,25 +30,6 @@ public class RangeBucket<T extends Comparable<T>> implements Identifier<T>{
 	
 	public String toString(){
 		return "{ \"lowerBound\" : "+this.lowerBound+ ", \"upperBound\" : "+this.upperBound + "}"; 
-	}
-
-	@Override
-	public Identifier<T> getId() {
-		return this;
-	}
-
-	@Override
-	public T getIdAsTypedObject() {
-		return this.lowerBound;
-	}
-
-	@Override
-	public int compareTo(T o) {
-		if(this.lowerBound.compareTo(o) < 0)
-			return -1;
-		if(this.lowerBound.compareTo(o) > 0)
-			return 1;
-		return 0;
 	}
 
 	public static LongTimeInterval toLongTimeInterval(RangeBucket<Long> bucket) {

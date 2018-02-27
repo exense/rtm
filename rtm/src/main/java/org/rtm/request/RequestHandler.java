@@ -64,7 +64,9 @@ public class RequestHandler {
 				effective.getBegin(), effective.getEnd(),
 				optimalSize, rh, tb);
 
-		PullPipeline pp = new PullPipeline(ppb, poolSize, timeoutSecs, BlockingMode.BLOCKING);
+		// It's only useful to // at this level if we're looking to produce highly granular results,
+		// which should almost never be the case
+		PullPipeline pp = new PullPipeline(ppb, /*poolSize*/ 1, timeoutSecs, BlockingMode.BLOCKING);
 
 		PipelineExecutionHelper.executeAndsetListeners(pp, stream);
 

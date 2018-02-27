@@ -17,7 +17,7 @@ public class MergingAccumulator extends MeasurementAccumulator{
 
 	public LongRangeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket) {
 
-		LongRangeValue tv = new LongRangeValue(myBucket);
+		LongRangeValue tv = new LongRangeValue(myBucket.getLowerBound());
 		
 		for(Map m : iterable){
 			Long accValue = (Long)m.get(MeasurementConstants.VALUE_KEY);
