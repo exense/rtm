@@ -1,14 +1,18 @@
 package org.rtm.requests;
 
+import java.io.File;
+import java.io.FileReader;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
+import org.rtm.metrics.postprocessing.PostMetricsFilter;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
@@ -28,12 +32,15 @@ public class RequestHandlerTest {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void basicTest() throws JsonProcessingException{
+	public void basicTest() throws Exception{
 
+		Properties props = new Properties();
+		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
+		
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
-		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), new Properties());
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), props);
 		
 		ar.getServiceParams().put("aggregateService.granularity", "10000");
 		ar.getServiceParams().put("aggregateService.timeout", "600");
@@ -83,8 +90,16 @@ public class RequestHandlerTest {
 			System.out.println("Done. Elapse=" + (end - start) + " ms.");
 			System.out.println("stream=" + stream);
 
+			Stream result = new PostMetricsFilter().handle(stream);
+			System.out.println("result=" + result);
 
-			//System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(response));
+			
+			try {
+				System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(result));
+			} catch (JsonProcessingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			// -- NETWORK ROUND TRIP --
 
@@ -96,34 +111,7 @@ public class RequestHandlerTest {
 				e.printStackTrace();
 			}
 
-			String result = ssm.getStream(sId).toString();
-			//System.out.println("result=" + result);
-
-			Pattern p = Pattern.compile("count=(.+?),");
-			Matcher m = p.matcher(result);
-			BigInteger countTotal = new BigInteger("0");
-			while(m.find()){
-				String countVal = m.group(1);
-				countTotal = countTotal.add(new BigInteger(countVal));
-			}
-			System.out.println("count=" +countTotal);
 			
-			Pattern pSum = Pattern.compile("sum=(.+?)}");
-			Matcher mSum = pSum.matcher(result);
-			BigInteger sumCount = new BigInteger("0");
-			while(mSum.find()){
-				String sumVal = mSum.group(1);
-				try{
-				sumCount = sumCount.add(new BigInteger(sumVal));
-				}catch(NumberFormatException e){
-					System.err.println("Failed to parse " + sumVal + " in string " + result);
-				}
-			}
-			System.out.println("sum=" +sumCount);
-
-			//Assert.assertEquals("133753001249", sumCount.toString());
-			//Assert.assertEquals("12791151", countTotal.toString());
-
 		});
 	}
 	

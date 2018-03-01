@@ -70,13 +70,12 @@ public class MeasurementAccessor implements TransportClient{
 			MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
 			credentials.add(credential);
 		}
-
-		logger.info("Initializing db with address=" + address + ", credentials=" + credentials);
+		String collName = null;
+		try { collName = conf.getProperty("ds.measurements.collectionName");   } catch (Exception e) { logger.error("Fatal config issue.", e);}
+		
+		logger.info("Initializing db with address=" + address + ", credentials=" + credentials + ", database=" + database + ", collection=" + collName);
 		mongo = new MongoClient(address, credentials);
 		db = mongo.getDatabase(database);
-		String collName = null;
-		
-		try { collName = conf.getProperty("ds.measurements.collectionName");   } catch (Exception e) { logger.error("Fatal config issue.", e);}
 		coll = db.getCollection(collName);
 
 		if(mongo == null || db == null || mongo.getAddress() == null || coll == null)

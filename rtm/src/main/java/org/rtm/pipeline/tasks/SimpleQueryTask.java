@@ -21,7 +21,11 @@ public class SimpleQueryTask implements RangeTask {
 
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) {
+		LongRangeValue lrv = new LongRangeValue(bucket.getLowerBound());
 		BsonQuery query = DBClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
-		return accumulator.handle(new DBClient().executeQuery(query), bucket);
+		
+		accumulator.handle(lrv, new DBClient().executeQuery(query));
+		
+		return lrv;
 	}
 }

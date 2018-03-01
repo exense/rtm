@@ -20,13 +20,16 @@ package org.rtm.stream.result;
 
 import java.util.Map;
 
+import org.rtm.stream.Dimension;
 import org.rtm.stream.PayloadIdentifier;
 
+@SuppressWarnings("rawtypes")
 public interface AggregationResult<T> {
 	
 	public PayloadIdentifier<T> getStreamPayloadIdentifier();
 	
-	@SuppressWarnings("rawtypes")
-	public Map getDimensionsMap();
+	public Map<String, Dimension> getDimensionsMap();
+	
+	public void setDimensionsMap(Map<String, Dimension> map);
 
 }

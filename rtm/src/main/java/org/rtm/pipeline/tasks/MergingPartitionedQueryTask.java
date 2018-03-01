@@ -2,14 +2,11 @@ package org.rtm.pipeline.tasks;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.function.LongBinaryOperator;
 
-import org.rtm.measurement.MeasurementStatistics.AccumulatedAggregationType;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
-import org.rtm.metrics.accumulation.MergingAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
-import org.rtm.stream.Dimension;
+import org.rtm.stream.WorkDimension;
 import org.rtm.stream.LongRangeValue;
 import org.rtm.stream.Stream;
 import org.rtm.stream.result.ResultHandler;
@@ -20,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTask{
 
-	private static final Logger logger = LoggerFactory.getLogger(MergingPartitionedQueryTask.class);
+	//private static final Logger logger = LoggerFactory.getLogger(MergingPartitionedQueryTask.class);
 
 	protected List<Selector> sel;
 	protected Properties prop;
@@ -40,7 +37,7 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 		this.subResults = new Stream<>();
 		this.resultHandler = new StreamResultHandler(subResults);
 		this.timeoutSecs = timeoutSecs;
-		this.accumulator = new MergingAccumulator(prop);
+		this.accumulator = new MeasurementAccumulator(prop);
 	}
 
 	@Override
@@ -61,48 +58,18 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 		LongRangeValue result = new LongRangeValue(bucket.getLowerBound());
 		subResults.getStreamData().values().stream().forEach(tv -> {
 			tv.getDimensionsMap().values().stream().forEach(d -> {
-				Dimension dim = (Dimension)d;
-				String dimensionValue = dim.getDimensionValue();
-				Dimension resDim = result.get(dimensionValue);
+				WorkDimension dim = (WorkDimension)d;
+				String dimensionValue = dim.getDimensionName();
+				WorkDimension resDim = (WorkDimension)result.get(dimensionValue);
 				if(resDim == null){
-					resDim = new Dimension(dimensionValue, dim.getHistNbPairs(), dim.getHistApproxMs());
+					resDim = new WorkDimension(dimensionValue);
 					result.put(dimensionValue, resDim);
 				}
-				mergeMetricsForDimension(resDim, dim);
-				mergeHistogramsForDimension(resDim, dim);
+				
+				this.accumulator.mergeDimensionsLeft(resDim, dim);
+
 			});
 		});
 		return result;
-	}
-	
-	private void mergeHistogramsForDimension(Dimension resDim, Dimension dim) {
-		try {
-			resDim.getHist().merge(dim.getHist());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void mergeMetricsForDimension(Dimension resDim, Dimension dim) {
-		dim.entrySet().stream().forEach(m -> {
-			String metricName = (String) m.getKey();
-			Long value = (Long)resDim.get(metricName);
-			if(value == null){
-				value = new Long((Long)m.getValue());
-				resDim.put(metricName, value);
-			}
-			else{
-				long save = value.longValue();
-				resDim.remove(metricName);
-				resDim.put(metricName, mergeForMetric(save, (Long)m.getValue(), metricName));
-			}
-		});
-		
-	}
-
-	private Long mergeForMetric(long save, long value, String metricName) {
-		AccumulatedAggregationType metric = AccumulatedAggregationType.valueOf(metricName);
-		LongBinaryOperator op = metric.getOp();
-		return op.applyAsLong(save, value);
 	}
 }

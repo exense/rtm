@@ -3,66 +3,48 @@ package org.rtm.metrics.accumulation;
 import java.util.Map;
 import java.util.Properties;
 
+import org.rtm.commons.MeasurementConstants;
 import org.rtm.measurement.MeasurementHelper;
-import org.rtm.measurement.MeasurementStatistics.AccumulatedAggregationType;
-import org.rtm.range.RangeBucket;
-import org.rtm.stream.Dimension;
+import org.rtm.metrics.AccumulationManager;
+import org.rtm.stream.WorkDimension;
 import org.rtm.stream.LongRangeValue;
 
 @SuppressWarnings("rawtypes")
-public abstract class MeasurementAccumulator {
+public class MeasurementAccumulator {
 	
 	private MeasurementHelper mh;
 	private Properties prop;
+	private AccumulationManager amgr;
 	
 	public MeasurementAccumulator(Properties prop){
 		this.prop = prop;
-		this.mh = new MeasurementHelper(this.prop);
+		this.mh = new MeasurementHelper(prop);
+		this.amgr = new AccumulationManager(prop);
 	}
 	
-	public abstract LongRangeValue handle(Iterable<? extends Map> iterable, RangeBucket<Long> myBucket);
+	public void handle(LongRangeValue lrv, Iterable<? extends Map> iterable) {
+		for(Map m : iterable)
+			amgr.accumulateAll(getOrInitDimension(lrv, m), m.get(MeasurementConstants.VALUE_KEY));			
+	}
 	
-	protected Dimension getOrInitDimension(LongRangeValue sc, Map m) {
+	protected WorkDimension getOrInitDimension(LongRangeValue lrv, Map m) {
 		String m_dimension = mh.getPrimaryDimensionValue(m);
 
 		if(m_dimension == null || m_dimension.trim().isEmpty()){
 			m_dimension = "default";
 		}
 
-		Dimension d = sc.getDimension(m_dimension);
-		if(d == null){
-			d = new Dimension(m_dimension, Integer.parseInt(prop.getProperty("histogram.nbPairs")), Integer.parseInt(prop.getProperty("histogram.approxMs")));
-			sc.setDimension(d);
+		WorkDimension dimension = (WorkDimension)lrv.getDimension(m_dimension);
+		if(dimension == null){
+			dimension = new WorkDimension(m_dimension);
+			lrv.setDimension(dimension);
 		}
-		return d;
+		return dimension;
 	}
+	
 
-	protected void accumulateStats(Dimension d, Long value) {
-		LongAccumulationHelper la = d.getAccumulationHelper();
-		String metric = null;
-		/*// now done via histogram
-		metric = AggregationType.COUNT.toString();
-		if(la.isInit(metric))
-			la.initializeAccumulatorForMetric(metric, (x,y) -> x+1, 0L);
-		la.accumulateMetric(metric, 1);
-		
-		metric = AggregationType.SUM.toString();
-		if(la.isInit(metric))
-			la.initializeAccumulatorForMetric(metric, (x,y) -> x+y, 0L);
-		la.accumulateMetric(metric, value);
-		*/
-		
-		metric = AccumulatedAggregationType.MIN.toString();
-		if(la.isInit(metric))
-			la.initializeAccumulatorForMetric(metric, (x,y) -> x < y ? x : y, Long.MAX_VALUE);
-		la.accumulateMetric(metric, value);
-		
-		metric = AccumulatedAggregationType.MAX.toString();
-		if(la.isInit(metric))
-			la.initializeAccumulatorForMetric(metric, (x,y) -> x > y ? x : y, Long.MIN_VALUE);
-		la.accumulateMetric(metric, value);
-		
-		d.getHist().ingest(value);
+	public void mergeDimensionsLeft(WorkDimension dimension1, WorkDimension dimension2) {
+		amgr.mergeAllLeft(dimension1, dimension2);
 	}
 
 }

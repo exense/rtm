@@ -4,9 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.LongBinaryOperator;
 
+import org.rtm.metrics.WorkObject;
+import org.rtm.metrics.accumulation.LongBinaryAccumulator;
+import org.rtm.metrics.accumulation.base.CountAccumulator.CountAccumulatorState;
+import org.rtm.metrics.accumulation.base.SumAccumulator.SumAccumulatorState;
 import org.rtm.metrics.accumulation.histograms.CountSumBucket;
 import org.rtm.metrics.accumulation.histograms.Histogram;
-import org.rtm.stream.Dimension;
+import org.rtm.stream.FinalDimension;
+import org.rtm.stream.WorkDimension;
 
 public class MeasurementStatistics {
 
@@ -35,49 +40,41 @@ public class MeasurementStatistics {
 		PCL50, PCL80, PCL90,PCL99;
 	}
 
-	public static void computeAllRegisteredPostMetrics(Dimension data, long intervalSize) {
+	public static FinalDimension computeAllRegisteredPostMetrics(WorkDimension data, long intervalSize) {
+		
+		FinalDimension res = new FinalDimension(data.getDimensionName());
+		
 		for(PostprocessedAggregationType t : PostprocessedAggregationType.values())
-			data.put(t.toString(), computeMetric(t, data.getHist(), intervalSize));
+			res.put(t.toString(), computeMetric(t, data, intervalSize));
+		
+		return res;
 	}
 
-	public static Object computeMetric(PostprocessedAggregationType metric, Histogram h, long intervalSize) {
-		Object value = null;
-
+	public static Object computeMetric(PostprocessedAggregationType metric, WorkDimension data, long intervalSize) {
+		Object value = 0L;
+		
+		WorkObject countWobj = data.get("org.rtm.metrics.accumulation.base.CountAccumulator");
+		CountAccumulatorState count = (CountAccumulatorState)countWobj.getPayload(LongBinaryAccumulator.ACCUMULATOR_KEY);
+		Long countValue = count.getAccumulator().get();
+		
+		WorkObject sumWobj = data.get("org.rtm.metrics.accumulation.base.SumAccumulator");
+		SumAccumulatorState sum = (SumAccumulatorState)sumWobj.getPayload(LongBinaryAccumulator.ACCUMULATOR_KEY);
+		Long sumValue = sum.getAccumulator().get();
+		
+		Float avgValue = 0F;
+		try{
+			avgValue = (float)sumValue / countValue; 
+		}catch(ArithmeticException e){
+			avgValue = 0F;
+		}
+		
 		switch(metric){
 		case CNT:
-			value = h.getTotalCount();
-			break;
+			return countValue;
 		case SUM:
-			value = h.getTotalSum();
-			break;
+			return sumValue;
 		case AVG:
-			try{
-				value = h.getTotalSum() / h.getTotalCount();
-			}catch(ArithmeticException e){
-				value = 0;
-			}
-			break;
-			/*case STD:
-				//TODO: implement via running algorithm (store running mean deviation, and merge via squares) 
-				break;*/
-		case TPS:
-			value = ((float) h.getTotalCount()) / ((float)intervalSize) * 1000F;
-			break;
-		case TPM:
-			value = ((float)h.getTotalCount()) / ((float)intervalSize) * 60000F;
-			break;
-		case PCL50:
-			value = getValueForMark(0.5F, h);
-			break;
-		case PCL80:
-			value = getValueForMark(0.8F, h);
-			break;
-		case PCL90:
-			value = getValueForMark(0.9F, h);
-			break;
-		case PCL99:
-			value = getValueForMark(0.99F, h);
-			break;
+			return avgValue;
 		default:
 			break;
 		}

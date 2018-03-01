@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.metrics.accumulation.base.SumAccumulator;
-import org.rtm.range.RangeBucket;
+import org.rtm.stream.WorkDimension;
 
 public class AccumulationManagerTest {
 
@@ -19,11 +19,13 @@ public class AccumulationManagerTest {
 		
 		AccumulationManager metricsManager = new AccumulationManager(props);
 		
-		metricsManager.accumulate(new RangeBucket<Long>(0L, 1L), 75L);
-		metricsManager.accumulate(new RangeBucket<Long>(1L, 2L), 380L);
-		metricsManager.accumulate(new RangeBucket<Long>(2L, 3L), 110L);
+		WorkDimension dimension = new WorkDimension("test");
 		
-		System.out.println(metricsManager.getAllValues());
-		Assert.assertEquals(565L, metricsManager.getValueForAccumulator(SumAccumulator.class.getName()));
+		metricsManager.accumulateAll(dimension, 75L);
+		metricsManager.accumulateAll(dimension, 380L);
+		metricsManager.accumulateAll(dimension, 110L);
+		
+		System.out.println(metricsManager.getAllValues(dimension));
+		Assert.assertEquals(565L, metricsManager.getValueForAccumulator(dimension, SumAccumulator.class.getName()));
 	}
 }

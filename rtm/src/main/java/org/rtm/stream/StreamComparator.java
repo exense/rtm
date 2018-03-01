@@ -74,12 +74,12 @@ public class StreamComparator<T> {
 
 		for(Object o : value.getDimensionsMap().entrySet())
 		{
-			Dimension dim1 = ((Entry<String, Dimension>) o).getValue();
-			String dimName = ((Entry<String, Dimension>) o).getKey();
+			WorkDimension dim1 = ((Entry<String, WorkDimension>) o).getValue();
+			String dimName = ((Entry<String, WorkDimension>) o).getKey();
 			if(value2.getDimensionsMap() == null)
 				throw new Exception("Null dimension map for value2="+ value2);
-			Dimension compareTo = (Dimension)value2.getDimensionsMap().get(dimName);
-			Dimension dimResult = null;
+			WorkDimension compareTo = (WorkDimension)value2.getDimensionsMap().get(dimName);
+			WorkDimension dimResult = null;
 			try{
 				dimResult = dim1.diff(compareTo);
 			}catch(NoDimensionException e){

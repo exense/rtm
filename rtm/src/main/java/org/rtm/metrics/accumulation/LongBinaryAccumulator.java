@@ -3,45 +3,65 @@ package org.rtm.metrics.accumulation;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.LongBinaryOperator;
 
-import org.rtm.metrics.MapWorkObject;
 import org.rtm.metrics.WorkObject;
-import org.rtm.range.RangeBucket;
 
-public abstract class LongBinaryAccumulator implements AbstractAccumulator<Long, Long>{
+public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 
-	private LongAccumulator accumulator;
-	private static String ACCUMULATOR_KEY = "accumulator";
+	public static String ACCUMULATOR_KEY = "LongBinaryAccumulator";
 
-	public LongAccumulator getAccumulator() {
-		return accumulator;
-	}
-
-	public void setAccumulator(LongAccumulator accumulator) {
-		this.accumulator = accumulator;
+	protected abstract String getConcreteAccumulatorKey();
+	
+	@Override
+	public void accumulate(WorkObject wobj, Long value) {
+		((LongBinaryAccumulatorState)wobj.getPayload(getConcreteAccumulatorKey())).getAccumulator().accumulate(value);
 	}
 	
 	@Override
-	public void initialize(WorkObject wobj) {
-		setAccumulator((LongAccumulator)wobj.getValueObject(ACCUMULATOR_KEY));
-	}
-
-	@Override
-	public void accumulate(RangeBucket<Long> bucket, Long value) {
-		this.accumulator.accumulate(value);
+	public Long getValue(WorkObject wobj) {
+		return ((LongBinaryAccumulatorState)wobj.getPayload(getConcreteAccumulatorKey())).getAccumulator().get();
 	}
 	
 	@Override
-	public Long getValue() {
-		return this.accumulator.get();
-	}
+	public void mergeLeft(WorkObject wobj1, WorkObject wobj2) {
+		
+		LongBinaryAccumulatorState lawobj1 = ((LongBinaryAccumulatorState)wobj1.getPayload(getConcreteAccumulatorKey()));
+		LongBinaryAccumulatorState lawobj2 = ((LongBinaryAccumulatorState)wobj2.getPayload(getConcreteAccumulatorKey()));
 
-	protected class LongAccumulatorWorkObject extends MapWorkObject{
+		lawobj1.setAccumulator(new LongAccumulator(lawobj1.getOperator(),mergeValues(lawobj1.getAccumulator().get(), lawobj2.getAccumulator().get())));
+	}
 	
-		public LongAccumulatorWorkObject(LongBinaryOperator op, Long identity) {
+	protected abstract Long mergeValues(Long value1, Long value2);
+
+	protected class LongBinaryAccumulatorState implements AccumulatorState{
+	
+		private LongAccumulator accumulator;
+		private LongBinaryOperator operator;
+		
+		public LongBinaryAccumulatorState(LongBinaryOperator op, Long identity) {
 			super();
-			super.setValueObject(ACCUMULATOR_KEY, new LongAccumulator(op, identity));
+			accumulator = new LongAccumulator(op, identity);
+			operator = op;
 		}
 		
-	}
+		public LongAccumulator getAccumulator() {
+			return accumulator;
+		}
 
+		public void setAccumulator(LongAccumulator accumulator) {
+			this.accumulator = accumulator;
+		}
+
+		public LongBinaryOperator getOperator() {
+			return operator;
+		}
+
+		public void setOperator(LongBinaryOperator operator) {
+			this.operator = operator;
+		}
+		
+		public String toString(){
+			return this.accumulator.toString();
+		}
+	}
+	
 }

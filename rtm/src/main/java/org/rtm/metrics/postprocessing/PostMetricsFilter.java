@@ -1,13 +1,13 @@
 package org.rtm.metrics.postprocessing;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.measurement.MeasurementStatistics;
 import org.rtm.stream.Dimension;
-import org.rtm.stream.LongRangeValue;
-import org.rtm.stream.PayloadIdentifier;
 import org.rtm.stream.Stream;
+import org.rtm.stream.WorkDimension;
 import org.rtm.stream.result.AggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +37,15 @@ public class PostMetricsFilter {
 		
 		map.entrySet().stream().forEach(e -> {
 			AggregationResult ar = e.getValue();
-			Map<String, Dimension> series = ar.getDimensionsMap();
+			Map<String, WorkDimension> series = ar.getDimensionsMap();
+			
+			Map<String, Dimension> result = new HashMap<String, Dimension>();
 			series.entrySet().stream().forEach(f -> {
-				Dimension data = f.getValue();
-				MeasurementStatistics.computeAllRegisteredPostMetrics(data, intervalSize);
+				WorkDimension data = f.getValue();
+				result.put(f.getKey(), MeasurementStatistics.computeAllRegisteredPostMetrics(data, intervalSize));
 			});
+			
+			ar.setDimensionsMap(result);
 		});	
 	}
 }

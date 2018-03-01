@@ -2,6 +2,6 @@ package org.rtm.metrics;
 
 public interface WorkObject {
 
-		public Object getValueObject(String key);
-		public void setValueObject(String key, Object wobj);
+		public Object getPayload(String key);
+		public void setPayload(String key, Object wobj);
 }

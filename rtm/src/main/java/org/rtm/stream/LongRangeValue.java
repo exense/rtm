@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.rtm.range.Identifier;
 import org.rtm.stream.result.AggregationResult;
 
+@SuppressWarnings("rawtypes")
 public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
 	private static final long serialVersionUID = -2891193441467345217L;
@@ -28,9 +29,23 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 	}
 
 	public void setDimension(Dimension dimension) {
-		this.put(dimension.getDimensionValue(), dimension);
+		this.put(dimension.getDimensionName(), dimension);
 	}
+	
 
+	@Override
+	public Map<String, Dimension> getDimensionsMap() {
+		return this;
+	}
+	
+	@Override
+	public void setDimensionsMap(Map<String, Dimension> map) {
+		this.clear();
+		map.entrySet().stream().forEach(e -> {
+			this.put(e.getKey(), e.getValue());
+		});
+	}
+	
 	private class TimeBasedPayloadIdentifier implements PayloadIdentifier<Long>{
 
 		Long id;
@@ -54,11 +69,5 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 			return this.id.compareTo(o.getIdAsTypedObject());
 		}
 
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public Map getDimensionsMap() {
-		return this;
 	}
 }

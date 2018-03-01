@@ -120,7 +120,11 @@ public class Stream<T> {
 	}
 	
 	public String toString(){
-		return this.streamData.toString();
+		StringBuilder sb = new StringBuilder();
+		this.streamData.entrySet().stream().forEach(e -> {
+			sb.append("{"); sb.append(e.getKey());sb.append("=");sb.append(e.getValue().toString());
+		});
+		return sb.toString();
 	}
 
 	public Properties getStreamProp() {
