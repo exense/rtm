@@ -9,25 +9,23 @@ import org.rtm.metrics.accumulation.AccumulatorState;
 
 public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 
-	public static String ACCUMULATOR_KEY = "LongBinaryAccumulator";
-
 	protected abstract String getConcreteAccumulatorKey();
 	
 	@Override
 	public void accumulate(WorkObject wobj, Long value) {
-		((LongBinaryAccumulatorState)wobj.getPayload(getConcreteAccumulatorKey())).getAccumulator().accumulate(value);
+		((LongBinaryAccumulatorState)wobj.getPayload()).getAccumulator().accumulate(value);
 	}
 	
 	@Override
 	public Long getValue(WorkObject wobj) {
-		return ((LongBinaryAccumulatorState)wobj.getPayload(getConcreteAccumulatorKey())).getAccumulator().get();
+		return ((LongBinaryAccumulatorState)wobj.getPayload()).getAccumulator().get();
 	}
 	
 	@Override
 	public void mergeLeft(WorkObject wobj1, WorkObject wobj2) {
 		
-		LongBinaryAccumulatorState lawobj1 = ((LongBinaryAccumulatorState)wobj1.getPayload(getConcreteAccumulatorKey()));
-		LongBinaryAccumulatorState lawobj2 = ((LongBinaryAccumulatorState)wobj2.getPayload(getConcreteAccumulatorKey()));
+		LongBinaryAccumulatorState lawobj1 = ((LongBinaryAccumulatorState)wobj1.getPayload());
+		LongBinaryAccumulatorState lawobj2 = ((LongBinaryAccumulatorState)wobj2.getPayload());
 
 		lawobj1.setAccumulator(new LongAccumulator(lawobj1.getOperator(),mergeValues(lawobj1.getAccumulator().get(), lawobj2.getAccumulator().get())));
 	}

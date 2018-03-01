@@ -5,12 +5,12 @@ public class SimpleWorkObject implements WorkObject{
 	private Object payload;
 	
 	@Override
-	public Object getPayload(String key) {
+	public Object getPayload() {
 		return payload;
 	}
 
 	@Override
-	public void setPayload(String key, Object payload) {
+	public void setPayload(Object payload) {
 		this.payload = payload;
 	}
 

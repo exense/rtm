@@ -2,6 +2,7 @@ package org.rtm.metrics.postprocessing;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.measurement.MeasurementStatistics;
@@ -13,10 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
-public class PostMetricsFilter {
+public class MetricsManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(PostMetricsFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(MetricsManager.class);
 
+	private Properties props;
+	
+	public MetricsManager(Properties props) {
+		this.props = props;
+	}
+	
 	public Stream handle(Stream stream) {
 		Map streamData = stream.getStreamData();
 		if(streamData != null && streamData.size() > 0){
@@ -35,6 +42,8 @@ public class PostMetricsFilter {
 		if(intervalSize == null)
 			return;
 		
+		MeasurementStatistics stats = new MeasurementStatistics(copy.getStreamProp());
+		
 		map.entrySet().stream().forEach(e -> {
 			AggregationResult ar = e.getValue();
 			Map<String, WorkDimension> series = ar.getDimensionsMap();
@@ -42,7 +51,7 @@ public class PostMetricsFilter {
 			Map<String, Dimension> result = new HashMap<String, Dimension>();
 			series.entrySet().stream().forEach(f -> {
 				WorkDimension data = f.getValue();
-				result.put(f.getKey(), MeasurementStatistics.computeAllRegisteredPostMetrics(data, intervalSize));
+				result.put(f.getKey(), stats.computeAllRegisteredPostMetrics(data, intervalSize));
 			});
 			
 			ar.setDimensionsMap(result);

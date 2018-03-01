@@ -5,7 +5,7 @@ import java.util.Properties;
 
 import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
-import org.rtm.metrics.postprocessing.PostMetricsFilter;
+import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.pipeline.PipelineExecutionHelper;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
@@ -54,7 +54,7 @@ public class RequestHandler {
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
-		Stream<Long> stream = initStream(timeoutSecs, optimalSize);
+		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
@@ -74,8 +74,8 @@ public class RequestHandler {
 		return stream.getId();
 	}
 
-	private Stream<Long> initStream(long timeout, Long optimalSize) {
-		Stream<Long> stream = new Stream<>();
+	private Stream<Long> initStream(long timeout, Long optimalSize, Properties prop) {
+		Stream<Long> stream = new Stream<>(prop);
 		stream.setTimeoutDurationSecs(timeout);
 		stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
 		return stream;
@@ -110,6 +110,8 @@ public class RequestHandler {
 		Stream s1 = sb.getStream(handle(request1));
 		Stream s2 = sb.getStream(handle(request2));
 
+		Properties props = s1.getStreamProp();
+		
 		long timeoutSecs = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout")) * 1000;
 		long start = System.currentTimeMillis();
 		
@@ -122,12 +124,12 @@ public class RequestHandler {
 		
 		logger.info("Comparison streams completed. Creating diff result stream.");
 		
-		s1 = new PostMetricsFilter().handle(s1);
-		s2 = new PostMetricsFilter().handle(s2);
+		s1 = new MetricsManager(props).handle(s1);
+		s2 = new MetricsManager(props).handle(s2);
 		
 		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 		
-		Stream<Long> outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize);
+		Stream<Long> outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize, s1.getStreamProp());
 		outStream.setCompositeStream(true);
 
 		new StreamComparator(sb.getStream(s1.getId()), sb.getStream(s2.getId()), outStream, intervalSize).compare();

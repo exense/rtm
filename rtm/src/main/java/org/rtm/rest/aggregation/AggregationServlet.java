@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.rtm.measurement.MeasurementStatistics;
-import org.rtm.metrics.postprocessing.PostMetricsFilter;
+import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.ComparisonRequest;
@@ -98,8 +98,8 @@ public class AggregationServlet {
 			if(s.isCompositeStream())
 				result = s;
 			else
-				result = new PostMetricsFilter().handle(s);
-			WrappedResult wr = new WrappedResult(result, MeasurementStatistics.getMetricList());
+				result = new MetricsManager(s.getStreamProp()).handle(s);
+			WrappedResult wr = new WrappedResult(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());
 			//logger.debug(result.toString());
 			rtmResponse = new SuccessResponse(wr,
 							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());

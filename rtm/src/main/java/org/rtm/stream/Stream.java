@@ -34,7 +34,8 @@ public class Stream<T> {
 
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
 	
-	public Stream(){
+	public Stream(Properties prop){
+		this.streamProp = prop;
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());
 		try {
 			this.setTimeoutDurationSecs(Configuration.getInstance().getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs"));
@@ -97,7 +98,7 @@ public class Stream<T> {
 	}
 
 	public Stream<T> clone(){
-		Stream<T> newStream = new Stream<>();
+		Stream<T> newStream = new Stream<T>(streamProp);
 		newStream.isClone = true;
 		
 		newStream.streamData = new ConcurrentSkipListMap<>(this.streamData);

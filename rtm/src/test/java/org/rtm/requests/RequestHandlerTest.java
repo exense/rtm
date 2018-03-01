@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import org.junit.Test;
-import org.rtm.metrics.postprocessing.PostMetricsFilter;
+import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
@@ -51,7 +51,7 @@ public class RequestHandlerTest {
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
 
-		IntStream.rangeClosed(1, 2).forEach(i -> {
+		IntStream.rangeClosed(1, 1).forEach(i -> {
 
 			System.out.println("-- iteration " + i + "--");
 
@@ -63,7 +63,7 @@ public class RequestHandlerTest {
 				e1.printStackTrace();
 			}
 			Stream stream = ssm.getStream(((StreamId)response.getPayload()));
-			
+
 			long waitInterval = 500;
 
 			while(stream.getStreamData().size() < 1){
@@ -88,9 +88,11 @@ public class RequestHandlerTest {
 			}
 			long end = System.currentTimeMillis();
 			System.out.println("Done. Elapse=" + (end - start) + " ms.");
-			System.out.println("stream=" + stream);
+			//System.out.println("stream=" + stream);
 
-			Stream result = new PostMetricsFilter().handle(stream);
+			Properties fknProps = stream.getStreamProp();
+			fknProps.putAll(props);
+			Stream result = new MetricsManager(fknProps).handle(stream);
 			System.out.println("result=" + result);
 
 			

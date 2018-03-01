@@ -6,13 +6,11 @@ import java.util.Properties;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
-import org.rtm.stream.WorkDimension;
 import org.rtm.stream.LongRangeValue;
 import org.rtm.stream.Stream;
+import org.rtm.stream.WorkDimension;
 import org.rtm.stream.result.ResultHandler;
 import org.rtm.stream.result.StreamResultHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTask{
@@ -34,7 +32,7 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 		this.prop = prop;
 		this.partitioningFactor = partitioningFactor;
 		this.poolSize = poolSize;
-		this.subResults = new Stream<>();
+		this.subResults = new Stream<>(prop);
 		this.resultHandler = new StreamResultHandler(subResults);
 		this.timeoutSecs = timeoutSecs;
 		this.accumulator = new MeasurementAccumulator(prop);
