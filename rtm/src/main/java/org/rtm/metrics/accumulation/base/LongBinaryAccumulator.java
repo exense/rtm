@@ -1,9 +1,11 @@
-package org.rtm.metrics.accumulation;
+package org.rtm.metrics.accumulation.base;
 
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.LongBinaryOperator;
 
 import org.rtm.metrics.WorkObject;
+import org.rtm.metrics.accumulation.Accumulator;
+import org.rtm.metrics.accumulation.AccumulatorState;
 
 public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 

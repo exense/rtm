@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.LongBinaryOperator;
 
 import org.rtm.metrics.WorkObject;
-import org.rtm.metrics.accumulation.LongBinaryAccumulator;
+import org.rtm.metrics.accumulation.base.LongBinaryAccumulator;
 import org.rtm.metrics.accumulation.base.CountAccumulator.CountAccumulatorState;
 import org.rtm.metrics.accumulation.base.SumAccumulator.SumAccumulatorState;
 import org.rtm.metrics.accumulation.histograms.CountSumBucket;

@@ -1,7 +1,6 @@
 package org.rtm.metrics.accumulation.base;
 
 import org.rtm.metrics.accumulation.AccumulatorState;
-import org.rtm.metrics.accumulation.LongBinaryAccumulator;
 
 public class SumAccumulator extends LongBinaryAccumulator{
 	
