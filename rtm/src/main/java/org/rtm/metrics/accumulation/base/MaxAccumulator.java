@@ -15,7 +15,7 @@ public class MaxAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState produceFreshState() {
+	public AccumulatorState buildStateObject() {
 		return new MaxAccumulatorState();
 	}
 	

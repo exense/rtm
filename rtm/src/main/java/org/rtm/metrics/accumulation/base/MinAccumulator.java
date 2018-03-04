@@ -15,7 +15,7 @@ public class MinAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState produceFreshState() {
+	public AccumulatorState buildStateObject() {
 		return new MinAccumulatorState();
 	}
 	

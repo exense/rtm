@@ -52,7 +52,7 @@ public class AccumulationManager {
 		SimpleWorkObject mwobj = new SimpleWorkObject();
 
 		String accumulatorName = accumulator.getClass().getName();
-		mwobj.setPayload(accumulator.produceFreshState());
+		mwobj.setPayload(accumulator.buildStateObject());
 		
 		dimension.put(accumulatorName, mwobj);
 		return mwobj;

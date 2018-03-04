@@ -15,7 +15,7 @@ public class CountAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState produceFreshState() {
+	public AccumulatorState buildStateObject() {
 		return new CountAccumulatorState();
 	}
 	

@@ -14,7 +14,7 @@ public class SumAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState produceFreshState() {
+	public AccumulatorState buildStateObject() {
 		return new SumAccumulatorState();
 	}
 
