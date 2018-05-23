@@ -37,6 +37,7 @@ public class RequestHandler {
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		Properties prop = aggReq.getServiceParams();
+		prop.putAll(Configuration.getInstance().getUnderlyingPropertyObject());
 
 		try {//TODO: expose to client
 			prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
@@ -75,9 +76,12 @@ public class RequestHandler {
 	}
 
 	private Stream<Long> initStream(long timeout, Long optimalSize, Properties prop) {
+		
+		prop.setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
+				
 		Stream<Long> stream = new Stream<>(prop);
 		stream.setTimeoutDurationSecs(timeout);
-		stream.getStreamProp().setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
+
 		return stream;
 	}
 

@@ -15,8 +15,8 @@ public class AverageMetric implements SubscribedMetric<Float>{
 
 	@Override
 	public Float computeMetric(Map<String, WorkObject> wobjs, Long intervalSize) {
-		CountAccumulatorState countState = (CountAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.CountAccumulator").getPayload();
-		SumAccumulatorState sumState = (SumAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.SumAccumulator").getPayload();
+		CountAccumulatorState countState = (CountAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.CountAccumulator");
+		SumAccumulatorState sumState = (SumAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.SumAccumulator");
 		
 		return (float) (sumState.getAccumulator().get() / countState.getAccumulator().get());
 	}

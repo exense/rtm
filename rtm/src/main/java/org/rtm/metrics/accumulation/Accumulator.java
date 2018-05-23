@@ -9,7 +9,7 @@ import org.rtm.metrics.WorkObject;
  */
 public interface Accumulator<T,V> {
 	
-	public AccumulatorState buildStateObject();
+	public WorkObject buildStateObject();
 	
 	public void accumulate(WorkObject wobj, V value);
 	

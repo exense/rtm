@@ -98,19 +98,15 @@ public class Stream<T> {
 	}
 
 	public Stream<T> clone(){
-		Stream<T> newStream = new Stream<T>(streamProp);
+		Stream<T> newStream = new Stream<T>(this.streamProp);
+
 		newStream.isClone = true;
-		
 		newStream.streamData = new ConcurrentSkipListMap<>(this.streamData);
 		newStream.id = this.id;
 		newStream.complete = this.complete;
 		newStream.isRefreshedSinceCompletion = this.isRefreshedSinceCompletion;
 		newStream.timeCreated = this.timeCreated;
 		newStream.timeoutDurationSecs = this.timeoutDurationSecs;
-
-		newStream.streamProp = new Properties();
-		newStream.streamProp.putAll(this.streamProp);
-		
 		newStream.isCompositeStream = this.isCompositeStream;
 		
 		return newStream;

@@ -39,23 +39,17 @@ public class AccumulationManager {
 		{
 			String accumulatorName = accumulator.getClass().getName();
 			
-			WorkObject wobj = dimension.get(accumulatorName);
-			if(wobj == null)
-				wobj = initWorkObject(accumulator, dimension);
+			if(dimension.get(accumulatorName) == null)
+				initWorkObject(accumulator, dimension);
 			
-			accumulator.accumulate(wobj, value);
+			accumulator.accumulate(dimension.get(accumulatorName), value);
 		}
 
 	}
 
-	private WorkObject initWorkObject(Accumulator accumulator, WorkDimension dimension) {
-		SimpleWorkObject mwobj = new SimpleWorkObject();
-
+	private void initWorkObject(Accumulator accumulator, WorkDimension dimension) {
 		String accumulatorName = accumulator.getClass().getName();
-		mwobj.setPayload(accumulator.buildStateObject());
-		
-		dimension.put(accumulatorName, mwobj);
-		return mwobj;
+		dimension.put(accumulatorName, accumulator.buildStateObject());
 	}
 	
 	@SuppressWarnings("unused")
@@ -72,10 +66,11 @@ public class AccumulationManager {
 
 		for(Accumulator accumulator : accumulators.values()) {
 			String accumulatorName = accumulator.getClass().getName();
-			WorkObject wobj1 = dimension1.get(accumulatorName);
-			if(wobj1 == null)
-				wobj1 = initWorkObject(accumulator, dimension1);
-			accumulator.mergeLeft(wobj1, dimension2.get(accumulatorName));
+
+			if(dimension1.get(accumulatorName) == null)
+				initWorkObject(accumulator, dimension1);
+			
+			accumulator.mergeLeft(dimension1.get(accumulatorName), dimension2.get(accumulatorName));
 		}
 	}
 

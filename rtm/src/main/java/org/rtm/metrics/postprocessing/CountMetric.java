@@ -14,7 +14,7 @@ public class CountMetric implements SubscribedMetric<Long>{
 
 	@Override
 	public Long computeMetric(Map<String, WorkObject> wobjs, Long intervalSize) {
-		CountAccumulatorState state = (CountAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.CountAccumulator").getPayload();
+		CountAccumulatorState state = (CountAccumulatorState)wobjs.get("org.rtm.metrics.accumulation.base.CountAccumulator");
 		return state.getAccumulator().get();
 	}
 

@@ -1,6 +1,6 @@
 package org.rtm.metrics.accumulation.base;
 
-import org.rtm.metrics.accumulation.AccumulatorState;
+import org.rtm.metrics.WorkObject;
 
 public class SumAccumulator extends LongBinaryAccumulator{
 	
@@ -14,7 +14,7 @@ public class SumAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState buildStateObject() {
+	public WorkObject buildStateObject() {
 		return new SumAccumulatorState();
 	}
 

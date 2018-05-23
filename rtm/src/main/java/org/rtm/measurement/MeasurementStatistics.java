@@ -26,6 +26,7 @@ public class MeasurementStatistics {
 	
 	public MeasurementStatistics(Properties props) {
 		this.props = props;
+
 		registeredMetrics = props.getProperty("aggregateService.registeredMetrics").split(",");
 		subscribedMetrics = new HashMap<String,SubscribedMetric>();
 		

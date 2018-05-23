@@ -1,6 +1,6 @@
 package org.rtm.metrics.accumulation.base;
 
-import org.rtm.metrics.accumulation.AccumulatorState;
+import org.rtm.metrics.WorkObject;
 
 public class MinAccumulator extends LongBinaryAccumulator{
 	
@@ -15,7 +15,7 @@ public class MinAccumulator extends LongBinaryAccumulator{
 	}
 	
 	@Override
-	public AccumulatorState buildStateObject() {
+	public WorkObject buildStateObject() {
 		return new MinAccumulatorState();
 	}
 	

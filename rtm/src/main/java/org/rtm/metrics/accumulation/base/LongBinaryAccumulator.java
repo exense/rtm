@@ -5,7 +5,6 @@ import java.util.function.LongBinaryOperator;
 
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.Accumulator;
-import org.rtm.metrics.accumulation.AccumulatorState;
 
 public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 
@@ -13,26 +12,26 @@ public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 	
 	@Override
 	public void accumulate(WorkObject wobj, Long value) {
-		((LongBinaryAccumulatorState)wobj.getPayload()).getAccumulator().accumulate(value);
+		((LongBinaryAccumulatorState)wobj).getAccumulator().accumulate(value);
 	}
 	
 	@Override
 	public Long getValue(WorkObject wobj) {
-		return ((LongBinaryAccumulatorState)wobj.getPayload()).getAccumulator().get();
+		return ((LongBinaryAccumulatorState)wobj).getAccumulator().get();
 	}
 	
 	@Override
 	public void mergeLeft(WorkObject wobj1, WorkObject wobj2) {
 		
-		LongBinaryAccumulatorState lawobj1 = ((LongBinaryAccumulatorState)wobj1.getPayload());
-		LongBinaryAccumulatorState lawobj2 = ((LongBinaryAccumulatorState)wobj2.getPayload());
+		LongBinaryAccumulatorState lawobj1 = ((LongBinaryAccumulatorState)wobj1);
+		LongBinaryAccumulatorState lawobj2 = ((LongBinaryAccumulatorState)wobj2);
 
 		lawobj1.setAccumulator(new LongAccumulator(lawobj1.getOperator(),mergeValues(lawobj1.getAccumulator().get(), lawobj2.getAccumulator().get())));
 	}
 	
 	protected abstract Long mergeValues(Long value1, Long value2);
 
-	protected class LongBinaryAccumulatorState implements AccumulatorState{
+	protected class LongBinaryAccumulatorState implements WorkObject{
 	
 		private LongAccumulator accumulator;
 		private LongBinaryOperator operator;
