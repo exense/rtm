@@ -3,6 +3,7 @@ package org.rtm.db;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.bson.Document;
 import org.rtm.commons.MeasurementAccessor;
@@ -16,9 +17,9 @@ import com.mongodb.client.MongoCursor;
 public class DBClient {
 
 	//private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
-	
+
 	MeasurementAccessor ma = MeasurementAccessor.getInstance();
-	
+
 	public DBClient() {
 		this.ma = MeasurementAccessor.getInstance();
 	}
@@ -27,12 +28,12 @@ public class DBClient {
 	public Iterable<? extends Map> executeQuery(Document timelessQuery) {
 		return ma.find(timelessQuery);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public Iterable<? extends Map> executeQuery(Document timelessQuery, String sortKey, Integer sortDirection) {
 		return ma.find(timelessQuery, new BasicDBObject(sortKey, sortDirection));
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public Iterable<? extends Map> executeQuery(Document timelessQuery, String sortKey, Integer sortDirection, int skip, int limit) {
 		return ma.find(timelessQuery, new BasicDBObject(sortKey, sortDirection), skip, limit);
@@ -65,29 +66,34 @@ public class DBClient {
 			completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
 		else
 			completeQuery = baseQuery;
-		
+
 		DBClient db = new DBClient();
-		
+
 		//TODO: get Time key from request Properties
 		//logger.debug(completeQuery.toString());
 		Iterable naturalIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, 1);
 		Iterable reverseIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, -1);
-		
-		Map min = (Map) naturalIt.iterator().next();
-		Map max = (Map) reverseIt.iterator().next();
+		Map min = null;
+		Map max = null;
+		try{
+			min = (Map) naturalIt.iterator().next();
+			max = (Map) reverseIt.iterator().next();
+		}catch(NoSuchElementException e){
+			return new LongTimeInterval(0L, 1L);
+		}
 
 		Long maxVal = (Long)max.get(MeasurementConstants.BEGIN_KEY) +1; // $lt operator 
 		Long minVal = (Long)min.get(MeasurementConstants.BEGIN_KEY);
-		
+
 		long result = maxVal - minVal;
 		//logger.debug("time window : " + maxVal + " - " + minVal + " = " + result);
-		
+
 		if(result < 1L)
 			throw new Exception("Could not compute auto-granularity : result="+result);
-		
+
 		((MongoCursor) naturalIt.iterator()).close();
 		((MongoCursor) reverseIt.iterator()).close();
-	
+
 		return new LongTimeInterval(minVal, maxVal);
 	}
 

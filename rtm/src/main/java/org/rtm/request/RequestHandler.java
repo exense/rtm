@@ -133,10 +133,10 @@ public class RequestHandler {
 		
 		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 		
-		Stream<Long> outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize, s1.getStreamProp());
+		Stream outStream = initStream(s1.getTimeoutDurationSecs(), intervalSize, s1.getStreamProp());
 		outStream.setCompositeStream(true);
 
-		new StreamComparator(sb.getStream(s1.getId()), sb.getStream(s2.getId()), outStream, intervalSize).compare();
+		new StreamComparator(s1, s2, outStream, intervalSize).compare();
 
 		outStream.setComplete(true);
 		

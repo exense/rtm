@@ -20,46 +20,48 @@ public class MetricsManager {
 	private static final Logger logger = LoggerFactory.getLogger(MetricsManager.class);
 
 	private Properties props;
-	
+
 	public MetricsManager(Properties props) {
 		this.props = props;
 	}
-	
-	public Stream handle(Stream stream) throws Exception {
 
-		if(stream.getStreamData() != null && stream.getStreamData().size() > 0){
-			return computePostMetrics(stream);
-		}
-		throw new Exception("Empty stream.");
+	public Stream handle(Stream stream) throws Exception {
+		return computePostMetrics(stream);
 	}
 
 	private Stream computePostMetrics(Stream stream) throws Exception {
+		Stream resStream = new Stream(props);
 		
 		ConcurrentSkipListMap<Long, AggregationResult> originMap = stream.getStreamData();
 		ConcurrentSkipListMap<Long, AggregationResult> resultMap = new ConcurrentSkipListMap<Long, AggregationResult>();
+
+		resStream.setStreamData(resultMap);
+		
+		if(originMap == null || originMap.size() < 1)
+			return resStream;
+			
 		Long intervalSize = Long.parseLong(stream.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 
 		if(intervalSize == null)
 			throw new Exception("Null interval size.");
-		
+
 		MeasurementStatistics stats = new MeasurementStatistics(stream.getStreamProp());
-		
+
 		originMap.entrySet().stream().forEach(e -> {
 			AggregationResult ar = e.getValue();
 			AggregationResult finalAr = new FinalAggregationResult<Long>(ar.getStreamPayloadIdentifier());
 			Map<String, WorkDimension> series = ar.getDimensionsMap();
-			
+
 			Map<String, Dimension> result = new HashMap<String, Dimension>();
 			series.entrySet().stream().forEach(f -> {
 				WorkDimension data = f.getValue();
 				result.put(f.getKey(), stats.computeAllRegisteredPostMetrics(data, intervalSize));
 			});
-			
+
 			finalAr.setDimensionsMap(result);
 			resultMap.put(e.getKey(), finalAr);
 		});	
-		Stream resStream = new Stream(props);
-		resStream.setStreamData(resultMap);
+		
 		return resStream;
 	}
 }

@@ -11,7 +11,7 @@ public class WorkDimension  extends Dimension<String, WorkObject>{
 	}
 
 	public WorkDimension diff(WorkDimension dim2) throws Exception {
-		throw new RuntimeException("Needs to be re implemented");
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void put(String key, WorkObject value) {
