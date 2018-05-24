@@ -56,11 +56,11 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 	}
 	
 	@JsonValue
-	public Set<Entry<String, Dimension>> getPrettyDimensionsMap() {
-		return map.entrySet();
+	public Map<String, Dimension> getPrettyDimensionsMap() {
+		return map;
 	}
-
-	@JsonIgnore
+	
+	//@JsonIgnore
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
 		this.map = map;

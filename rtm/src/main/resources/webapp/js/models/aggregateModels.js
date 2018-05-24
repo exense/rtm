@@ -22,7 +22,7 @@ var Aggregates = Backbone.Collection.extend({
         	//console.log(JSON.stringify(response.models[0]));
         	//console.log(JSON.stringify(response.models[0].get('payload')));
            if(response.models[0].get('status') !== 'SUCCESS')
-           		displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response.models[0].get('metaMessage')));
+           		displayError('[SERVER_CALL] (1) Technical Error=' + JSON.stringify(response.models[0].get('metaMessage')));
            else{
            if(response.models[0].get('payload') && Object.keys(response.models[0].get('payload')).length > 0){
            		that.trigger('AggregatesRefreshed');
@@ -32,7 +32,7 @@ var Aggregates = Backbone.Collection.extend({
          error: function( model, response, options ){
           //console.log('model=' + JSON.stringify(model) + ', response=' + JSON.stringify(response) + ', options=' + JSON.stringify(options));
 	         that.trigger('pauseChartTimer');
-          	 displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
+          	 displayError('[SERVER_CALL] (2) Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
           that.reset();
         }
       });
@@ -68,7 +68,7 @@ var Aggregates = Backbone.Collection.extend({
          error: function( model, response, options ){
 			that.trigger('pauseChartTimer');
           //console.log('model=' + JSON.stringify(model) + ', response=' + JSON.stringify(response) + ', options=' + JSON.stringify(options));
-          	 displayError('[SERVER_CALL] Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
+          	 displayError('[SERVER_CALL] (3) Technical Error=' + JSON.stringify(response)+ ';       input=' + input);
           that.reset();
         }
       });

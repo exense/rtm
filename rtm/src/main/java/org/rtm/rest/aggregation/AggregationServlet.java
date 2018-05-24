@@ -97,8 +97,10 @@ public class AggregationServlet {
 			Stream result = null;
 			if(s.isCompositeStream())
 				result = s;
-			else
+			else{
 				result = new MetricsManager(s.getStreamProp()).handle(s);
+				result.setComplete(s.isComplete());
+				}
 			WrappedResult wr = new WrappedResult(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());
 			//logger.debug(result.toString());
 			rtmResponse = new SuccessResponse(wr,
