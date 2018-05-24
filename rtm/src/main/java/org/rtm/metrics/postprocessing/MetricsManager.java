@@ -10,6 +10,7 @@ import org.rtm.stream.Dimension;
 import org.rtm.stream.Stream;
 import org.rtm.stream.WorkDimension;
 import org.rtm.stream.result.AggregationResult;
+import org.rtm.stream.result.FinalAggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,28 +25,28 @@ public class MetricsManager {
 		this.props = props;
 	}
 	
-	public Stream handle(Stream stream) {
-		Map streamData = stream.getStreamData();
-		if(streamData != null && streamData.size() > 0){
-			Stream copy = stream.clone();
-			computePostMetrics(copy);
-			return copy;
+	public Stream handle(Stream stream) throws Exception {
+
+		if(stream.getStreamData() != null && stream.getStreamData().size() > 0){
+			return computePostMetrics(stream);
 		}
-		return stream;
+		throw new Exception("Empty stream.");
 	}
 
-	private void computePostMetrics(Stream copy) {
-		ConcurrentSkipListMap<Long, AggregationResult> map = copy.getStreamData();
-
-		Long intervalSize = Long.parseLong(copy.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
+	private Stream computePostMetrics(Stream stream) throws Exception {
+		
+		ConcurrentSkipListMap<Long, AggregationResult> originMap = stream.getStreamData();
+		ConcurrentSkipListMap<Long, AggregationResult> resultMap = new ConcurrentSkipListMap<Long, AggregationResult>();
+		Long intervalSize = Long.parseLong(stream.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 
 		if(intervalSize == null)
-			return;
+			throw new Exception("Null interval size.");
 		
-		MeasurementStatistics stats = new MeasurementStatistics(copy.getStreamProp());
+		MeasurementStatistics stats = new MeasurementStatistics(stream.getStreamProp());
 		
-		map.entrySet().stream().forEach(e -> {
+		originMap.entrySet().stream().forEach(e -> {
 			AggregationResult ar = e.getValue();
+			AggregationResult finalAr = new FinalAggregationResult<Long>(ar.getStreamPayloadIdentifier());
 			Map<String, WorkDimension> series = ar.getDimensionsMap();
 			
 			Map<String, Dimension> result = new HashMap<String, Dimension>();
@@ -54,7 +55,11 @@ public class MetricsManager {
 				result.put(f.getKey(), stats.computeAllRegisteredPostMetrics(data, intervalSize));
 			});
 			
-			ar.setDimensionsMap(result);
+			finalAr.setDimensionsMap(result);
+			resultMap.put(e.getKey(), finalAr);
 		});	
+		Stream resStream = new Stream(props);
+		resStream.setStreamData(resultMap);
+		return resStream;
 	}
 }

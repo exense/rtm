@@ -61,7 +61,7 @@ public class AccumulationManager {
 
 	public void mergeAllLeft(WorkDimension dimension1, WorkDimension dimension2) {
 		String name = dimension1.getDimensionName();
-		if(name != dimension2.getDimensionName())
+		if(!name.equals(dimension2.getDimensionName()))
 			throw new RuntimeException("Names differ. Dimension1=" + name + "; Dimension2=" + dimension2.getDimensionName());
 
 		for(Accumulator accumulator : accumulators.values()) {

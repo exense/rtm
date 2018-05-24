@@ -33,6 +33,7 @@ public class StreamBroker {
 		} catch (Exception e) {
 			logger.error("Couldn't load timeout value from conf.", e);
 		}
+		
 		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, defaultTimeout, 5));
 	}
 	

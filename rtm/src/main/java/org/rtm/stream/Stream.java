@@ -30,8 +30,10 @@ public class Stream<T> {
 	private boolean complete = false;
 	private boolean isRefreshedSinceCompletion = false;
 	
+	@JsonIgnore
 	boolean isCompositeStream = false;
 
+	@JsonIgnore
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
 	
 	public Stream(Properties prop){
@@ -43,7 +45,6 @@ public class Stream<T> {
 			logger.error("Could not access default timeout value.", e);
 			this.setTimeoutDurationSecs(600);
 		}
-		this.setStreamProp(new Properties());
 	}
 	
 	@JsonIgnore
@@ -95,21 +96,6 @@ public class Stream<T> {
 
 	public StreamId getId() {
 		return id;
-	}
-
-	public Stream<T> clone(){
-		Stream<T> newStream = new Stream<T>(this.streamProp);
-
-		newStream.isClone = true;
-		newStream.streamData = new ConcurrentSkipListMap<>(this.streamData);
-		newStream.id = this.id;
-		newStream.complete = this.complete;
-		newStream.isRefreshedSinceCompletion = this.isRefreshedSinceCompletion;
-		newStream.timeCreated = this.timeCreated;
-		newStream.timeoutDurationSecs = this.timeoutDurationSecs;
-		newStream.isCompositeStream = this.isCompositeStream;
-		
-		return newStream;
 	}
 
 	public boolean isClone() {

@@ -58,7 +58,7 @@ public class RequestHandlerTest {
 			long start = System.currentTimeMillis();
 			AbstractResponse response = null;
 			try {
-				response = new SuccessResponse(rh.handle(ar), "Stream initialized. Call the streaming service next to start retrieving data.");
+				response = new SuccessResponse(rh.aggregate(ar), "Stream initialized. Call the streaming service next to start retrieving data.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -92,7 +92,13 @@ public class RequestHandlerTest {
 
 			Properties fknProps = stream.getStreamProp();
 			fknProps.putAll(props);
-			Stream result = new MetricsManager(fknProps).handle(stream);
+			Stream result = null;
+			try {
+				result = new MetricsManager(fknProps).handle(stream);
+			} catch (Exception e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			System.out.println("result=" + result);
 
 			
@@ -144,7 +150,7 @@ public class RequestHandlerTest {
 			long start = System.currentTimeMillis();
 			AbstractResponse response = null;
 			try {
-				response = new SuccessResponse(rh.handle(cr), "Stream initialized. Call the streaming service next to start retrieving data.");
+				response = new SuccessResponse(rh.compare(cr), "Stream initialized. Call the streaming service next to start retrieving data.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

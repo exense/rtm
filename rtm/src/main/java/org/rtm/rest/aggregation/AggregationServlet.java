@@ -55,10 +55,10 @@ public class AggregationServlet {
 	@Path(AggregationConstants.getpath)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getResutStreamForQuery(final AggregationRequest body) {
+	public Response getAggregationResutStream(final AggregationRequest body) {
 		AbstractResponse rtmResponse = null;
 		try{
-		 rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+		 rtmResponse = new SuccessResponse(rh.aggregate(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
@@ -72,10 +72,10 @@ public class AggregationServlet {
 	@Path(AggregationConstants.comparepath)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getResutStreamForQuery(final ComparisonRequest body) {
+	public Response getComparisonResutStream(final ComparisonRequest body) {
 		AbstractResponse rtmResponse = null;
 		try{
-			rtmResponse = new SuccessResponse(rh.handle(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+			rtmResponse = new SuccessResponse(rh.compare(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);

@@ -33,7 +33,7 @@ public class RequestHandler {
 		this.sb = ssm;
 	}
 
-	public StreamId handle(AggregationRequest aggReq) throws Exception{
+	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		Properties prop = aggReq.getServiceParams();
@@ -105,14 +105,14 @@ public class RequestHandler {
 
 	//TODO: implement concurrent comparator (instead of waiting for both streams to complete)
 	@SuppressWarnings("rawtypes")
-	public StreamId handle(ComparisonRequest aggReq) throws Exception {
+	public StreamId compare(ComparisonRequest aggReq) throws Exception {
 		AggregationRequest request1 = new AggregationRequest(aggReq.getTimeWindow1(), aggReq.getSelectors1(), aggReq.getServiceParams());
 		AggregationRequest request2 = new AggregationRequest(aggReq.getTimeWindow2(), aggReq.getSelectors2(), aggReq.getServiceParams());
 
 		logger.info("Launching comparison streams with request1=" + request1 + ", and request2=" + request2); 
 		
-		Stream s1 = sb.getStream(handle(request1));
-		Stream s2 = sb.getStream(handle(request2));
+		Stream s1 = sb.getStream(aggregate(request1));
+		Stream s2 = sb.getStream(aggregate(request2));
 
 		Properties props = s1.getStreamProp();
 		
