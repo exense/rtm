@@ -138,6 +138,6 @@ public class MeasurementAccessor implements TransportClient{
 	@Override
 	public void close() {
 		// we actually want to keep it alive for the whole JVM lifetime 
-		//mongo.close();
+		mongo.close();
 	}
 }
