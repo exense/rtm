@@ -7,7 +7,7 @@ import org.rtm.metrics.WorkObject;
  * State is kept in their WorkObject.
  * 
  */
-public interface Accumulator<T,V> {
+public interface Accumulator<V,T> {
 	
 	public WorkObject buildStateObject();
 	
@@ -15,6 +15,6 @@ public interface Accumulator<T,V> {
 	
 	public void mergeLeft(WorkObject wobj1, WorkObject wobj2);
 	
-	public V getValue(WorkObject wobj);
+	public T getValue(WorkObject wobj);
 	
 }

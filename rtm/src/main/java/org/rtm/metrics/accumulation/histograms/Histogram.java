@@ -10,12 +10,12 @@ public class Histogram {
 	private int approxMs;
 	private CountSumBucket[] histogram;
 	
-	public Histogram(int nbPairs, int approxMs) throws Exception {
+	public Histogram(int nbPairs, int approxMs){
 		if(nbPairs > 0){
 			this.nbPairs = nbPairs;
 			this.histogram = new CountSumBucket[nbPairs];
 		}else
-			throw new Exception("Illegal nbPairs: " + nbPairs);
+			throw new RuntimeException("Illegal nbPairs: " + nbPairs);
 		
 		if(approxMs < 0)
 			this.approxMs = approxMs * -1;
@@ -123,17 +123,19 @@ public class Histogram {
 		if(histogram.length != hist.size())
 			throw new Exception("Inconsistent sizes: left=" + histogram.length +"; right="+ hist.size());
 		
-		Iterator<Integer> thisMap = buildSortedMap().values().iterator();
-		Iterator<Integer> thatMap = hist.buildSortedMap().values().iterator();
+		Iterator<Integer> thisMap = buildSortedAvgMap().values().iterator();
+		Iterator<Integer> thatMap = hist.buildSortedAvgMap().values().iterator();
 		
 		while(thisMap.hasNext() && thatMap.hasNext()){
 			int leftIndex = thisMap.next();
 			int rightIndex = thatMap.next();
 			mergeBucket(leftIndex, hist.getBucket(rightIndex));
 		}
+		
+		System.out.println("merged: " + this);
 	}
 
-	private TreeMultimap<Long, Integer> buildSortedMap() {
+	private TreeMultimap<Long, Integer> buildSortedAvgMap() {
 		TreeMultimap<Long, Integer> map = TreeMultimap.create();
 		for(int i=0; i<histogram.length; i++)
 			map.put(histogram[i].getAvg(), i);
@@ -161,5 +163,18 @@ public class Histogram {
 			resArray[i] = this.histogram[i].diff(histogram2array[i]);
 		}
 		return res;
-	} 
+	}
+	
+	public long getValueForMark(float pcl) {
+		long curCount = 0;
+		long target = (long) (pcl * getTotalCount());
+		for(int i=0; i<this.histogram.length; i++){
+			curCount += histogram[i].getCount();
+			if(curCount >= target){
+				return histogram[i].getAvg();
+			}
+		}
+		return -1;
+	}
+	
 }
