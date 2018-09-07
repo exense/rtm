@@ -14,8 +14,8 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 	
 	@Override
 	public void initAccumulator(Properties props) {
-		nbPairs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "histogram.nbPairs", 40));
-		approxMs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "histogram.approxMs", 200));
+		nbPairs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histSize", 40));
+		approxMs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histApp", 200));
 	}
 
 	@Override

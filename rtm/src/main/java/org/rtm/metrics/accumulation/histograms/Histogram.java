@@ -40,17 +40,19 @@ public class Histogram {
 		if(bucketId > -1)
 			insert(bucketId, valueMs);
 		else
-			insert(findClosest(valueMs), valueMs);
+			insert(findClosest(valueMs,minBound, maxBound), valueMs);
 	}
 
-	private int findClosest(long valueMs) {
+	private int findClosest(long valueMs, long minBound, long maxBound) {
 		int curIndex = -1;
 		long minDiff = Long.MAX_VALUE;
 		
 		for(int i=0; i < histogram.length; i++){
 			long avg = histogram[i].getAvg();
-			if(avg < 0) // empty bucket
+			if(avg < 0) {// empty bucket
+				//System.out.println("new bucket: value=" + valueMs + ", minBound=" + minBound + ", maxBound=" + maxBound);
 				return i;
+			}
 			long diff = avg - valueMs;
 			if(diff < minDiff){
 				minDiff = diff;
@@ -132,7 +134,7 @@ public class Histogram {
 			mergeBucket(leftIndex, hist.getBucket(rightIndex));
 		}
 		
-		System.out.println("merged: " + this);
+		//System.out.println("merged: " + this);
 	}
 
 	private TreeMultimap<Long, Integer> buildSortedAvgMap() {

@@ -12,7 +12,7 @@
 <div class="form-group row">
 
 <div class="col-md-2">
-<label class="control-label">bucket size (ms)</label> &nbsp
+<label class="control-label">agg interval (ms)</label> &nbsp
 <input type="text" class="form-control granularity aggserviceparams" id="granularity" value="<%= content.granularity %>">
 </div>
 
@@ -21,21 +21,30 @@
 <input type="text" class="form-control groupby aggserviceparams" id="groupby" value="<%= content.groupby %>">
 </div>
 
-<div class="col-md-2">
-<label class="control-label">cpu #</label> &nbsp
+<div class="col-md-1">
+<label class="control-label">threads</label> &nbsp
 <input type="text" class="form-control cpu aggserviceparams" id="cpu" value="<%= content.cpu %>">
 </div>
 
-<div class="col-md-2">
-<label class="control-label">partition #</label> &nbsp
+<div class="col-md-1">
+<label class="control-label">tasks</label> &nbsp
 <input type="text" class="form-control partition aggserviceparams" id="partition" value="<%= content.partition %>">
 </div>
 
-<div class="col-md-2">
-<label class="control-label">timeout (s)</label> &nbsp
+<div class="col-md-1">
+<label class="control-label">timeout</label> &nbsp
 <input type="text" class="form-control timeout aggserviceparams" id="timeout" value="<%= content.timeout %>">
 </div>
 
+<div class="col-md-1">
+<label class="control-label">hist size</label> &nbsp
+<input type="text" class="form-control histSize aggserviceparams" id="histSize" value="<%= content.histSize %>">
+</div>
+
+<div class="col-md-1">
+<label class="control-label">hist app</label> &nbsp
+<input type="text" class="form-control histApp aggserviceparams" id="histApp" value="<%= content.histApp %>">
+</div>
 </div>
 
 </div>

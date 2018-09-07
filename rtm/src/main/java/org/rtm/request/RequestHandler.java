@@ -38,6 +38,7 @@ public class RequestHandler {
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		
 		Properties prop = Configuration.getInstance().getUnderlyingPropertyObject();
+		//prop.putAll(mapWhereNeeded(aggReq.getServiceParams()));
 		prop.putAll(aggReq.getServiceParams());
 
 		/* Parallization inputs*/
@@ -66,6 +67,20 @@ public class RequestHandler {
 
 		sb.registerStreamSession(stream);
 		return stream.getId();
+	}
+
+	// keeping implicitly unified values between services and conf for now
+	@SuppressWarnings("unused")
+	private Properties mapWhereNeeded(Properties serviceParams) {
+		map(serviceParams, "aggregateService.histSize", "histogram.nbPairs");
+		map(serviceParams, "aggregateService.histApp", "histogram.approxMs");
+		return serviceParams;
+	}
+
+	private void map(Properties serviceParams, String key, String newKey) {
+		String prop = serviceParams.getProperty(key);
+		serviceParams.put(newKey, prop);
+		serviceParams.remove(newKey);
 	}
 
 	private Stream<Long> initStream(long timeout, Long optimalSize, Properties prop) {
