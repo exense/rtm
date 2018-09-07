@@ -1,15 +1,26 @@
 package org.rtm.metrics.accumulation.base;
 
+import java.util.Properties;
+
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.Accumulator;
 import org.rtm.metrics.accumulation.histograms.Histogram;
+import org.rtm.utils.ServiceUtils;
 
 public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 
+	private int nbPairs;
+	private int approxMs;
+	
+	@Override
+	public void initAccumulator(Properties props) {
+		nbPairs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "histogram.nbPairs", 40));
+		approxMs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "histogram.approxMs", 200));
+	}
+
 	@Override
 	public WorkObject buildStateObject() {
-		//TODO: plug Props for dynamic hist configuration
-		return new HistogramAccumulatorState(50,50);
+		return new HistogramAccumulatorState(nbPairs, approxMs);
 	}
 
 	@Override
@@ -39,4 +50,5 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 		}
 
 	}
+
 }

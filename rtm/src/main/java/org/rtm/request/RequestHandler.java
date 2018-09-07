@@ -36,18 +36,11 @@ public class RequestHandler {
 	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
-		Properties prop = aggReq.getServiceParams();
-		prop.putAll(Configuration.getInstance().getUnderlyingPropertyObject());
-
-		try {//TODO: expose to client
-			prop.put("histogram.nbPairs", Configuration.getInstance().getProperty("histogram.nbPairs"));
-			prop.put("histogram.approxMs", Configuration.getInstance().getProperty("histogram.approxMs"));
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+		
+		Properties prop = Configuration.getInstance().getUnderlyingPropertyObject();
+		prop.putAll(aggReq.getServiceParams());
 
 		/* Parallization inputs*/
-		int poolSize = 1;
 		long timeoutSecs = Long.parseLong(prop.getProperty("aggregateService.timeout"));
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
@@ -122,8 +115,9 @@ public class RequestHandler {
 		while(!s1.isComplete() || !s2.isComplete()){
 			if(System.currentTimeMillis() > (start + timeoutSecs))
 				throw new Exception("Timeout reached while waiting for compared streams to complete.");
-			else
-				Thread.currentThread().sleep(300);
+			else {
+				Thread.sleep(300);
+			}
 		}
 		
 		logger.info("Comparison streams completed. Creating diff result stream.");

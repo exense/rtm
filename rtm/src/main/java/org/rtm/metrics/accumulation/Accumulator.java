@@ -1,5 +1,7 @@
 package org.rtm.metrics.accumulation;
 
+import java.util.Properties;
+
 import org.rtm.metrics.WorkObject;
 
 /*
@@ -8,6 +10,8 @@ import org.rtm.metrics.WorkObject;
  * 
  */
 public interface Accumulator<V,T> {
+	
+	public void initAccumulator(Properties props);
 	
 	public WorkObject buildStateObject();
 	

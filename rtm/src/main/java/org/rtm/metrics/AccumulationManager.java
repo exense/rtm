@@ -13,12 +13,11 @@ public class AccumulationManager {
 	private String[] accumulatorRegistry;
 
 	private Map<String,Accumulator> accumulators;
-
+	
 	@SuppressWarnings("unused")
 	private AccumulationManager() {}
 
 	public AccumulationManager(Properties rtmProps){
-
 		accumulatorRegistry = rtmProps.getProperty("aggregateService.registeredAccumulators").split(",");
 		accumulators = new HashMap<String,Accumulator>();
 
@@ -27,6 +26,7 @@ public class AccumulationManager {
 			try {
 				clazz = Class.forName(entry);
 				Accumulator accumulator = (Accumulator)clazz.getConstructor().newInstance();
+				accumulator.initAccumulator(rtmProps);
 				accumulators.put(entry, accumulator);
 			} catch (Exception e) {
 				e.printStackTrace();
