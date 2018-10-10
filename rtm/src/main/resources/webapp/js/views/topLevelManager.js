@@ -54,6 +54,17 @@ $.extend(TopLevelManager.prototype, Backbone.Events, {
 		this.listenTo( this.aggregateDatapoints, 'AggregateDatapointsRefreshed', this.dispatchAggregateDatapointsRefreshed );
 		this.listenTo( this.measurementListView, 'MeasurementPrevious', this.sendSearch );
 		this.listenTo( this.measurementListView, 'MeasurementNext', this.sendSearch );
+		
+			// Attempted to set a standard Cookie, but refused
+			/*
+			var backboneSync = Backbone.sync;
+    		Backbone.sync = function (method, model, options) {
+        		options.headers = {
+            		'STEP-Cookie': Config.getProperty('curCookie')
+        		};
+
+        	backboneSync(method, model, options);
+    		};*/
 	},
 
 dispatchStreamConsumed : function(){

@@ -67,6 +67,15 @@ public class Configuration{
 		return properties.getProperty(key) != null;
 	}
 	
+	public String getPropertyWithDefault(String name, String defaultValue){
+		String prop = properties.getProperty(name);
+		if(prop!=null) {
+			return prop;
+		} else {
+			return defaultValue;
+		}
+	}
+	
 	public String getProperty(String name) throws Exception {
 		String prop = properties.getProperty(name);
 		if(prop!=null) {

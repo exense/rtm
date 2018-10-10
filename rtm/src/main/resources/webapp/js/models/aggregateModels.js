@@ -53,6 +53,8 @@ var Aggregates = Backbone.Collection.extend({
           type : 'POST',
           dataType:'json',
           contentType:'application/json; charset=utf-8',
+          //Attempted to set a standard Cookie but refused
+          //headers: {'Cookie' : Config.getProperty('curCookie')},
           data: input,
           success: function (response) {
           var payload = response.models[0].get('payload');

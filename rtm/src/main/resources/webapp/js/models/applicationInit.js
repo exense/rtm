@@ -52,7 +52,9 @@ function initApplication() {
 
 				var guiStateText = decodeURIComponent(guiState);
 				var guiStateObj = JSON.parse(guiStateText);
-
+				
+				Config.setProperty('curCookie', guiStateObj.sessionToken);
+				
 				mediator.loadGuiState(guiStateObj);
 				mediator.cleanupViews();
 				mediator.renderDefaultViews();
