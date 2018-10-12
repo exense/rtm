@@ -139,8 +139,8 @@ dispatchComparesRefreshed: function(){
 	serializeInput: function(){
 		
 		var selPayload = this.postControllerView.getServiceFragment();
-		console.log('serializeInput')
-		console.log(selPayload);
+//		console.log('serializeInput')
+//		console.log(selPayload);
 		var serviceParams = new ServiceParams();
 		
 		serviceParams.setFragment(this.measurementListView.getServiceDomain(), this.measurementListView.getServiceFragment()); // toSkipValue()
@@ -259,8 +259,8 @@ dispatchComparesRefreshed: function(){
 
 	refreshAggregateModel: function(){
 		var serviceInput = this.serializeInput();
-		console.log('refreshAggregateModel');
-		console.log(serviceInput);
+//		console.log('refreshAggregateModel');
+//		console.log(serviceInput);
 		serviceInput.setSelectors(guiToBackendInput(serviceInput.getSelectors(this.activeContext)), this.activeContext);
 		this.aggregates.refreshData(serviceInput);
 	},

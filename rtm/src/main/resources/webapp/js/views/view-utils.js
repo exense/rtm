@@ -140,8 +140,8 @@ function guiSelectorParseDate(input) {
 
 function guiToBackendInputForSelector(guiSelectors){
 
-console.log('guiToBackendInputForSelector');
-console.log(guiSelectors);
+//console.log('guiToBackendInputForSelector');
+//console.log(guiSelectors);
 	var selPayload = [];
 
 	// iterate over selectors
@@ -186,8 +186,8 @@ console.log(guiSelectors);
 
 function guiToBackendInput(guiSelectors){
 
-	console.log('guiToBackendInput');
-	console.log(guiSelectors);
+//	console.log('guiToBackendInput');
+//	console.log(guiSelectors);
 	var selPayload = { 'selectors1' : guiToBackendInputForSelector(guiSelectors.selectors1) };
 
 	if(guiSelectors.selectors2)

@@ -322,7 +322,7 @@ var PostControllerView = Backbone.View.extend(
 				this.selectors1 = [];
 				this.selectors2 = [];
 			
-				console.log(input);
+//				console.log(input);
 				this.selectors1 = this.addFunctionality(input, 1);
 				if(this.activeContext === 'Compare')
 					this.selectors2 = this.addFunctionality(input, 2);
