@@ -41,7 +41,8 @@ var AggregateChartView = Backbone.View.extend({
 	},
 	updateChartMetricChoice: function (e) {
 		this.currentChartMetricChoice = e.currentTarget.id;
-		
+		$("#currentMetricChoiceSpan").html(this.currentChartMetricChoice);
+		 
 		this.cleanupChartOnly();
 		this.renderChartOnly();
 		e.preventDefault();
@@ -58,17 +59,48 @@ var AggregateChartView = Backbone.View.extend({
 	renderTemplate: function(callback) {
 		var that = this;
 		var thisCallback = callback.bind(this);
+		
+		this.$el.html('');
+		var compositeTemplate = '';
 	
-		$.get(resolveTemplate('aggregateChart-template'), function (data) {	
-			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
-			that.$el.append(template);
+		$.get(resolveTemplate('aggregateChartHeader-template'), function (data) {	
+			compositeTemplate += _.template(data, {});
 		}, 'html')
 		.fail(function(model, response, options ) {
 			displayError('response=' + JSON.stringify(response));
 		})
 		.success(function(){
+		$.get(resolveTemplate('aggregateChartChooser-template'), function (data) {	
+			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
+			compositeTemplate += template;
+		}, 'html')
+		.fail(function(model, response, options ) {
+			displayError('response=' + JSON.stringify(response));
+		})
+		.success(function(){
+		$.get(resolveTemplate('aggregateChartMain-template'), function (data) {	
+			template = _.template(data, {metricsList : that.getChartableMetricsList(), currentChartMetricChoice : that.currentChartMetricChoice, nbSeries : that.seriesCount, factor : that.svgLegendFactor});
+			compositeTemplate += template;
+		}, 'html')
+		.fail(function(model, response, options ) {
+			displayError('response=' + JSON.stringify(response));
+		})
+		.success(function(){
+		$.get(resolveTemplate('aggregateChartFooter-template'), function (data) {	
+			template = _.template(data, {});
+			compositeTemplate += template;
+		}, 'html')
+		.fail(function(model, response, options ) {
+			displayError('response=' + JSON.stringify(response));
+		})
+		.success(function(){
+			that.$el.append(compositeTemplate);
 			thisCallback();
 		});
+		});
+		});
+		});
+		
 },
 
 cleanupChartOnly: function() {
@@ -159,7 +191,8 @@ var line = d3.line()
   x.domain(d3.extent(Tdata, function(d) { return d.date; }));
 
   y.domain([
-    d3.min(Sdata, function(c) { return d3.min(c.values, function(d) { return d.metricVal; }); }),
+    //d3.min(Sdata, function(c) { return d3.min(c.values, function(d) { return d.metricVal; }); }),
+    0,
     d3.max(Sdata, function(c) { return d3.max(c.values, function(d) { return d.metricVal; }); })
   ]);
 
