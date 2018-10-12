@@ -20,7 +20,7 @@ public class HistAverageMetric implements SubscribedMetric<Long>{
 
 	@Override
 	public String getDisplayName() {
-		return "havg";
+		return "avg";
 	}
 
 }

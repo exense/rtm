@@ -136,7 +136,8 @@ isNumeric: function(n) {
 },
 
 getChartableMetricsList: function(){
-	return this.collection.models[0].get('payload').metricList;
+	var sorted = this.collection.models[0].get('payload').metricList.sort();
+	return sorted;
 },
 
 getMetricsList: function(){

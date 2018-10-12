@@ -20,7 +20,7 @@ public class CountMetric implements SubscribedMetric<Long>{
 
 	@Override
 	public String getDisplayName() {
-		return "cnt";
+		return "std_cnt";
 	}
 
 }

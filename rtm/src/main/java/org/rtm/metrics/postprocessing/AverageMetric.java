@@ -23,7 +23,7 @@ public class AverageMetric implements SubscribedMetric<Float>{
 
 	@Override
 	public String getDisplayName() {
-		return "avg";
+		return "std_avg";
 	}
 
 }

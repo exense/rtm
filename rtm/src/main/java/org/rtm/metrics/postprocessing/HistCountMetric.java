@@ -20,7 +20,7 @@ public class HistCountMetric implements SubscribedMetric<Long>{
 
 	@Override
 	public String getDisplayName() {
-		return "hcnt";
+		return "cnt";
 	}
 
 }
