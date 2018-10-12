@@ -46,6 +46,17 @@ public class RequestHandler {
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
 
+		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
+		if(useHeuristic)
+		{
+			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
+			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
+			int optimalHistApp = (int)Math.round(DBClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
+			prop.put("aggregateService.histSize", "100");
+			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
+			logger.info("Using value " + optimalHistApp + " for histApp heuristic.");
+		}
+		
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 

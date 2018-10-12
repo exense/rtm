@@ -1,22 +1,27 @@
 package org.rtm.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.bson.Document;
 import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.MeasurementConstants;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCursor;
 
 public class DBClient {
 
-	//private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
 
 	MeasurementAccessor ma = MeasurementAccessor.getInstance();
 
@@ -60,19 +65,14 @@ public class DBClient {
 
 	@SuppressWarnings("rawtypes")
 	public static LongTimeInterval findEffectiveBoundariesViaMongo(LongTimeInterval lti, List<Selector> sel) throws Exception {
-		BsonQuery baseQuery = new BsonQuery(BsonQuery.selectorsToQuery(sel));
-		Document completeQuery =null;
-		if(lti != null)// for compatibility with v1 client
-			completeQuery = mergeTimelessWithTimeCriterion(baseQuery, buildTimeCriterion(lti));
-		else
-			completeQuery = baseQuery;
+		BsonQuery query = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 
 		DBClient db = new DBClient();
 
 		//TODO: get Time key from request Properties
 		//logger.debug(completeQuery.toString());
-		Iterable naturalIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, 1);
-		Iterable reverseIt = db.executeQuery(completeQuery, MeasurementConstants.BEGIN_KEY, -1);
+		Iterable naturalIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1);
+		Iterable reverseIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, -1);
 		Map min = null;
 		Map max = null;
 		try{
@@ -101,4 +101,37 @@ public class DBClient {
 		return Math.abs(timeWindow / targetSeriesDots) + 1;
 	}
 
+	public static long run90PclOnFirstSample(int heuristicSampleSize, List<Selector> sel) {
+		logger.info("Starting sampling of first " + heuristicSampleSize + " data points...");
+		long start = System.currentTimeMillis();
+		BsonQuery query = new BsonQuery(BsonQuery.selectorsToQuery(sel));
+
+		DBClient db = new DBClient();
+
+		SortedSet<Long> sortedValues = new TreeSet<>();
+		
+		Iterator naturalIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1).iterator();
+		int i = 0;
+		while(i < heuristicSampleSize){
+			Map dot = null;
+			try{
+			dot = (Map) naturalIt.next();
+			}catch(Exception e){
+				//no more elements
+				break;
+			}
+			sortedValues.add((Long)dot.get(MeasurementConstants.VALUE_KEY));
+			i++;
+		}
+		((MongoCursor) naturalIt).close();
+		
+		int position = Math.round(sortedValues.size()*0.9F);
+		
+		logger.info("Sampling complete. Duration was "+ (System.currentTimeMillis() - start) +" ms.");
+		
+		if(position >= sortedValues.size())
+			return sortedValues.last();
+		else
+			return sortedValues.toArray(new Long[0])[position];
+	}
 }
