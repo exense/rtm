@@ -13,8 +13,8 @@
 
 	<distributionManagement>
 		<repository>
-			<id>nexus</id>
-			<url>http://nexus.exense.ch/nexus/content/repositories/releases</url>
+			<id>step-enterprise</id>
+			<url>https://nexus-enterprise.exense.ch/repository/step/</url>
 		</repository>
 	</distributionManagement>
 
