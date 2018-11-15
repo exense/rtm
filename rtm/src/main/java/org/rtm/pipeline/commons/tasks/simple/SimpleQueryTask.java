@@ -1,10 +1,11 @@
-package org.rtm.pipeline.tasks;
+package org.rtm.pipeline.commons.tasks.simple;
 
 import java.util.List;
 
 import org.rtm.db.BsonQuery;
 import org.rtm.db.DBClient;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
+import org.rtm.pipeline.commons.tasks.RangeTask;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
@@ -29,3 +30,4 @@ public class SimpleQueryTask implements RangeTask {
 		return lrv;
 	}
 }
+

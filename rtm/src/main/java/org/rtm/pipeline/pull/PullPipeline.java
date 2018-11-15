@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.Pipeline;
-import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
+import org.rtm.pipeline.pull.builders.pipeline.PullPipelineBuilder;
 import org.rtm.stream.result.ResultHandler;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

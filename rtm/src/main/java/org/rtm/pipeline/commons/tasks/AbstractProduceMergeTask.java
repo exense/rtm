@@ -1,4 +1,4 @@
-package org.rtm.pipeline.tasks;
+package org.rtm.pipeline.commons.tasks;
 
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;

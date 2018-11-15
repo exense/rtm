@@ -13,11 +13,9 @@ import org.rtm.stream.LongRangeValue;
 public class MeasurementAccumulator {
 	
 	private MeasurementHelper mh;
-	private Properties prop;
 	private AccumulationManager amgr;
 	
 	public MeasurementAccumulator(Properties prop){
-		this.prop = prop;
 		this.mh = new MeasurementHelper(prop);
 		this.amgr = new AccumulationManager(prop);
 	}

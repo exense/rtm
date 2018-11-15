@@ -1,5 +1,6 @@
-package org.rtm.pipeline.pull.builders;
+package org.rtm.pipeline.pull.builders.pipeline;
 
+import org.rtm.pipeline.pull.builders.task.PullTaskBuilder;
 import org.rtm.pipeline.pull.callables.PullCallable;
 import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;

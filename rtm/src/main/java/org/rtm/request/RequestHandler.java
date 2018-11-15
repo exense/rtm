@@ -9,10 +9,10 @@ import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.PipelineExecutionHelper;
 import org.rtm.pipeline.pull.PullPipeline;
-import org.rtm.pipeline.pull.builders.PartitionedPullQueryBuilder;
-import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
-import org.rtm.pipeline.pull.builders.PullTaskBuilder;
-import org.rtm.pipeline.pull.builders.SimplePipelineBuilder;
+import org.rtm.pipeline.pull.builders.pipeline.PullPipelineBuilder;
+import org.rtm.pipeline.pull.builders.pipeline.SimplePullPipelineBuilder;
+import org.rtm.pipeline.pull.builders.task.PartitionedPullTaskBuilder;
+import org.rtm.pipeline.pull.builders.task.PullTaskBuilder;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.Stream;
@@ -60,13 +60,15 @@ public class RequestHandler {
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
+		//TODO: compute target number of subbuckets and raise warning or circuit-break if > 1M?
+		
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
 		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
-		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
-		PullPipelineBuilder ppb = new SimplePipelineBuilder(
+		PullTaskBuilder tb = new PartitionedPullTaskBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
+		PullPipelineBuilder ppb = new SimplePullPipelineBuilder(
 				effective.getBegin(), effective.getEnd(),
 				optimalSize, rh, tb);
 

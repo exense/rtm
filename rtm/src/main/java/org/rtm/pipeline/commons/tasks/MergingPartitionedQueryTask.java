@@ -1,4 +1,4 @@
-package org.rtm.pipeline.tasks;
+package org.rtm.pipeline.commons.tasks;
 
 import java.util.List;
 import java.util.Properties;

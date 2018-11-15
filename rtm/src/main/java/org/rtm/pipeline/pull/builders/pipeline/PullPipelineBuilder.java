@@ -1,4 +1,4 @@
-package org.rtm.pipeline.pull.builders;
+package org.rtm.pipeline.pull.builders.pipeline;
 
 public interface PullPipelineBuilder {
 
