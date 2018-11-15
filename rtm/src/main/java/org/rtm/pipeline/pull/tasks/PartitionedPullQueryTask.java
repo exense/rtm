@@ -1,4 +1,4 @@
-package org.rtm.pipeline.pull.builders.tasks;
+package org.rtm.pipeline.pull.tasks;
 
 import java.util.List;
 import java.util.Properties;
@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
 import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
+import org.rtm.pipeline.pull.builders.PullQueryBuilder;
+import org.rtm.pipeline.pull.builders.PullTaskBuilder;
 import org.rtm.pipeline.pull.builders.SimplePipelineBuilder;
 import org.rtm.pipeline.tasks.MergingPartitionedQueryTask;
 import org.rtm.range.RangeBucket;

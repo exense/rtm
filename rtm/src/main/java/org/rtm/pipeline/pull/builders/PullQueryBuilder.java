@@ -1,4 +1,4 @@
-package org.rtm.pipeline.pull.builders.tasks;
+package org.rtm.pipeline.pull.builders;
 
 import java.util.List;
 

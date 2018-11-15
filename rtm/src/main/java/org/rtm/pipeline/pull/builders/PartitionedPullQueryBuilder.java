@@ -1,8 +1,9 @@
-package org.rtm.pipeline.pull.builders.tasks;
+package org.rtm.pipeline.pull.builders;
 
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.pipeline.pull.tasks.PartitionedPullQueryTask;
 import org.rtm.pipeline.tasks.RangeTask;
 import org.rtm.request.selection.Selector;
 

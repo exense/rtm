@@ -1,4 +1,4 @@
-package org.rtm.pipeline;
+package org.rtm.pipeline.commons;
 
 import java.util.concurrent.Executors;
 
@@ -7,7 +7,7 @@ import org.rtm.stream.Stream;
 
 public class PipelineExecutionHelper {
 
-	public static void executeAndsetListeners(PullPipeline pp, Stream<Long> stream) {
+	public static void executeAndsetListeners(Pipeline pp, Stream<Long> stream) {
 		Runnable waiter = new Runnable() {
 
 			@Override
