@@ -1,6 +1,6 @@
 package org.rtm.pipeline.pull.callables;
 
-import org.rtm.pipeline.pull.builders.task.PullTaskBuilder;
+import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;
@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class PullCallable implements Runnable{
+public class PullRunable implements Runnable{
 
-	private static final Logger logger = LoggerFactory.getLogger(PullCallable.class);
+	private static final Logger logger = LoggerFactory.getLogger(PullRunable.class);
 
 	protected OptimisticRangePartitioner partitioner;
 	protected ResultHandler rh;
-	protected PullTaskBuilder tb;
+	protected RangeTaskBuilder tb;
 
-	public PullCallable(OptimisticRangePartitioner partitioner, ResultHandler rh, PullTaskBuilder tb){
+	public PullRunable(OptimisticRangePartitioner partitioner, ResultHandler rh, RangeTaskBuilder tb){
 		this.partitioner = partitioner;
 		this.rh = rh;
 		this.tb = tb;

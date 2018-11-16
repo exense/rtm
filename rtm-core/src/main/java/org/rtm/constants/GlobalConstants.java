@@ -1,4 +1,4 @@
-package org.rtm.rest.security;
+package org.rtm.constants;
 
 public class GlobalConstants {
 

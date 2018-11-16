@@ -16,19 +16,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.rest.aggregation;
+package org.rtm.request.aggregation;
 
 import java.util.List;
 
 import org.rtm.stream.Stream;
 
 @SuppressWarnings("rawtypes")
-public class WrappedResult {
+public class StreamResponseWrapper {
 
 	private Stream stream;
 	private List<String> metricList;
 	
-	public WrappedResult(Stream stream, List<String> metricList) {
+	public StreamResponseWrapper(){}
+	
+	public StreamResponseWrapper(Stream stream, List<String> metricList) {
 		super();
 		this.stream = stream;
 		this.metricList = metricList;

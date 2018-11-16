@@ -19,13 +19,22 @@
 package org.rtm.rest.partitioner;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.measurement.MeasurementStatistics;
+import org.rtm.metrics.postprocessing.MetricsManager;
+import org.rtm.request.AbstractResponse;
+import org.rtm.request.ErrorResponse;
 import org.rtm.request.PartitionerService;
+import org.rtm.request.SuccessResponse;
+import org.rtm.request.aggregation.StreamResponseWrapper;
+import org.rtm.stream.Stream;
+import org.rtm.stream.StreamBroker;
+import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +46,47 @@ import org.slf4j.LoggerFactory;
 public class PartitionerServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(PartitionerServlet.class);
-	private PartitionerService mserv = new PartitionerService();
+	private static StreamBroker streamBroker = new StreamBroker();
+	private PartitionerService partitionerService = new PartitionerService(streamBroker);
 
-	@GET
+	@POST
 	@Path("/partition")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSomething()
-	 {
-		return Response.status(200).entity("hello world").build();
+	public Response partitionBucket(PartitionerRequest req) throws Exception
+	{
+		StreamId streamId = partitionerService.processBucket(req.getSel(), req.getProp(), req.getSubPartitioning(),
+				req.getSubPoolSize(), req.getTimeoutSecs(), req.getStart(), req.getEnd(), req.getIncrement(), req.getOptimalSize());
+
+		return Response.status(200).entity(streamId).build();
+	}
+
+	@POST
+	@Path("/read")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response refreshResutStreamForId(StreamId streamId) {
+		AbstractResponse rtmResponse = null;
+		try {
+			@SuppressWarnings("rawtypes")
+			Stream s = this.streamBroker.getStreamAndFlagForRefresh(streamId);
+			Stream result = null;
+			if(s.isCompositeStream())
+				result = s;
+			else{
+				result = new MetricsManager(s.getStreamProp()).handle(s);
+				result.setComplete(s.isComplete());
+			}
+			StreamResponseWrapper wr = new StreamResponseWrapper(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());
+			//logger.debug(result.toString());
+			rtmResponse = new SuccessResponse(wr,
+					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
+		} catch (Exception e) {
+			String message = "A problem occured while retrieving stream with request= " + streamId; 
+			logger.error(message, e);
+			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+		}
+		return Response.status(200).entity(rtmResponse).build();
 	}
 
 }

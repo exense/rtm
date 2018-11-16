@@ -5,11 +5,11 @@ import java.util.Properties;
 
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.tasks.MergingPartitionedQueryTask;
-import org.rtm.pipeline.pull.PullPipeline;
-import org.rtm.pipeline.pull.builders.pipeline.PullPipelineBuilder;
-import org.rtm.pipeline.pull.builders.pipeline.SimplePullPipelineBuilder;
+import org.rtm.pipeline.pull.PullPipelineExecutor;
+import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
+import org.rtm.pipeline.pull.builders.pipeline.PullRunableBuilder;
 import org.rtm.pipeline.pull.builders.query.PullQueryBuilder;
-import org.rtm.pipeline.pull.builders.task.PullTaskBuilder;
+import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.range.RangeBucket;
 import org.rtm.selection.Selector;
 
@@ -24,16 +24,20 @@ public class PartitionedPullQueryTask extends MergingPartitionedQueryTask{
 	@Override
 	protected void executeParallel(RangeBucket<Long> bucket) throws Exception {
 
-		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.prop);
+		/* SHIP TO WORKER */
+		
+		RangeTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator);
 
-		PullPipelineBuilder ppb = new SimplePullPipelineBuilder(
+		RunableBuilder ppb = new PullRunableBuilder(
 				bucket.getLowerBound(),
 				bucket.getUpperBound(),
 				super.subsize, super.resultHandler, tb);
 
-		PullPipeline pp = new PullPipeline(ppb, poolSize, super.timeoutSecs, BlockingMode.BLOCKING);
+		PullPipelineExecutor pp = new PullPipelineExecutor(ppb, poolSize, super.timeoutSecs, BlockingMode.BLOCKING);
 
 		pp.execute();
+		
+		/**/
 	}
 
 }

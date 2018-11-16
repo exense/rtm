@@ -48,8 +48,7 @@ public class RequestHandlerTest {
 		ar.getServiceParams().put("aggregateService.cpu", "4");
 		//ar.getServiceParams().put("targetChartDots", "1");
 
-		StreamBroker ssm = new StreamBroker();
-		RequestHandler rh = new RequestHandler(ssm);
+		RequestHandler rh = new RequestHandler();
 
 		IntStream.rangeClosed(1, 1).forEach(i -> {
 
@@ -62,7 +61,10 @@ public class RequestHandlerTest {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			Stream stream = ssm.getStream(((StreamId)response.getPayload()));
+			
+			Stream stream = new Stream<>(props);
+			//TODO
+			// ssm.getStream(((StreamId)response.getPayload()));
 
 			long waitInterval = 500;
 
@@ -70,7 +72,6 @@ public class RequestHandlerTest {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -141,7 +142,7 @@ public class RequestHandlerTest {
 		//ar.getServiceParams().put("targetChartDots", "1");
 
 		StreamBroker ssm = new StreamBroker();
-		RequestHandler rh = new RequestHandler(ssm);
+		RequestHandler rh = new RequestHandler();
 
 		IntStream.rangeClosed(1, 2).forEach(i -> {
 
@@ -150,7 +151,7 @@ public class RequestHandlerTest {
 			long start = System.currentTimeMillis();
 			AbstractResponse response = null;
 			try {
-				response = new SuccessResponse(rh.compare(cr), "Stream initialized. Call the streaming service next to start retrieving data.");
+				//response = new SuccessResponse(rh.compare(cr), "Stream initialized. Call the streaming service next to start retrieving data.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

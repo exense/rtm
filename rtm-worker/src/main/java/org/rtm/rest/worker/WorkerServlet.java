@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.rtm.request.WorkerService;
+import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,15 +38,18 @@ import org.slf4j.LoggerFactory;
 public class WorkerServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(WorkerServlet.class);
-	private WorkerService mserv = new WorkerService();
+	private WorkerService workerService = new WorkerService();
 
-	@GET
+	POST
 	@Path("/work")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSomething()
+	public Response workBucket(WorkerRequest req) throws Exception
 	 {
-		return Response.status(200).entity("hello world").build();
+		StreamId streamId = workerService.processBucket(req.getSel(), req.getProp(), req.getSubPartitioning(),
+				req.getSubPoolSize(), req.getTimeoutSecs(), req.getStart(), req.getEnd(), req.getIncrement(), req.getOptimalSize());
+		
+		return Response.status(200).entity(streamId).build();
 	}
 
 }

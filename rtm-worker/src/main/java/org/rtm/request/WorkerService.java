@@ -18,13 +18,22 @@
  *******************************************************************************/
 package org.rtm.request;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
-import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.pipeline.commons.BlockingMode;
+import org.rtm.pipeline.commons.PipelineExecutionHelper;
+import org.rtm.pipeline.pull.PullPipelineExecutor;
+import org.rtm.pipeline.pull.builders.pipeline.PullRunableBuilder;
+import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
+import org.rtm.pipeline.pull.builders.task.PartitionedRangeTaskBuilder;
+import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.selection.Selector;
+import org.rtm.stream.Stream;
+import org.rtm.stream.StreamBroker;
+import org.rtm.stream.StreamId;
+import org.rtm.stream.result.ResultHandler;
+import org.rtm.stream.result.StreamResultHandler;
 
 
 /**
@@ -33,18 +42,40 @@ import org.rtm.selection.Selector;
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class WorkerService{
+	
+	private static StreamBroker streamBroker = new StreamBroker();
 
-	public WorkerService(){}
+	public StreamId processBucket(List<Selector> sel, Properties prop, long subPartitioning, int subPoolSize, int timeoutSecs,
+			long start, long end, long increment, long optimalSize) throws Exception{
 
-	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
-		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Iterable it = new DBClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, 1, skip, limit);
+		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
+		ResultHandler<Long> rh = new StreamResultHandler(stream);
+		
+		/*Partitioning logic - how do we produce ranges*/
+		RangeTaskBuilder tb = new PartitionedRangeTaskBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
+		
+		/*Pull logic - produce runables which will do work while the partioner still has ranges*/
+		RunableBuilder runableBuilder = new PullRunableBuilder(
+				start, end, increment, rh, tb);
 
-		for(Object o : it){
-			Map<String, Object> m = (Map) o;
-			res.add(m);
-		}
+		// It's only useful to // at this level if we're looking to produce highly granular results,
+		// which should almost never be the case
+		PullPipelineExecutor pp = new PullPipelineExecutor(runableBuilder, /*poolSize*/ 1, timeoutSecs, BlockingMode.BLOCKING);
 
-		return res;
+		PipelineExecutionHelper.executeAndsetListeners(pp, stream);
+
+		streamBroker.registerStreamSession(stream);
+
+		return stream.getId();
+	}
+	
+	private Stream<Long> initStream(long timeout, Long optimalSize, Properties prop) {
+		
+		prop.setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
+				
+		Stream<Long> stream = new Stream<>(prop);
+		stream.setTimeoutDurationSecs(timeout);
+
+		return stream;
 	}
 }

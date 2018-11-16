@@ -16,15 +16,15 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 import org.rtm.commons.TransportClient;
 import org.rtm.commons.TransportException;
+import org.rtm.constants.GlobalConstants;
 import org.rtm.rest.ingestion.IngestionConstants;
-import org.rtm.rest.security.GlobalConstants;
 import org.rtm.utils.MeasurementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpClient implements TransportClient {
+public class MeasurementClient implements TransportClient {
 	
-	private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(MeasurementClient.class);
 	
 	private PoolingHttpClientConnectionManager cm;
 	private CloseableHttpClient httpClient;
@@ -34,11 +34,11 @@ public class HttpClient implements TransportClient {
 	private int port;
 	private int maxConnections;
 
-	public HttpClient(String hostname, int port){
+	public MeasurementClient(String hostname, int port){
 		this(hostname, port, 50);
 	}
 	
-	public HttpClient(String hostname, int port, int maxConnections){
+	public MeasurementClient(String hostname, int port, int maxConnections){
 		
 		this.hostname = hostname;
 		this.port = port;

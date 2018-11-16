@@ -1,5 +1,6 @@
 package org.rtm.stream.result;
 
+import org.rtm.stream.Dimension;
 import org.rtm.stream.PayloadIdentifier;
 import org.rtm.stream.Stream;
 import org.slf4j.Logger;
@@ -16,14 +17,14 @@ public class StreamResultHandler implements ResultHandler<Long>{
 	}
 
 	public void attachResult(AggregationResult<Long> tv) {
-
+		
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
 		
 		if(stream == null){
 			logger.error("Can not attach result to null stream. Stream with id " + stream.getId() + " was probably evicted too early.");
 		}else{
-			if(stream == null || stream.getStreamData() == null)
-				throw new RuntimeException("Null Stream or Stream Data. Stream may have timed out : " + stream.getId());
+			if(stream.getStreamData() == null)
+				throw new RuntimeException("Stream Data is null. Stream may have timed out : " + stream.getId());
 			else
 				stream.getStreamData().put(id.getIdAsTypedObject(), tv);
 		}

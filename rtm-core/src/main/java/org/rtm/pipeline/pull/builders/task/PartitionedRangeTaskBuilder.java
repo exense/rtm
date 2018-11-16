@@ -7,14 +7,14 @@ import org.rtm.pipeline.commons.tasks.RangeTask;
 import org.rtm.pipeline.pull.tasks.PartitionedPullQueryTask;
 import org.rtm.selection.Selector;
 
-public class PartitionedPullTaskBuilder implements PullTaskBuilder{
+public class PartitionedRangeTaskBuilder implements RangeTaskBuilder{
 	private List<Selector> selectors;
 	private Properties prop;
 	private int subPoolSize;
 	private long partitioningFactor;
 	private long timeoutSecs;
 
-	public PartitionedPullTaskBuilder(List<Selector> selectors, Properties prop,
+	public PartitionedRangeTaskBuilder(List<Selector> selectors, Properties prop,
 			long partitioningFactor, int subPoolSize, long timeoutSecs){
 		this.selectors = selectors;
 		this.partitioningFactor = partitioningFactor;

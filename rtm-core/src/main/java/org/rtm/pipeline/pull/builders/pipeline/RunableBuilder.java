@@ -1,6 +1,6 @@
 package org.rtm.pipeline.pull.builders.pipeline;
 
-public interface PullPipelineBuilder {
+public interface RunableBuilder {
 
 	public Runnable buildRunnable();	
 }
