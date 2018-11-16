@@ -1,4 +1,4 @@
-package org.rtm.pipeline.pull.builders.pipeline;
+package org.rtm.pipeline.builders.pipeline;
 
 public interface RunableBuilder {
 

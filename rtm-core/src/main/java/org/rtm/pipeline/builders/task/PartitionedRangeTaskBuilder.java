@@ -1,10 +1,10 @@
-package org.rtm.pipeline.pull.builders.task;
+package org.rtm.pipeline.builders.task;
 
 import java.util.List;
 import java.util.Properties;
 
 import org.rtm.pipeline.commons.tasks.RangeTask;
-import org.rtm.pipeline.pull.tasks.PartitionedPullQueryTask;
+import org.rtm.pipeline.tasks.PartitionedPullQueryTask;
 import org.rtm.selection.Selector;
 
 public class PartitionedRangeTaskBuilder implements RangeTaskBuilder{

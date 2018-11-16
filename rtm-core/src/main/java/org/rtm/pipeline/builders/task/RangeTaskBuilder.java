@@ -1,4 +1,4 @@
-package org.rtm.pipeline.pull.builders.task;
+package org.rtm.pipeline.builders.task;
 
 import org.rtm.pipeline.commons.tasks.RangeTask;
 

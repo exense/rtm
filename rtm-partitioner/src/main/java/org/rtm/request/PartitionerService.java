@@ -19,21 +19,19 @@
 package org.rtm.request;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.rtm.pipeline.PullPipelineExecutor;
+import org.rtm.pipeline.builders.pipeline.PullRunableBuilder;
+import org.rtm.pipeline.builders.pipeline.RunableBuilder;
+import org.rtm.pipeline.builders.task.PartitionedRangeTaskBuilder;
+import org.rtm.pipeline.builders.task.RangeTaskBuilder;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.PipelineExecutionHelper;
-import org.rtm.pipeline.pull.PullPipelineExecutor;
-import org.rtm.pipeline.pull.builders.pipeline.PullRunableBuilder;
-import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
-import org.rtm.pipeline.pull.builders.task.PartitionedRangeTaskBuilder;
-import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.selection.Selector;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
-import org.rtm.stream.result.AggregationResult;
 import org.rtm.stream.result.ResultHandler;
 import org.rtm.stream.result.StreamResultHandler;
 

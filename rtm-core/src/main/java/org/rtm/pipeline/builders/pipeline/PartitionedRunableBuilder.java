@@ -1,7 +1,6 @@
-package org.rtm.pipeline.pull.builders.pipeline;
+package org.rtm.pipeline.builders.pipeline;
 
-import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
-import org.rtm.pipeline.pull.callables.PullRunable;
+import org.rtm.pipeline.builders.task.RangeTaskBuilder;
 import org.rtm.range.OptimisticLongPartitioner;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.stream.result.ResultHandler;

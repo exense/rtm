@@ -1,12 +1,12 @@
-package org.rtm.pipeline.pull;
+package org.rtm.pipeline;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import org.rtm.pipeline.builders.pipeline.RunableBuilder;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.Pipeline;
-import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
 import org.rtm.stream.result.ResultHandler;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

@@ -21,9 +21,9 @@ package org.rtm.request;
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.pipeline.PullPipelineExecutor;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.PipelineExecutionHelper;
-import org.rtm.pipeline.pull.PullPipelineExecutor;
 import org.rtm.pipeline.pull.builders.pipeline.PullRunableBuilder;
 import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
 import org.rtm.pipeline.pull.builders.task.PartitionedRangeTaskBuilder;

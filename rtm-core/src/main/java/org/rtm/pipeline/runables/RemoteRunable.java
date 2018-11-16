@@ -1,6 +1,6 @@
-package org.rtm.pipeline.pull.callables;
+package org.rtm.pipeline.runables;
 
-import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
+import org.rtm.pipeline.builders.task.RangeTaskBuilder;
 import org.rtm.range.OptimisticRangePartitioner;
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.LongRangeValue;
@@ -9,15 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class PullRunable implements Runnable{
+public class RemoteRunable implements Runnable{
 
-	private static final Logger logger = LoggerFactory.getLogger(PullRunable.class);
+	private static final Logger logger = LoggerFactory.getLogger(RemoteRunable.class);
 
 	protected OptimisticRangePartitioner partitioner;
 	protected ResultHandler rh;
 	protected RangeTaskBuilder tb;
 
-	public PullRunable(OptimisticRangePartitioner partitioner, ResultHandler rh, RangeTaskBuilder tb){
+	public RemoteRunable(OptimisticRangePartitioner partitioner, ResultHandler rh, RangeTaskBuilder tb){
 		this.partitioner = partitioner;
 		this.rh = rh;
 		this.tb = tb;
@@ -26,6 +26,10 @@ public class PullRunable implements Runnable{
 	@Override
 	public final void run() {
 		try {
+			
+			// Use grid here to figure out which agent has an available slot
+			// "Ship" Range to it
+			
 			RangeBucket bucket;
 			while((bucket = splitRange()) != null)
 				harvestRange(processRange(bucket));
@@ -34,6 +38,7 @@ public class PullRunable implements Runnable{
 		}
 	}
 
+	//TODO: move common code to an abstract class (AbstractRunnable)
 	public RangeBucket splitRange(){
 		return this.partitioner.next();
 	}

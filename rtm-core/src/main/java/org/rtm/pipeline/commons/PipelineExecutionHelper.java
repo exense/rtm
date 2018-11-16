@@ -2,7 +2,7 @@ package org.rtm.pipeline.commons;
 
 import java.util.concurrent.Executors;
 
-import org.rtm.pipeline.pull.PullPipelineExecutor;
+import org.rtm.pipeline.PullPipelineExecutor;
 import org.rtm.stream.Stream;
 
 public class PipelineExecutionHelper {

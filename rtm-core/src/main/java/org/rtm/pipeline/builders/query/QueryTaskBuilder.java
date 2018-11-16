@@ -1,11 +1,11 @@
-package org.rtm.pipeline.pull.builders.query;
+package org.rtm.pipeline.builders.query;
 
 import java.util.List;
 import java.util.Properties;
 
+import org.rtm.pipeline.builders.task.RangeTaskBuilder;
 import org.rtm.pipeline.commons.tasks.BackendQueryTask;
 import org.rtm.pipeline.commons.tasks.RangeTask;
-import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.selection.Selector;
 
 public class QueryTaskBuilder implements RangeTaskBuilder{
