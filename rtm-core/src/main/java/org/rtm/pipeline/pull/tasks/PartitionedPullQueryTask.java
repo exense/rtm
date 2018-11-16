@@ -8,7 +8,7 @@ import org.rtm.pipeline.commons.tasks.MergingPartitionedQueryTask;
 import org.rtm.pipeline.pull.PullPipelineExecutor;
 import org.rtm.pipeline.pull.builders.pipeline.RunableBuilder;
 import org.rtm.pipeline.pull.builders.pipeline.PullRunableBuilder;
-import org.rtm.pipeline.pull.builders.query.PullQueryBuilder;
+import org.rtm.pipeline.pull.builders.query.QueryTaskBuilder;
 import org.rtm.pipeline.pull.builders.task.RangeTaskBuilder;
 import org.rtm.range.RangeBucket;
 import org.rtm.selection.Selector;
@@ -26,7 +26,8 @@ public class PartitionedPullQueryTask extends MergingPartitionedQueryTask{
 
 		/* SHIP TO WORKER */
 		
-		RangeTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator);
+		//RangeTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator);
+		RangeTaskBuilder tb = new QueryTaskBuilder(super.sel, super.prop);
 
 		RunableBuilder ppb = new PullRunableBuilder(
 				bucket.getLowerBound(),
