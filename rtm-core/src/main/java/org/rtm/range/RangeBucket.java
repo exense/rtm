@@ -7,6 +7,8 @@ public class RangeBucket<T>{
 	private T lowerBound;
 	private T upperBound;
 	
+	public RangeBucket(){}
+	
 	public RangeBucket(T lowerBound, T upperBound){
 		this.setLowerBound(lowerBound);
 		this.setUpperBound(upperBound);

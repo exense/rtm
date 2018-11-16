@@ -8,6 +8,8 @@ public abstract class Dimension<K, V> extends HashMap<String, Object>{
 
 	private String dimensionName;
 
+	public Dimension(){}
+	
 	public Dimension(String name){
 		setDimensionName(name);
 	}

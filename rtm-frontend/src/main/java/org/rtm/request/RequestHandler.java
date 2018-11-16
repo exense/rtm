@@ -54,7 +54,6 @@ public class RequestHandler {
 		/* SHIP TO PARTITIONER */
 		// Add map of <streamId,partitionerId> to know where to forward the stream refresh calls
 
-		//ship!
 		HttpClient client = new HttpClient("localhost", 8098);
 		PartitionerRequest req = new PartitionerRequest();
 		req.setSubPoolSize(subPoolSize);

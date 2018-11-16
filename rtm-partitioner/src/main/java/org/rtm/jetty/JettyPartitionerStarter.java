@@ -64,6 +64,8 @@ public class JettyPartitionerStarter {
 
 	public void start() throws Exception {
 
+		System.out.println("--- Starting Partitioner Server ---");
+		
 		//handlers = new ContextHandlerCollection();
 		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));
 		server = new Server(rtmPort);

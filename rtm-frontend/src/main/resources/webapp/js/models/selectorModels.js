@@ -10,12 +10,12 @@ var backendSelectorFunctions = {
 
   setNumFilters : function(nf){ this.numericalFilters=nf;},
 
-  addKVR : function(key, value, regex){
+  addKVR : function(key, value, isRegex){
     this.textFilters.push(
     {
       'key' : key,
       'value' : value,
-      'regex' : regex,
+      'isRegex' : isRegex,
     }
     );
   },
@@ -78,7 +78,7 @@ var TextFilter = function () {
   this.type = 'text';
   this.key = null;
   this.value = null;
-  this.regex = false;
+  this.isRegex = false;
 };
 
 var NumericalFilter = function () {

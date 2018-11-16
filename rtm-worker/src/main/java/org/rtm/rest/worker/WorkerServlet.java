@@ -19,16 +19,14 @@
 package org.rtm.rest.worker;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.rtm.request.WorkerRequest;
 import org.rtm.request.WorkerService;
-import org.rtm.stream.StreamId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author doriancransac
@@ -37,19 +35,18 @@ import org.slf4j.LoggerFactory;
 @Path("/worker")
 public class WorkerServlet {
 
-	private static final Logger logger = LoggerFactory.getLogger(WorkerServlet.class);
+	//private static final Logger logger = LoggerFactory.getLogger(WorkerServlet.class);
 	private WorkerService workerService = new WorkerService();
 
-	POST
+	@POST
 	@Path("/work")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response workBucket(WorkerRequest req) throws Exception
 	 {
-		StreamId streamId = workerService.processBucket(req.getSel(), req.getProp(), req.getSubPartitioning(),
-				req.getSubPoolSize(), req.getTimeoutSecs(), req.getStart(), req.getEnd(), req.getIncrement(), req.getOptimalSize());
-		
-		return Response.status(200).entity(streamId).build();
+		return Response.status(200).entity(
+				workerService.produceValueForBucket(req.getSelectors(), req.getRangeBucket(), req.getProp())
+				).build();
 	}
 
 }

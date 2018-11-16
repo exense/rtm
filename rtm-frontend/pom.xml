@@ -132,7 +132,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Main-Class>org.rtm.jetty.JettyStarter</Main-Class>
+							<Main-Class>org.rtm.jetty.JettyFrontendStarter</Main-Class>
 						</manifestEntries>
 					</archive>
 					<appendAssemblyId>true</appendAssemblyId>

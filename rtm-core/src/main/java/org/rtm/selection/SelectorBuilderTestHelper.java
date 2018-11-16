@@ -17,14 +17,14 @@ public class SelectorBuilderTestHelper {
 		TextFilter tf = new TextFilter();
 		tf.setKey("name");
 		tf.setValue("Transaction.*");
-		tf.setRegex(true);
+		tf.setIsRegex(true);
 
 		
 		TextFilter regTf = new TextFilter();
 		regTf.setKey("eId");
 		//regTf.setValue("JUnit.*");
 		regTf.setValue(".*");
-		regTf.setRegex(true);
+		regTf.setIsRegex(true);
 
 		Selector sel = new Selector();
 		sel.addNumericalFilter(nf);

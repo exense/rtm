@@ -79,7 +79,7 @@ public class BsonQuery extends Document {
 			BasicDBObject textFilter = new BasicDBObject();
 			Object local = null;
 
-			if (f.isRegex())
+			if (f.getIsRegex())
 				local = new BasicDBObject("$regex", f.getValue());
 			else
 				local = f.getValue();

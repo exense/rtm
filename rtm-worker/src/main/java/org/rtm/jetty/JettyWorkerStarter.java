@@ -67,6 +67,8 @@ public class JettyWorkerStarter {
 
 	public void start() throws Exception {
 
+		System.out.println("--- Starting Worker Server ---");
+		
 		//handlers = new ContextHandlerCollection();
 		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));
 		server = new Server(rtmPort);

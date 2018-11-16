@@ -42,7 +42,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
  * @author dcransac
  *
  */
-public class JettyStarter {
+public class JettyFrontendStarter {
 	
 	private Server server;
 	//private ContextHandlerCollection handlers;
@@ -62,7 +62,7 @@ public class JettyStarter {
 		Configuration.initSingleton(new File(agentConfStr));
 		
 		try {
-			new JettyStarter().start();
+			new JettyFrontendStarter().start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -70,6 +70,8 @@ public class JettyStarter {
 	}
 
 	public void start() throws Exception {
+		
+		System.out.println("--- Starting Frontend Server ---");
 		
 		//handlers = new ContextHandlerCollection();
 		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));

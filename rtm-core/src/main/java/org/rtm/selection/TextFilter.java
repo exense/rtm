@@ -24,10 +24,10 @@ public class TextFilter {
 	private String key;
 	private String value;
 	
-	public boolean isRegex() {
+	public boolean getIsRegex() {
 		return isRegex;
 	}
-	public void setRegex(boolean isRegex) {
+	public void setIsRegex(boolean isRegex) {
 		this.isRegex = isRegex;
 	}
 	public String getKey() {
@@ -43,6 +43,6 @@ public class TextFilter {
 		this.value = value;
 	}
 	public String toString(){
-		return "["+this.getKey()+":"+this.getValue()+", regex=" + this.isRegex()+"]";
+		return "["+this.getKey()+":"+this.getValue()+", regex=" + this.getIsRegex()+"]";
 	}
 }

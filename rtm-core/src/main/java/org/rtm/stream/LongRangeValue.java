@@ -13,6 +13,8 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 
 	private Identifier<Long> ti;
 
+	public LongRangeValue(){}
+	
 	public LongRangeValue(Long id){
 		super();
 		this.ti = new TimeBasedPayloadIdentifier(id);
