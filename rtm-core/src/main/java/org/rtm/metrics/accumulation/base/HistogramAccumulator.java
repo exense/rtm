@@ -20,7 +20,14 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 
 	@Override
 	public WorkObject buildStateObject() {
-		return new HistogramAccumulatorState(nbPairs, approxMs);
+		return new HistogramAccumulatorState(this.nbPairs, this.approxMs);
+		/*
+		HistogramAccumulatorState state = new HistogramAccumulatorState();
+		state.setApproxMs(this.approxMs);
+		state.setNbPairs(this.nbPairs);
+		state.initArray();
+		return state;
+		*/
 	}
 
 	@Override
@@ -41,14 +48,6 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 	@Override
 	public Histogram getValue(WorkObject wobj) {
 		return (Histogram) wobj;
-	}
-
-	public class HistogramAccumulatorState extends Histogram implements WorkObject{
-
-		public HistogramAccumulatorState(int nbPairs, int approxMs) {
-			super(nbPairs, approxMs);
-		}
-
 	}
 
 }

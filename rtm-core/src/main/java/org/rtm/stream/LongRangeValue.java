@@ -4,28 +4,35 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rtm.range.Identifier;
+import org.rtm.serialization.LongRangeValueSerializer;
 import org.rtm.stream.result.AggregationResult;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 @SuppressWarnings("rawtypes")
+@JsonSerialize(using = LongRangeValueSerializer.class)
 public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
 	private static final long serialVersionUID = -2891193441467345217L;
 
-	private Identifier<Long> ti;
+	private Identifier<Long> streamPayloadIdentifier;
 
 	public LongRangeValue(){}
-	
+
 	public LongRangeValue(Long id){
 		super();
-		this.ti = new TimeBasedPayloadIdentifier(id);
+		this.streamPayloadIdentifier = new TimeBasedPayloadIdentifier(id);
 	}
 
 	@Override
 	public PayloadIdentifier<Long> getStreamPayloadIdentifier() {
-		return (PayloadIdentifier<Long>) this.ti;
+		return (PayloadIdentifier<Long>) this.streamPayloadIdentifier;
 	}
-
-
+	
+	public void setStreamPayloadIdentifier(Long id) {
+		this.streamPayloadIdentifier = new TimeBasedPayloadIdentifier(id);
+	}
+	
 	public Dimension getDimension(String dimensionName) {
 		return this.get(dimensionName);
 	}
@@ -33,13 +40,13 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 	public void setDimension(Dimension dimension) {
 		this.put(dimension.getDimensionName(), dimension);
 	}
-	
+
 
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
 		return this;
 	}
-	
+
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
 		this.clear();
@@ -47,7 +54,7 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 			this.put(e.getKey(), e.getValue());
 		});
 	}
-	
+
 	private class TimeBasedPayloadIdentifier implements PayloadIdentifier<Long>{
 
 		Long id;

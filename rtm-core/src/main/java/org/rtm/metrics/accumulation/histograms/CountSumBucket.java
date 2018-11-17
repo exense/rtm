@@ -46,4 +46,12 @@ public class CountSumBucket {
 		res.sum = countSumBucket2.sum - this.sum;
 		return res;
 	}
+
+	public void setCount(long count) {
+		this.count = count;
+	}
+
+	public void setSum(long sum) {
+		this.sum = sum;
+	}
 }

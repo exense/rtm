@@ -3,7 +3,7 @@ package org.rtm.metrics.postprocessing;
 import java.util.Map;
 
 import org.rtm.metrics.WorkObject;
-import org.rtm.metrics.accumulation.base.MaxAccumulator.MaxAccumulatorState;
+import org.rtm.metrics.accumulation.base.MaxAccumulatorState;
 
 public class MaxMetric implements SubscribedMetric<Long>{
 

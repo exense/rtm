@@ -17,11 +17,4 @@ public class SumAccumulator extends LongBinaryAccumulator{
 	public WorkObject buildStateObject() {
 		return new SumAccumulatorState();
 	}
-
-	public class SumAccumulatorState extends LongBinaryAccumulatorState{
-		
-		public SumAccumulatorState() {
-			super((x,y) -> x+y, 0L);
-		}
-	}
 }

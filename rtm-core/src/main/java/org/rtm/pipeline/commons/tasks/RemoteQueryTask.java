@@ -9,13 +9,14 @@ import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.WorkerRequest;
 import org.rtm.selection.Selector;
+import org.rtm.serialization.LongRangeValueDeserializer;
+import org.rtm.serialization.WorkDimensionDeserializer;
+import org.rtm.stream.Dimension;
 import org.rtm.stream.LongRangeValue;
+import org.rtm.stream.WorkDimension;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class RemoteQueryTask implements RangeTask {
 
@@ -29,6 +30,7 @@ public class RemoteQueryTask implements RangeTask {
 		this.prop = prop;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) throws IOException {
 
@@ -38,9 +40,12 @@ public class RemoteQueryTask implements RangeTask {
 		req.setRangeBucket(bucket);
 		req.setProp(this.prop);
 		
+		//TODO: pool/cache/static mapper
 		ObjectMapper om = new ObjectMapper();
-		om.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-	    om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		final SimpleModule module = new SimpleModule();
+        module.addDeserializer(LongRangeValue.class, new LongRangeValueDeserializer());
+        om.registerModule(module);
+ 
 		String response = client.call(om.writeValueAsString(req), "/worker" ,"/work");
 		client.close();
 		return om.readValue(response, LongRangeValue.class);

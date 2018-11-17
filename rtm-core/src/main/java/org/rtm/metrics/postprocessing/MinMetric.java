@@ -3,7 +3,7 @@ package org.rtm.metrics.postprocessing;
 import java.util.Map;
 
 import org.rtm.metrics.WorkObject;
-import org.rtm.metrics.accumulation.base.MinAccumulator.MinAccumulatorState;
+import org.rtm.metrics.accumulation.base.MinAccumulatorState;
 
 public class MinMetric implements SubscribedMetric<Long>{
 

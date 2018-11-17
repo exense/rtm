@@ -6,12 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.rtm.metrics.WorkObject;
-import org.rtm.metrics.accumulation.base.CountAccumulator.CountAccumulatorState;
-import org.rtm.metrics.accumulation.base.LongBinaryAccumulator;
-import org.rtm.metrics.accumulation.base.SumAccumulator.SumAccumulatorState;
-import org.rtm.metrics.accumulation.histograms.CountSumBucket;
-import org.rtm.metrics.accumulation.histograms.Histogram;
 import org.rtm.metrics.postprocessing.SubscribedMetric;
 import org.rtm.stream.FinalDimension;
 import org.rtm.stream.WorkDimension;

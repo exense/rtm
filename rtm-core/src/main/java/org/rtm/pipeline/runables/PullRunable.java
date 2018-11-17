@@ -30,7 +30,7 @@ public class PullRunable implements Runnable{
 			while((bucket = splitRange()) != null)
 				harvestRange(processRange(bucket));
 		} catch (Exception e) {
-			logger.debug("Problem during pipeline execution.", e );
+			logger.debug("Problem during Runable execution.", e );
 		}
 	}
 

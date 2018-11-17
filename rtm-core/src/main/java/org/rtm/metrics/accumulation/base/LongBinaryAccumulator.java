@@ -2,13 +2,14 @@ package org.rtm.metrics.accumulation.base;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.LongAccumulator;
-import java.util.function.LongBinaryOperator;
 
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.Accumulator;
 
 public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 
+	public LongBinaryAccumulator(){}
+	
 	protected abstract String getConcreteAccumulatorKey();
 	
 	@Override
@@ -35,37 +36,5 @@ public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 	}
 	
 	protected abstract Long mergeValues(Long value1, Long value2);
-
-	protected class LongBinaryAccumulatorState implements WorkObject{
-	
-		private LongAccumulator accumulator;
-		private LongBinaryOperator operator;
-		
-		public LongBinaryAccumulatorState(LongBinaryOperator op, Long identity) {
-			super();
-			accumulator = new LongAccumulator(op, identity);
-			operator = op;
-		}
-		
-		public LongAccumulator getAccumulator() {
-			return accumulator;
-		}
-
-		public void setAccumulator(LongAccumulator accumulator) {
-			this.accumulator = accumulator;
-		}
-
-		public LongBinaryOperator getOperator() {
-			return operator;
-		}
-
-		public void setOperator(LongBinaryOperator operator) {
-			this.operator = operator;
-		}
-		
-		public String toString(){
-			return this.accumulator.toString();
-		}
-	}
 	
 }

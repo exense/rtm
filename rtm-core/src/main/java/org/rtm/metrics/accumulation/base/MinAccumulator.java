@@ -4,6 +4,10 @@ import org.rtm.metrics.WorkObject;
 
 public class MinAccumulator extends LongBinaryAccumulator{
 	
+	public MinAccumulator(){
+		super();
+	}
+	
 	@Override
 	protected String getConcreteAccumulatorKey() {
 		return this.getClass().getName();
@@ -17,12 +21,5 @@ public class MinAccumulator extends LongBinaryAccumulator{
 	@Override
 	public WorkObject buildStateObject() {
 		return new MinAccumulatorState();
-	}
-	
-	public class MinAccumulatorState extends LongBinaryAccumulatorState{
-		
-		public MinAccumulatorState() {
-			super((x,y) -> x < y ? x : y, Long.MAX_VALUE);
-		}
 	}
 }

@@ -2,13 +2,19 @@ package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.TreeMultimap;
 
 public class Histogram {
 	
+	@JsonIgnore
 	private int nbPairs;
+	@JsonIgnore
 	private int approxMs;
-	private CountSumBucket[] histogram;
+	public CountSumBucket[] histogram;
+	
+	public Histogram(){
+	}
 	
 	public Histogram(int nbPairs, int approxMs){
 		if(nbPairs > 0){
@@ -25,7 +31,8 @@ public class Histogram {
 		initArray();
 	}
 	
-	private void initArray() {
+	public void initArray() {
+		this.histogram = new CountSumBucket[nbPairs];
 		for(int i=0; i < this.nbPairs; i++)
 			histogram[i] = new CountSumBucket();
 	}
@@ -122,6 +129,10 @@ public class Histogram {
 	}
 	
 	public synchronized void merge(Histogram hist) throws Exception{
+		
+		if(histogram == null || hist == null)
+			throw new Exception("Null histogram.");
+		
 		if(histogram.length != hist.size())
 			throw new Exception("Inconsistent sizes: left=" + histogram.length +"; right="+ hist.size());
 		
@@ -149,18 +160,14 @@ public class Histogram {
 		initArray();
 	}
 	
-	public CountSumBucket[] getHistogramAsArray() {
-		return histogram;
-	}
-	
 	public Histogram diff(Histogram histogram2) throws Exception{
 		
 		if(this.nbPairs != histogram2.nbPairs)
 			throw new Exception("Inconsistent number of pairs=" + this.nbPairs +" vs "+ histogram2.nbPairs);
 		
 		Histogram res = new Histogram(this.nbPairs, this.approxMs);
-		CountSumBucket[] histogram2array = histogram2.getHistogramAsArray();
-		CountSumBucket[] resArray = res.getHistogramAsArray();
+		CountSumBucket[] histogram2array = histogram2.getHistogram();
+		CountSumBucket[] resArray = res.getHistogram();
 		for(int i=0; i < this.nbPairs; i++){
 			resArray[i] = this.histogram[i].diff(histogram2array[i]);
 		}
@@ -177,6 +184,30 @@ public class Histogram {
 			}
 		}
 		return -1;
+	}
+
+	public int getNbPairs() {
+		return nbPairs;
+	}
+
+	public void setNbPairs(int nbPairs) {
+		this.nbPairs = nbPairs;
+	}
+
+	public int getApproxMs() {
+		return approxMs;
+	}
+
+	public void setApproxMs(int approxMs) {
+		this.approxMs = approxMs;
+	}
+
+	public CountSumBucket[] getHistogram() {
+		return histogram;
+	}
+
+	public void setHistogram(CountSumBucket[] histogram) {
+		this.histogram = histogram;
 	}
 	
 }

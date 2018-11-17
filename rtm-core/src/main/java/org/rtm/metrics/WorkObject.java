@@ -1,4 +1,7 @@
 package org.rtm.metrics;
 
-public interface WorkObject {
+import java.io.Serializable;
+
+public interface WorkObject extends Serializable{
+	
 }

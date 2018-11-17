@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.base.CountAccumulator.CountAccumulatorState;
-import org.rtm.metrics.accumulation.base.SumAccumulator.SumAccumulatorState;
+import org.rtm.metrics.accumulation.base.SumAccumulatorState;
 
 public class AverageMetric implements SubscribedMetric<Float>{
 
