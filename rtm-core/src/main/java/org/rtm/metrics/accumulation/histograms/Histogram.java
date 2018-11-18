@@ -2,10 +2,16 @@ package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
 
+import org.rtm.db.DBClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.TreeMultimap;
 
 public class Histogram {
+	@JsonIgnore
+	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
 	
 	@JsonIgnore
 	private int nbPairs;
@@ -211,17 +217,29 @@ public class Histogram {
 	}
 	
 	public long getValueForMark(float pcl) {
-		long curCount = 0;
+		long curDotCount = 0;
+		int bucketCount= 0;
 		long target = (long) (pcl * getTotalCount());
-		
-		Iterator<CountSumBucket> thisMap = buildBucketMapByAverage().values().iterator();
+		TreeMultimap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
+		Iterator<CountSumBucket> thisMap = sortedMap.values().iterator();
 		
 		while(thisMap.hasNext()){
 			CountSumBucket curBucket = thisMap.next();
-			curCount += curBucket.getCount();
-			if(curCount >= target){
+			curDotCount += curBucket.getCount();
+			if(curDotCount >= target){
+				int dotTarget = Math.round(pcl * getTotalCount());
+				long missedTarget = curDotCount - dotTarget;
+				float missedTargetRatio = ((float)missedTarget / (float)dotTarget);
+				//int correctedValue = Math.round(curBucket.getAvg() / (1+missedTargetRatio));
+				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%)."
+				//" + Using corrected value of: " + correctedValue
+				);
+				/* Bucket value */
 				return curBucket.getAvg();
+				/* Corrected value - this is not correct, the difference would have to be based on the diff between this bucket and the previous bucket*/
+				//return correctedValue;
 			}
+			bucketCount++;
 		}
 		return -1;
 	}
