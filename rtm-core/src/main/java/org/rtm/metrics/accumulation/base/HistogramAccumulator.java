@@ -21,13 +21,6 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 	@Override
 	public WorkObject buildStateObject() {
 		return new HistogramAccumulatorState(this.nbPairs, this.approxMs);
-		/*
-		HistogramAccumulatorState state = new HistogramAccumulatorState();
-		state.setApproxMs(this.approxMs);
-		state.setNbPairs(this.nbPairs);
-		state.initArray();
-		return state;
-		*/
 	}
 
 	@Override

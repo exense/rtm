@@ -182,7 +182,8 @@ public class Histogram {
 			ingest(toBeMerged[i]);
 	}
 
-	private TreeMultimap<Long, CountSumBucket> buildBucketMapByAverage() {
+	//TODO: TreeMap should be enough since we manually merge same-avg buckets
+	public TreeMultimap<Long, CountSumBucket> buildBucketMapByAverage() {
 		TreeMultimap<Long, CountSumBucket> map = TreeMultimap.create();
 		for(int i=0; i<histogram.length; i++)
 			map.put(histogram[i].getAvg(), histogram[i]);
