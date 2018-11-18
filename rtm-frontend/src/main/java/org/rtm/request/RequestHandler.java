@@ -32,8 +32,10 @@ public class RequestHandler {
 
 		/* Parallization inputs*/
 		int timeoutSecs = Integer.parseInt(prop.getProperty("aggregateService.timeout"));
-		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
+		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
+		//TODO: Short-circuit user input: simply make sure each thread is fed enough
+		//int subPartitioning = subPoolSize * 2; //(?)
 		
 		logger.info("Perf info: timeoutSecs=" + timeoutSecs + "; subPartitioning="+subPartitioning+"; subPoolSize=" + subPoolSize);
 
