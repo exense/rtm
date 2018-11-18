@@ -21,6 +21,8 @@ public class RequestHandler {
 
 
 	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
+		
+		logger.info(" --- New Aggregation Request ---"); 
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 
@@ -32,6 +34,8 @@ public class RequestHandler {
 		int timeoutSecs = Integer.parseInt(prop.getProperty("aggregateService.timeout"));
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
+		
+		logger.info("Perf info: timeoutSecs=" + timeoutSecs + "; subPartitioning="+subPartitioning+"; subPoolSize=" + subPoolSize);
 
 		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
 		if(useHeuristic)
@@ -40,7 +44,7 @@ public class RequestHandler {
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
 			long effective90pcl = DBClient.run90PclOnFirstSample(heuristicSampleSize, sel);
 			int optimalHistApp = (int)Math.round(effective90pcl * errorMarginPercentage);
-			int histSize = prop.getProperty("aggregateService.histSize") != null? Integer.parseInt(prop.getProperty("aggregateService.histSize")) : 100;
+			String histSize = prop.getProperty("aggregateService.histSize") != null? prop.getProperty("aggregateService.histSize") : "100";
 			prop.put("aggregateService.histSize", histSize);
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
 			logger.info("Using histogram heuristic with values: histSize="+histSize+"; heuristicSampleSize="+heuristicSampleSize+"; errorMarginPercentage="+errorMarginPercentage+"; effective90pcl="+effective90pcl+"; optimalHistApp=" + optimalHistApp+";");
@@ -51,7 +55,7 @@ public class RequestHandler {
 
 		//TODO: compute target number of subbuckets and raise warning or circuit-break if > 1M?
 
-		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + ";");
+		logger.info("Request info: TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + ";");
 
 		/* SHIP TO PARTITIONER */
 		// Add map of <streamId,partitionerId> to know where to forward the stream refresh calls
@@ -71,7 +75,9 @@ public class RequestHandler {
 		
 		String response = client.call(om.writeValueAsString(req), "/partitioner" ,"/partition");
 		client.close();
-		return om.readValue(response, StreamId.class);
+		StreamId sId = om.readValue(response, StreamId.class); 
+		logger.info(" --- Returning StreamId --- (" +sId+")"  );
+		return sId;
 	}
 
 	// keeping implicitly unified values between services and conf for now
