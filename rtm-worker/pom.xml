@@ -19,11 +19,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.rtm</groupId>
-			<artifactId>rtm-commons</artifactId>
-			<version>2.3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.rtm</groupId>
 			<artifactId>rtm-core</artifactId>
 			<version>2.3.0</version>
 		</dependency>
