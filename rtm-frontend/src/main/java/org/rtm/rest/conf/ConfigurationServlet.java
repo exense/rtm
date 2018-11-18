@@ -37,7 +37,7 @@ import org.rtm.commons.Configuration;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationServlet {
 
-	private static String version = "2.2.0";
+	private static String version = "2.3.0";
 
 	@POST
 	@Path("/getConfiguration")
