@@ -1,6 +1,6 @@
 package org.rtm.metrics.accumulation.histograms;
 
-public class CountSumBucket {
+public class CountSumBucket implements Comparable<CountSumBucket>{
 
 	private long count;
 	private long sum;
@@ -53,5 +53,14 @@ public class CountSumBucket {
 
 	public void setSum(long sum) {
 		this.sum = sum;
+	}
+
+	@Override
+	public int compareTo(CountSumBucket specified) {
+		if(this.getAvg() > specified.getAvg())
+			return 1;
+		if(this.getAvg() < specified.getAvg())
+			return -1;
+		return 0;
 	}
 }

@@ -11,6 +11,8 @@ public class Histogram {
 	private int nbPairs;
 	@JsonIgnore
 	private int approxMs;
+	
+	//TODO: reimplement with Map<Integer, CountSumBucker> to find match & closest faster
 	public CountSumBucket[] histogram;
 	
 	public Histogram(){
@@ -49,6 +51,20 @@ public class Histogram {
 		else
 			insert(findClosest(valueMs,minBound, maxBound), valueMs);
 	}
+	
+	public synchronized void ingest(CountSumBucket toBeMerged){
+		
+		long csbAvg = toBeMerged.getAvg();
+		long minBound = csbAvg - approxMs;
+		long maxBound = csbAvg + approxMs;
+		
+		int bucketId = matchExisting(minBound, maxBound);
+		
+		if(bucketId > -1)
+			insert(bucketId, toBeMerged);
+		else
+			insert(findClosest(csbAvg,minBound, maxBound), toBeMerged);
+	}
 
 	private int findClosest(long valueMs, long minBound, long maxBound) {
 		int curIndex = -1;
@@ -73,6 +89,10 @@ public class Histogram {
 		histogram[bucketId].ingest(valueMs);
 	}
 
+	private void insert(int bucketId, CountSumBucket toBeMerged) {
+		histogram[bucketId].merge(toBeMerged);
+	}
+	
 	private int matchExisting(long min, long max){
 		for(int i=0; i < this.histogram.length; i++){
 			long avg = this.histogram[i].getAvg(); 
@@ -128,7 +148,9 @@ public class Histogram {
 		return histogram[index];
 	}
 	
-	public synchronized void merge(Histogram hist) throws Exception{
+	// 1 to 1 index merge: fast but not precise
+	@Deprecated
+	public synchronized void oldmerge(Histogram hist) throws Exception{
 		
 		if(histogram == null || hist == null)
 			throw new Exception("Null histogram.");
@@ -144,10 +166,24 @@ public class Histogram {
 			int rightIndex = thatMap.next();
 			mergeBucket(leftIndex, hist.getBucket(rightIndex));
 		}
+	}
+	
+	public synchronized void merge(Histogram hist) throws Exception{
+		CountSumBucket[] toBeMerged = hist.getHistogram();
+		int size = toBeMerged.length;
 		
-		//System.out.println("merged: " + this);
+		for(int i=0; i<size; i++)
+			ingest(toBeMerged[i]);
 	}
 
+	private TreeMultimap<Long, CountSumBucket> buildBucketMapByAverage() {
+		TreeMultimap<Long, CountSumBucket> map = TreeMultimap.create();
+		for(int i=0; i<histogram.length; i++)
+			map.put(histogram[i].getAvg(), histogram[i]);
+		return map;
+	}
+	
+	//Hack based on the TreeMultimap implementation
 	private TreeMultimap<Long, Integer> buildSortedAvgMap() {
 		TreeMultimap<Long, Integer> map = TreeMultimap.create();
 		for(int i=0; i<histogram.length; i++)
@@ -177,10 +213,14 @@ public class Histogram {
 	public long getValueForMark(float pcl) {
 		long curCount = 0;
 		long target = (long) (pcl * getTotalCount());
-		for(int i=0; i<this.histogram.length; i++){
-			curCount += histogram[i].getCount();
+		
+		Iterator<CountSumBucket> thisMap = buildBucketMapByAverage().values().iterator();
+		
+		while(thisMap.hasNext()){
+			CountSumBucket curBucket = thisMap.next();
+			curCount += curBucket.getCount();
 			if(curCount >= target){
-				return histogram[i].getAvg();
+				return curBucket.getAvg();
 			}
 		}
 		return -1;
