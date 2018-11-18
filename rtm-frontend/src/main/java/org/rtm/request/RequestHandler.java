@@ -38,10 +38,12 @@ public class RequestHandler {
 		{
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
-			int optimalHistApp = (int)Math.round(DBClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
-			prop.put("aggregateService.histSize", "100");
+			long effective90pcl = DBClient.run90PclOnFirstSample(heuristicSampleSize, sel);
+			int optimalHistApp = (int)Math.round(effective90pcl * errorMarginPercentage);
+			int histSize = prop.getProperty("aggregateService.histSize") != null? Integer.parseInt(prop.getProperty("aggregateService.histSize")) : 100;
+			prop.put("aggregateService.histSize", histSize);
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
-			logger.info("Using value " + optimalHistApp + " for histApp heuristic.");
+			logger.info("Using histogram heuristic with values: histSize="+histSize+"; heuristicSampleSize="+heuristicSampleSize+"; errorMarginPercentage="+errorMarginPercentage+"; effective90pcl="+effective90pcl+"; optimalHistApp=" + optimalHistApp+";");
 		}
 
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
