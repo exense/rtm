@@ -57,7 +57,7 @@ public class TestHistogram {
 			e.printStackTrace();
 		}
 
-		Assert.assertEquals(2, h1.buildBucketMapByAverage().get(100L).first().getCount());
+		Assert.assertEquals(2, h1.buildBucketMapByAverage().get(100L).getCount());
 	}
 
 }
