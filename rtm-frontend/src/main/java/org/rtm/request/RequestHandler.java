@@ -26,8 +26,9 @@ public class RequestHandler {
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 
+		// load props from conf first
 		Properties prop = Configuration.getInstance().getUnderlyingPropertyObject();
-		//prop.putAll(mapWhereNeeded(aggReq.getServiceParams()));
+		//override with props from request
 		prop.putAll(aggReq.getServiceParams());
 
 		/* Parallization inputs*/
@@ -46,10 +47,10 @@ public class RequestHandler {
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
 			long effective90pcl = DBClient.run90PclOnFirstSample(heuristicSampleSize, sel);
 			int optimalHistApp = (int)Math.round(effective90pcl * errorMarginPercentage);
-			String histSize = prop.getProperty("aggregateService.histSize") != null? prop.getProperty("aggregateService.histSize") : "100";
-			prop.put("aggregateService.histSize", histSize);
+			//We're using the heuristic here, so we're ignoring user inputs for Hist App. (client side fields should actually be removed) 
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
-			logger.info("Using histogram heuristic with values: histSize="+histSize+"; heuristicSampleSize="+heuristicSampleSize+"; errorMarginPercentage="+errorMarginPercentage+"; effective90pcl="+effective90pcl+"; optimalHistApp=" + optimalHistApp+";");
+			
+			logger.info("Using histogram heuristic with values: histSize="+prop.getProperty("aggregateService.histApp") + "; heuristicSampleSize="+heuristicSampleSize+"; errorMarginPercentage="+errorMarginPercentage+"; effective90pcl="+effective90pcl+"; optimalHistApp=" + optimalHistApp+";");
 		}
 
 		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
