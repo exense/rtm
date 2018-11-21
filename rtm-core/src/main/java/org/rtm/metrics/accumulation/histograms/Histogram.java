@@ -185,7 +185,7 @@ public class Histogram {
 		}
 	}
 
-	private TreeMap<Long, CountSumBucket> buildBucketMapByAverage() {
+	public TreeMap<Long, CountSumBucket> buildBucketMapByAverage() {
 		TreeMap<Long, CountSumBucket> map = new TreeMap<>();
 		for(int i=0; i<histogram.length; i++){
 			long curAvg = histogram[i].getAvg();
