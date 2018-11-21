@@ -128,10 +128,14 @@ public class DBClient {
 		int position = Math.round(sortedValues.size()*0.9F);
 		
 		logger.info("Sampling complete. Duration was "+ (System.currentTimeMillis() - start) +" ms.");
+		try{
+			if(position >= sortedValues.size())
+				return sortedValues.last();
+			else
+				return sortedValues.toArray(new Long[0])[position];
+		}catch(NoSuchElementException e){
+			throw new RuntimeException("No data found based on the provided selector(s).");
+		}
 		
-		if(position >= sortedValues.size())
-			return sortedValues.last();
-		else
-			return sortedValues.toArray(new Long[0])[position];
 	}
 }
