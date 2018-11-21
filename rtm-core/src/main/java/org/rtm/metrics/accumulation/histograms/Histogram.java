@@ -1,44 +1,44 @@
 package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import org.rtm.db.DBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.TreeMultimap;
 
 public class Histogram {
 	@JsonIgnore
 	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
-	
+
 	@JsonIgnore
 	private int nbPairs;
 	@JsonIgnore
 	private int approxMs;
-	
+
 	//TODO: reimplement with Map<Integer, CountSumBucker> to find match & closest faster
 	public CountSumBucket[] histogram;
-	
+
 	public Histogram(){
 	}
-	
+
 	public Histogram(int nbPairs, int approxMs){
 		if(nbPairs > 0){
 			this.nbPairs = nbPairs;
 			this.histogram = new CountSumBucket[nbPairs];
 		}else
 			throw new RuntimeException("Illegal nbPairs: " + nbPairs);
-		
+
 		if(approxMs < 0)
 			this.approxMs = approxMs * -1;
 		else
 			this.approxMs = approxMs;
-		
+
 		initArray();
 	}
-	
+
 	public void initArray() {
 		this.histogram = new CountSumBucket[nbPairs];
 		for(int i=0; i < this.nbPairs; i++)
@@ -46,26 +46,26 @@ public class Histogram {
 	}
 
 	public synchronized void ingest(long valueMs){
-		
+
 		long minBound = valueMs - approxMs;
 		long maxBound = valueMs + approxMs;
-		
+
 		int bucketId = matchExisting(minBound, maxBound);
-		
+
 		if(bucketId > -1)
 			insert(bucketId, valueMs);
 		else
 			insert(findClosest(valueMs,minBound, maxBound), valueMs);
 	}
-	
+
 	public synchronized void ingest(CountSumBucket toBeMerged){
-		
+
 		long csbAvg = toBeMerged.getAvg();
 		long minBound = csbAvg - approxMs;
 		long maxBound = csbAvg + approxMs;
-		
+
 		int bucketId = matchExisting(minBound, maxBound);
-		
+
 		if(bucketId > -1)
 			insert(bucketId, toBeMerged);
 		else
@@ -75,7 +75,7 @@ public class Histogram {
 	private int findClosest(long valueMs, long minBound, long maxBound) {
 		int curIndex = -1;
 		long minDiff = Long.MAX_VALUE;
-		
+
 		for(int i=0; i < histogram.length; i++){
 			long avg = histogram[i].getAvg();
 			if(avg < 0) {// empty bucket
@@ -98,17 +98,17 @@ public class Histogram {
 	private void insert(int bucketId, CountSumBucket toBeMerged) {
 		histogram[bucketId].merge(toBeMerged);
 	}
-	
+
 	private int matchExisting(long min, long max){
 		for(int i=0; i < this.histogram.length; i++){
 			long avg = this.histogram[i].getAvg(); 
-			if(avg > min && avg <= max){
+			if(avg >= min && avg <= max){
 				return i;
 			}
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
@@ -126,75 +126,86 @@ public class Histogram {
 		sb.append("]");
 		return sb.toString();
 	}
-	
+
 	public long getTotalCount(){
 		long count = 0;
 		for(CountSumBucket b : histogram)
 			count += b.getCount();
 		return count;
 	}
-	
+
 	public long getTotalSum(){
 		long sum = 0;
 		for(CountSumBucket b : histogram)
 			sum += b.getSum();
 		return sum;
 	}
-	
+
 	public long size(){
 		return histogram.length;
 	}
-	
+
 	private synchronized void mergeBucket(int index, CountSumBucket b){
 		histogram[index].merge(b);
 	}
-	
+
 	// public for JUnit test but should be private
 	public CountSumBucket getBucket(int index){
 		return histogram[index];
 	}
-	
+
 	// 1 to 1 index merge: fast but not precise
 	@Deprecated
 	public synchronized void oldmerge(Histogram hist) throws Exception{
-		
+
 		if(histogram == null || hist == null)
 			throw new Exception("Null histogram.");
-		
+
 		if(histogram.length != hist.size())
 			throw new Exception("Inconsistent sizes: left=" + histogram.length +"; right="+ hist.size());
-		
+
 		Iterator<Integer> thisMap = buildSortedAvgMap().values().iterator();
 		Iterator<Integer> thatMap = hist.buildSortedAvgMap().values().iterator();
-		
+
 		while(thisMap.hasNext() && thatMap.hasNext()){
 			int leftIndex = thisMap.next();
 			int rightIndex = thatMap.next();
 			mergeBucket(leftIndex, hist.getBucket(rightIndex));
 		}
 	}
-	
+
 	public synchronized void merge(Histogram hist) throws Exception{
 		CountSumBucket[] toBeMerged = hist.getHistogram();
 		int size = toBeMerged.length;
-		
-		for(int i=0; i<size; i++)
-			ingest(toBeMerged[i]);
+
+		for(int i=0; i<size; i++){
+			//merge only useful buckets
+			if(toBeMerged[i].getCount() > 0)
+				ingest(toBeMerged[i]);
+		}
 	}
 
-	//TODO: TreeMap should be enough since we manually merge same-avg buckets
-	public TreeMultimap<Long, CountSumBucket> buildBucketMapByAverage() {
-		TreeMultimap<Long, CountSumBucket> map = TreeMultimap.create();
-		for(int i=0; i<histogram.length; i++)
-			map.put(histogram[i].getAvg(), histogram[i]);
+	private TreeMap<Long, CountSumBucket> buildBucketMapByAverage() {
+		TreeMap<Long, CountSumBucket> map = new TreeMap<>();
+		for(int i=0; i<histogram.length; i++){
+			long curAvg = histogram[i].getAvg();
+			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
+				if(map.put(curAvg, histogram[i]) != null)
+					throw new RuntimeException("We had a collision on histogram key! Key=" + curAvg);
+			}
+		}
+
 		return map;
 	}
-	
-	//Hack based on the TreeMultimap implementation
-	private TreeMultimap<Long, Integer> buildSortedAvgMap() {
-		TreeMultimap<Long, Integer> map = TreeMultimap.create();
-		for(int i=0; i<histogram.length; i++)
-			map.put(histogram[i].getAvg(), i);
+
+	private TreeMap<Long, Integer> buildSortedAvgMap() {
+		TreeMap<Long, Integer> map = new TreeMap<>();
+		for(int i=0; i<histogram.length; i++){
+			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
+				if(map.put(histogram[i].getAvg(), i) != null)
+					throw new RuntimeException("We had a collision on histogram key! Key=" + histogram[i].getAvg());
+			}
+		}
 		return map;
 	}
 
@@ -202,12 +213,12 @@ public class Histogram {
 		this.histogram = new CountSumBucket[nbPairs];
 		initArray();
 	}
-	
+
 	public Histogram diff(Histogram histogram2) throws Exception{
-		
+
 		if(this.nbPairs != histogram2.nbPairs)
 			throw new Exception("Inconsistent number of pairs=" + this.nbPairs +" vs "+ histogram2.nbPairs);
-		
+
 		Histogram res = new Histogram(this.nbPairs, this.approxMs);
 		CountSumBucket[] histogram2array = histogram2.getHistogram();
 		CountSumBucket[] resArray = res.getHistogram();
@@ -216,14 +227,14 @@ public class Histogram {
 		}
 		return res;
 	}
-	
+
 	public long getValueForMark(float pcl) {
 		long curDotCount = 0;
 		int bucketCount= 0;
 		long target = (long) (pcl * getTotalCount());
-		TreeMultimap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
+		TreeMap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
 		Iterator<CountSumBucket> thisMap = sortedMap.values().iterator();
-		
+
 		while(thisMap.hasNext()){
 			CountSumBucket curBucket = thisMap.next();
 			curDotCount += curBucket.getCount();
@@ -232,9 +243,9 @@ public class Histogram {
 				long missedTarget = curDotCount - dotTarget;
 				float missedTargetRatio = ((float)missedTarget / (float)dotTarget);
 				//int correctedValue = Math.round(curBucket.getAvg() / (1+missedTargetRatio));
-				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%)."
-				//" + Using corrected value of: " + correctedValue
-				);
+				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs
+						//" + Using corrected value of: " + correctedValue
+						);
 				/* Bucket value */
 				return curBucket.getAvg();
 				/* Corrected value - this is not correct, the difference would have to be based on the diff between this bucket and the previous bucket*/
@@ -268,5 +279,5 @@ public class Histogram {
 	public void setHistogram(CountSumBucket[] histogram) {
 		this.histogram = histogram;
 	}
-	
+
 }
