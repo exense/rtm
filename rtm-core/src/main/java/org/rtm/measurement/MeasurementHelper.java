@@ -18,23 +18,33 @@
  *******************************************************************************/
 package org.rtm.measurement;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 @SuppressWarnings("rawtypes")
 public class MeasurementHelper{
-	private String primaryDimension;
+	private String dimensionDirective;
+	private List<String> splitDimensions;
+	
+	private static Character splitChar = ';'; 
 	
 	public MeasurementHelper(Properties p){
-		this.primaryDimension = p.getProperty("aggregateService.groupby");
+		this.dimensionDirective = p.getProperty("aggregateService.groupby");
+		this.splitDimensions = Arrays.asList(this.dimensionDirective.split(splitChar.toString()));
 	}
 	
-	public String getPrimaryDimensionName(){
-		return this.primaryDimension;
+	public String getDimensionDirectiveName(){
+		return this.dimensionDirective;
 	}
 
-	public String getPrimaryDimensionValue(Map m){
-		return (String)m.get(this.primaryDimension);
+	public String getActualDimensionName(Map m){
+		StringBuilder dims = new StringBuilder();
+		for(String dim : this.splitDimensions)
+			dims.append((String)m.get(dim)).append(this.splitChar);
+		dims.setLength(dims.length() - 1);
+		return dims.toString();
 	}
 	
 }

@@ -26,7 +26,7 @@ public class MeasurementAccumulator {
 	}
 	
 	protected WorkDimension getOrInitDimension(LongRangeValue lrv, Map m) {
-		String m_dimension = mh.getPrimaryDimensionValue(m);
+		String m_dimension = mh.getActualDimensionName(m);
 
 		if(m_dimension == null || m_dimension.trim().isEmpty()){
 			m_dimension = "default";
