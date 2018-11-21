@@ -82,11 +82,11 @@ public class PartitionerServlet {
 			//logger.debug(result.toString());
 			rtmResponse = new SuccessResponse(wr,
 					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
-		}/* catch(NullStreamException e1){
+		}catch(NullStreamException e1){
 			String message = "A problem occured while retrieving stream with request= " + streamId;
 			// Silent logs (old sessions refreshing...)
 			rtmResponse = new ErrorResponse(message + e1.getClass() + "; " + e1.getMessage());
-		}*/
+		}
 		catch (Exception e) {
 			String message = "A problem occured while retrieving stream with request= " + streamId;
 			logger.error(message, e);
