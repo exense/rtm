@@ -48,7 +48,7 @@ public class StreamBroker {
 	public Stream getStreamAndFlagForRefresh(StreamId id) throws Exception{
 		Stream thisStream = getStream(id);
 		if(thisStream == null){
-			throw new Exception("Stream with id " + id.getStreamedSessionId() + " is null.");
+			throw new NullStreamException("Stream with id " + id.getStreamedSessionId() + " is null.");
 		}
 		
 		if(thisStream.isComplete())

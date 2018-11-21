@@ -32,6 +32,7 @@ import org.rtm.request.ErrorResponse;
 import org.rtm.request.PartitionerService;
 import org.rtm.request.SuccessResponse;
 import org.rtm.request.aggregation.StreamResponseWrapper;
+import org.rtm.stream.NullStreamException;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
@@ -81,8 +82,13 @@ public class PartitionerServlet {
 			//logger.debug(result.toString());
 			rtmResponse = new SuccessResponse(wr,
 					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
-		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with request= " + streamId; 
+		}/* catch(NullStreamException e1){
+			String message = "A problem occured while retrieving stream with request= " + streamId;
+			// Silent logs (old sessions refreshing...)
+			rtmResponse = new ErrorResponse(message + e1.getClass() + "; " + e1.getMessage());
+		}*/
+		catch (Exception e) {
+			String message = "A problem occured while retrieving stream with request= " + streamId;
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
 		}

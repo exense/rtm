@@ -18,6 +18,11 @@ public class StreamResultHandler implements ResultHandler<Long>{
 
 	public void attachResult(AggregationResult<Long> tv) {
 		
+		if(tv == null){
+			//Something went wrong during the aggregation, nothing we can do here
+			return;
+		}
+			
 		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
 		
 		if(stream == null){
