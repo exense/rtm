@@ -1,13 +1,11 @@
 package org.rtm.metrics.accumulation.histograms;
 
 import java.util.Iterator;
+import java.util.TreeMap;
 
 import org.rtm.db.DBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.TreeMultimap;
 
 public class Histogram {
 	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
@@ -99,7 +97,7 @@ public class Histogram {
 	private int matchExisting(long min, long max){
 		for(int i=0; i < this.histogram.length; i++){
 			long avg = this.histogram[i].getAvg(); 
-			if(avg > min && avg <= max){
+			if(avg >= min && avg <= max){
 				return i;
 			}
 		}
@@ -170,27 +168,39 @@ public class Histogram {
 			mergeBucket(leftIndex, hist.getBucket(rightIndex));
 		}
 	}
-	
+
 	public synchronized void merge(Histogram hist) throws Exception{
 		CountSumBucket[] toBeMerged = hist.getHistogram();
 		int size = toBeMerged.length;
-		
-		for(int i=0; i<size; i++)
-			ingest(toBeMerged[i]);
+
+		for(int i=0; i<size; i++){
+			//merge only useful buckets
+			if(toBeMerged[i].getCount() > 0)
+				ingest(toBeMerged[i]);
+		}
 	}
 
-	private TreeMultimap<Long, CountSumBucket> buildBucketMapByAverage() {
-		TreeMultimap<Long, CountSumBucket> map = TreeMultimap.create();
-		for(int i=0; i<histogram.length; i++)
-			map.put(histogram[i].getAvg(), histogram[i]);
+	private TreeMap<Long, CountSumBucket> buildBucketMapByAverage() {
+		TreeMap<Long, CountSumBucket> map = new TreeMap<>();
+		for(int i=0; i<histogram.length; i++){
+			long curAvg = histogram[i].getAvg();
+			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
+				if(map.put(curAvg, histogram[i]) != null)
+					throw new RuntimeException("We had a collision on histogram key! Key=" + curAvg);
+			}
+		}
 		return map;
 	}
 	
 	//Hack based on the TreeMultimap implementation
-	private TreeMultimap<Long, Integer> buildSortedAvgMap() {
-		TreeMultimap<Long, Integer> map = TreeMultimap.create();
-		for(int i=0; i<histogram.length; i++)
-			map.put(histogram[i].getAvg(), i);
+	private TreeMap<Long, Integer> buildSortedAvgMap() {
+		TreeMap<Long, Integer> map = new TreeMap<>();
+		for(int i=0; i<histogram.length; i++){
+			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
+				if(map.put(histogram[i].getAvg(), i) != null)
+					throw new RuntimeException("We had a collision on histogram key! Key=" + histogram[i].getAvg());
+			}
+		}
 		return map;
 	}
 
@@ -217,7 +227,7 @@ public class Histogram {
 		long curDotCount = 0;
 		int bucketCount= 0;
 		long target = (long) (pcl * getTotalCount());
-		TreeMultimap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
+		TreeMap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
 		Iterator<CountSumBucket> thisMap = sortedMap.values().iterator();
 		
 		while(thisMap.hasNext()){
@@ -228,8 +238,8 @@ public class Histogram {
 				long missedTarget = curDotCount - dotTarget;
 				float missedTargetRatio = ((float)missedTarget / (float)dotTarget);
 				//int correctedValue = Math.round(curBucket.getAvg() / (1+missedTargetRatio));
-				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%)."
-				//" + Using corrected value of: " + correctedValue
+				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs
+						//" + Using corrected value of: " + correctedValue
 				);
 				/* Bucket value */
 				return curBucket.getAvg();
@@ -238,6 +248,7 @@ public class Histogram {
 			}
 			bucketCount++;
 		}
+		// no value
 		return -1;
 	}
 

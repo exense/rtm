@@ -52,7 +52,10 @@ public class RequestHandler {
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
 			int optimalHistApp = (int)Math.round(DBClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
-			prop.put("aggregateService.histSize", "100");
+			
+			// allowing user to set histSize (in case of memory problems)
+			//prop.put("aggregateService.histSize", "40");
+			// however, the heuristic will override the user-defined parameter fow now if useHistHeuristic is set to true in central conf
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
 			logger.info("Using value " + optimalHistApp + " for histApp heuristic.");
 		}
