@@ -34,7 +34,6 @@ import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
-import org.rtm.request.aggregation.StreamResponseWrapper;
 import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,14 +58,12 @@ public class AggregationServlet {
 	@Path(AggregationConstants.getpath)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAggregationResutStream(final AggregationRequest body) {
+	public Response getAggregationResutStream(final AggregationRequest request) {
 		AbstractResponse rtmResponse = null;
 		try{
-			rtmResponse = new SuccessResponse(rh.aggregate(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+			rtmResponse = new SuccessResponse(rh.aggregate(request), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with request= " + body; 
-			logger.error(message, e);
-			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			rtmResponse = generateError(e, request.toString());
 		}
 		return Response.status(200).entity(rtmResponse).build();
 
@@ -82,9 +79,7 @@ public class AggregationServlet {
 		try{
 			rtmResponse = new SuccessResponse(rh.compare(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with request= " + body; 
-			logger.error(message, e);
-			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			rtmResponse = generateError(e, body.toString());
 		}
 			return Response.status(200).entity(rtmResponse).build();
 
@@ -103,7 +98,7 @@ public class AggregationServlet {
 			HttpClient client = new HttpClient("localhost", 8098);
 			ObjectMapper om = new ObjectMapper();
 			String response = client.call(om.writeValueAsString(streamId), "/partitioner" ,"/read");
-			
+
 			// instanceof Success or Error Response..
 			SuccessResponse partitionerResponse = om.readValue(response, SuccessResponse.class);
 
@@ -111,40 +106,14 @@ public class AggregationServlet {
 			rtmResponse = new SuccessResponse(partitionerResponse.getPayload(),
 					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
 		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with request= " + streamId; 
-			logger.error(message, e);
-			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			rtmResponse = generateError(e, streamId.toString());
 		}
 		return Response.status(200).entity(rtmResponse).build();
 	}
 
-}
-/*	
-	@POST
-	@Path(AggregationConstants.refreshpath)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response refreshResutStreamForId(StreamId body) {
-		AbstractResponse rtmResponse = null;
-		try {
-			@SuppressWarnings("rawtypes")
-			Stream s = ssm.getStreamAndFlagForRefresh(body);
-			Stream result = null;
-			if(s.isCompositeStream())
-				result = s;
-			else{
-				result = new MetricsManager(s.getStreamProp()).handle(s);
-				result.setComplete(s.isComplete());
-				}
-			WrappedResult wr = new WrappedResult(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());
-			//logger.debug(result.toString());
-			rtmResponse = new SuccessResponse(wr,
-							"Found stream with id=" + body + ". Delivering payload at time=" + System.currentTimeMillis());
-		} catch (Exception e) {
-			String message = "A problem occured while retrieving stream with request= " + body; 
-			logger.error(message, e);
-			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
-		}
-		return Response.status(200).entity(rtmResponse).build();
+	private ErrorResponse generateError(Exception e, String details){
+		String prefixedDetails = "\nRequest details= " + details; 
+		logger.error(prefixedDetails, e);
+		return new ErrorResponse(e.getMessage() + "   (" + e.getClass().getName() + ")");
 	}
- */
+}
