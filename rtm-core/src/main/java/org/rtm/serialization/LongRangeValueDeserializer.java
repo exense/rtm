@@ -26,7 +26,6 @@ import org.rtm.stream.LongRangeValue;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -57,8 +56,9 @@ public class LongRangeValueDeserializer extends JsonDeserializer {
         MapType mapType = objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Dimension.class);
     
 		LongRangeValue lrv = new LongRangeValue(id);
-		String dimensionMap = node.get("dimensionMap").toString();
-		lrv.setDimensionsMap(objectMapper.readValue(dimensionMap, mapType));
+		lrv.setDimensionsMap(objectMapper.convertValue(node.get("dimensionMap"), mapType));
+		//String dimensionMap = node.get("dimensionMap").toString();
+		//lrv.setDimensionsMap(objectMapper.readValue(dimensionMap, mapType));
 
 		return lrv;
 	}

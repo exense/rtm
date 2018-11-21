@@ -49,7 +49,7 @@ public class DimensionDeserializer extends JsonDeserializer<Dimension> {
         mapper.registerModule(module);
         
         Dimension dim = mapper.treeToValue(node.get("metrics"), WorkDimension.class);
-        dim.setDimensionName(node.get("dimensionName").toString());
+        dim.setDimensionName(node.get("dimensionName").asText());
         return dim;
 	}
 
