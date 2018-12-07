@@ -66,10 +66,21 @@ public class Histogram {
 
 		int bucketId = matchExisting(minBound, maxBound);
 
-		if(bucketId > -1)
+		//logger.debug("-----");
+		//logger.debug("hist state at start = " + this);
+
+		if(bucketId > -1){
+			//logger.debug("inserting CSB " + toBeMerged + " into existing index " + bucketId + " (with avg="+histogram[bucketId].getAvg()+ ")");
 			insert(bucketId, toBeMerged);
-		else
-			insert(findClosest(csbAvg,minBound, maxBound), toBeMerged);
+			//logger.debug("new CSB state = " + histogram[bucketId]);
+		}
+		else{
+			int newIndex = findClosest(csbAvg,minBound, maxBound);
+			//logger.debug("inserting CSB " + toBeMerged + " into new/free bucket with index " + newIndex);
+			insert(newIndex, toBeMerged);
+			//logger.debug("new CSB state = " + histogram[newIndex]);
+		}
+		//logger.debug("hist state at end = " + this);
 	}
 
 	private int findClosest(long valueMs, long minBound, long maxBound) {
@@ -93,10 +104,14 @@ public class Histogram {
 
 	private void insert(int bucketId, long valueMs) {
 		histogram[bucketId].ingest(valueMs);
+		//too costly
+		//mergePotentialTwins(bucketId);
 	}
 
-	private void insert(int bucketId, CountSumBucket toBeMerged) {
-		histogram[bucketId].merge(toBeMerged);
+	private void insert(int bucketId, CountSumBucket toBeIngested) {
+		histogram[bucketId].ingest(toBeIngested);
+		// we have a new avg value for this bucket and we want to prevent same-avg buckets from that point on
+		mergePotentialTwins(bucketId);
 	}
 
 	private int matchExisting(long min, long max){
@@ -146,32 +161,12 @@ public class Histogram {
 	}
 
 	private synchronized void mergeBucket(int index, CountSumBucket b){
-		histogram[index].merge(b);
+		histogram[index].ingest(b);
 	}
 
 	// public for JUnit test but should be private
 	public CountSumBucket getBucket(int index){
 		return histogram[index];
-	}
-
-	// 1 to 1 index merge: fast but not precise
-	@Deprecated
-	public synchronized void oldmerge(Histogram hist) throws Exception{
-
-		if(histogram == null || hist == null)
-			throw new Exception("Null histogram.");
-
-		if(histogram.length != hist.size())
-			throw new Exception("Inconsistent sizes: left=" + histogram.length +"; right="+ hist.size());
-
-		Iterator<Integer> thisMap = buildSortedAvgMap().values().iterator();
-		Iterator<Integer> thatMap = hist.buildSortedAvgMap().values().iterator();
-
-		while(thisMap.hasNext() && thatMap.hasNext()){
-			int leftIndex = thisMap.next();
-			int rightIndex = thatMap.next();
-			mergeBucket(leftIndex, hist.getBucket(rightIndex));
-		}
 	}
 
 	public synchronized void merge(Histogram hist) throws Exception{
@@ -189,23 +184,18 @@ public class Histogram {
 		TreeMap<Long, CountSumBucket> map = new TreeMap<>();
 		for(int i=0; i<histogram.length; i++){
 			long curAvg = histogram[i].getAvg();
-			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
-				if(map.put(curAvg, histogram[i]) != null)
+			if(histogram[i].getCount() > 0){ // merge only used / useful histograms
+				// Forcing the absence of collisions here means enforcing at ingest time which is too costly
+				// We'll lose some buckets along the way (and so, some accuracy) but that way we'll be faster.
+				// (typical accuracy vs speed tradeoff in our approach)
+				mergePotentialTwins(i);
+				CountSumBucket previous = map.put(curAvg, histogram[i]);
+				if(previous != null){
 					throw new RuntimeException("We had a collision on histogram key! Key=" + curAvg);
+				}
 			}
 		}
 
-		return map;
-	}
-
-	private TreeMap<Long, Integer> buildSortedAvgMap() {
-		TreeMap<Long, Integer> map = new TreeMap<>();
-		for(int i=0; i<histogram.length; i++){
-			if(histogram[i].getCount() > 0){ // merge only used / useful histograms 
-				if(map.put(histogram[i].getAvg(), i) != null)
-					throw new RuntimeException("We had a collision on histogram key! Key=" + histogram[i].getAvg());
-			}
-		}
 		return map;
 	}
 
@@ -278,6 +268,24 @@ public class Histogram {
 
 	public void setHistogram(CountSumBucket[] histogram) {
 		this.histogram = histogram;
+	}
+
+	private void mergePotentialTwins(int bucketId) {
+
+		long avg = histogram[bucketId].getAvg();
+
+		for(int i=0; i<histogram.length; i++){
+			if(i==bucketId)
+				continue;
+			else{
+				if(histogram[i].getAvg() == avg){
+					histogram[bucketId].ingest(histogram[i]);
+					histogram[i]=new CountSumBucket();
+					mergePotentialTwins(bucketId);
+				}
+			}
+		}
+
 	}
 
 }
