@@ -30,13 +30,13 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("rawtypes")
 public class StreamCleaner implements Runnable{
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(StreamCleaner.class);
-	
+
 	private StreamBroker sb;
 	private long sleepTime;
 	private long defaultTimeToEviction;
-	
+
 	public StreamCleaner(StreamBroker sb, long streamEvictionSeconds, long sleepTimeSeconds){
 		this.sb = sb;
 		this.sleepTime = sleepTimeSeconds * 1000;
@@ -56,16 +56,16 @@ public class StreamCleaner implements Runnable{
 	}
 
 	private void collectGarbage() {
-		
+
 		Map<String, Stream> registry = this.sb.getStreamRegistry();
-		
+
 		if(this.sb == null || this.sb.getStreamRegistry() == null)
 			return;
-		
+
 		registry.entrySet().stream().forEach(e -> {
 			Stream s = e.getValue();
 			String id = e.getKey();
-			
+
 			if(s.isRefreshedSinceCompletion() || isEvictionTimeReached(s)){
 				Stream thisStream = registry.get(id);
 				//TODO: close should not be needed. remove this line and check for no mem leak 
@@ -79,10 +79,15 @@ public class StreamCleaner implements Runnable{
 	private boolean isEvictionTimeReached(Stream s) {
 		Long customTimeout = s.getTimeoutDurationSecs();
 		long elapsed = System.currentTimeMillis() - s.getTimeCreated();
-		if(customTimeout != null && customTimeout > 0)
+
+		if(customTimeout != null && customTimeout > 0){
+			logger.debug("is elapsed=" + elapsed + " is greater than custom timeout=" + customTimeout * 1000 + " ? " + (elapsed > (customTimeout * 1000)));
 			return elapsed > (customTimeout * 1000);
-		else
+		}
+		else{
+			logger.debug("is elapsed=" + elapsed + " greater than default timeout=" + this.defaultTimeToEviction + " ? " +  (elapsed > this.defaultTimeToEviction));
 			return elapsed > this.defaultTimeToEviction;
+		}
 	}
-	
+
 }

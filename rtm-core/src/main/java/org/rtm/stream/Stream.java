@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Wraps a CSLM which contains an ordered representation of the entire timeseries data of the stream 
  */
 public class Stream<T> {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(Stream.class);
 
 	public static final String INTERVAL_SIZE_KEY = "intervalSize";
@@ -22,20 +22,20 @@ public class Stream<T> {
 	private ConcurrentSkipListMap<Long, AggregationResult<T>> streamData;
 	private StreamId id = new StreamId(); 
 	private boolean isClone = false; 
-	
+
 	private long timeCreated = System.currentTimeMillis();
 	private long timeEnded = 0;
 	private long timeoutDurationSecs;
-	
+
 	private boolean complete = false;
 	private boolean isRefreshedSinceCompletion = false;
-	
+
 	@JsonIgnore
 	boolean isCompositeStream = false;
 
 	@JsonIgnore
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
-	
+
 	public Stream(Properties prop){
 		this.streamProp = prop;
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());
@@ -46,7 +46,7 @@ public class Stream<T> {
 			this.setTimeoutDurationSecs(600);
 		}
 	}
-	
+
 	@JsonIgnore
 	public long getTimeCreated() {
 		return timeCreated;
