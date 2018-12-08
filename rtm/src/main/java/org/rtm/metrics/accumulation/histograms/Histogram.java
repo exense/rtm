@@ -227,14 +227,10 @@ public class Histogram {
 				int dotTarget = Math.round(pcl * getTotalCount());
 				long missedTarget = curDotCount - dotTarget;
 				float missedTargetRatio = ((float)missedTarget / (float)dotTarget);
-				//int correctedValue = Math.round(curBucket.getAvg() / (1+missedTargetRatio));
-				logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs
-						//" + Using corrected value of: " + correctedValue
-						);
-				/* Bucket value */
+
+				//logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs);
+
 				return curBucket.getAvg();
-				/* Corrected value - this is not correct, the difference would have to be based on the diff between this bucket and the previous bucket*/
-				//return correctedValue;
 			}
 			bucketCount++;
 		}
