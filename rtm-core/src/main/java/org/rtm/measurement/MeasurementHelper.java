@@ -41,8 +41,15 @@ public class MeasurementHelper{
 
 	public String getActualDimensionName(Map m){
 		StringBuilder dims = new StringBuilder();
-		for(String dim : this.splitDimensions)
-			dims.append((String)m.get(dim)).append(this.splitChar);
+		for(String dim : this.splitDimensions){
+			String asString = "default";
+			Object actual = m.get(dim);
+			
+			if(actual != null)
+				asString = actual.toString();
+			
+			dims.append(asString).append(this.splitChar);
+		}
 		dims.setLength(dims.length() - 1);
 		return dims.toString();
 	}
