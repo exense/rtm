@@ -20,6 +20,7 @@ package org.rtm.rest.aggregation;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.NoSuchElementException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -62,8 +63,10 @@ public class AggregationServlet {
 		AbstractResponse rtmResponse = null;
 		try{
 			rtmResponse = new SuccessResponse(rh.aggregate(request), "Stream initialized. Call the streaming service next to start retrieving data.");
+		} catch (NoSuchElementException e) {
+			rtmResponse = generateError(e, "No data matching selectors.", false);
 		} catch (Exception e) {
-			rtmResponse = generateError(e, request.toString());
+			rtmResponse = generateError(e, request.toString(), true);
 		}
 		return Response.status(200).entity(rtmResponse).build();
 
@@ -106,14 +109,14 @@ public class AggregationServlet {
 			rtmResponse = new SuccessResponse(partitionerResponse.getPayload(),
 					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
 		} catch (Exception e) {
-			rtmResponse = generateError(e, streamId.toString());
+			rtmResponse = generateError(e, streamId.toString(), true);
 		}
 		return Response.status(200).entity(rtmResponse).build();
 	}
 
-	private ErrorResponse generateError(Exception e, String details){
-		String prefixedDetails = "\nRequest details= " + details; 
-		logger.error(prefixedDetails, e);
-		return new ErrorResponse(e.getMessage() + "   (" + e.getClass().getName() + ")");
+	private ErrorResponse generateError(Exception e, String details, boolean logError){
+		if(logError)
+			logger.error(details);
+		return new ErrorResponse(details +  "   (" + e.getClass().getName()+" : " +  (e.getMessage() == null?"no exception message":e.getMessage()) +  ")");
 	}
 }
