@@ -117,8 +117,10 @@ dispatchComparesRefreshed: function(){
 			if(Date.now() < that.maxDate){ 
 				that.aggregateDatapoints.refreshData(that.curStreamId);
 			} else {
-				console.log('stream timed out.');
+				//console.log('stream timed out.');
+				displayError('Stream timed out.');
 				that.clearRefresh();
+				that.postControllerView.stopSpinner();
 			}
 		}, that.refreshSpeed );
 	},

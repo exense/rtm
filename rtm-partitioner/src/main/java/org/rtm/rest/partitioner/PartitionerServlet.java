@@ -56,7 +56,7 @@ public class PartitionerServlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response partitionBucket(PartitionerRequest req) throws Exception
 	{
-		StreamId streamId = partitionerService.processBucket(req.getSel(), req.getProp(), req.getSubPartitioning(),
+		StreamId streamId = partitionerService.aggregate(req.getSel(), req.getProp(), req.getSubPartitioning(),
 				req.getSubPoolSize(), req.getTimeoutSecs(), req.getStart(), req.getEnd(), req.getIncrement(), req.getOptimalSize());
 
 		return Response.status(200).entity(streamId).build();
@@ -76,6 +76,7 @@ public class PartitionerServlet {
 				result = s;
 			else{
 				result = new MetricsManager(s.getStreamProp()).handle(s);
+				logger.debug("stream completion=" + Boolean.toString(s.isComplete()));
 				result.setComplete(s.isComplete());
 			}
 			StreamResponseWrapper wr = new StreamResponseWrapper(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());

@@ -50,7 +50,7 @@ public class PartitionerService{
 	}
 	
 
-	public StreamId processBucket(List<Selector> sel, Properties prop, long subPartitioning, int subPoolSize, int timeoutSecs,
+	public StreamId aggregate(List<Selector> sel, Properties prop, long subPartitioning, int subPoolSize, int timeoutSecs,
 			long start, long end, long increment, long optimalSize) throws Exception{
 
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
@@ -71,17 +71,7 @@ public class PartitionerService{
 
 		streamBroker.registerStreamSession(stream);
 		
-		/* DEBUG 
-		long startTime = System.currentTimeMillis();
-		while(System.currentTimeMillis() < startTime + 30000){
-			for(Entry<Long, AggregationResult<Long>> obj : stream.getStreamData().entrySet())
-				System.out.println(obj.getKey() + ": " + obj.getValue().getDimensionsMap().keySet() + ", " + obj.getValue().getDimensionsMap().get("Transaction_1"));
-			
-			System.out.println("-------------");
 
-			Thread.sleep(3000);
-		}
-		*/		
 		return stream.getId();
 	}
 	
