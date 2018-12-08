@@ -1,7 +1,11 @@
 package org.rtm.metrics;
 
+import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.junit.Assert;
 import org.junit.Test;
+import org.rtm.metrics.accumulation.histograms.CountSumBucket;
 import org.rtm.metrics.accumulation.histograms.Histogram;
 
 public class TestHistogram {
