@@ -18,6 +18,8 @@
  *******************************************************************************/
 package org.rtm.rest.aggregation;
 
+import java.util.NoSuchElementException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -59,6 +61,9 @@ public class AggregationServlet {
 		AbstractResponse rtmResponse = null;
 		try{
 		 rtmResponse = new SuccessResponse(rh.aggregate(body), "Stream initialized. Call the streaming service next to start retrieving data.");
+		} catch (NoSuchElementException e) {
+			String message = "No data matching selectors."; 
+			rtmResponse = new ErrorResponse(message);
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
