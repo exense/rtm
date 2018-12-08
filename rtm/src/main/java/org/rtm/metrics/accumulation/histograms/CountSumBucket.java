@@ -35,7 +35,7 @@ public class CountSumBucket implements Comparable<CountSumBucket>{
 		return "{ avg="+getAvg()+", count="+count+", sum="+sum+"}";
 	}
 
-	public synchronized void merge(CountSumBucket other) {
+	public synchronized void ingest(CountSumBucket other) {
 		this.count += other.getCount();
 		this.sum += other.getSum();
 	}
