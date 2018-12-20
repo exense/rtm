@@ -1,11 +1,10 @@
 package org.rtm.pipeline.commons.tasks;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ThreadLocalRandom;
 
-import org.rtm.client.HttpClient;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.WorkerRequest;
@@ -16,12 +15,19 @@ import org.rtm.stream.LongRangeValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import step.grid.TokenWrapper;
+import step.grid.client.GridClient;
+import step.grid.client.GridClientImpl.AgentCommunicationException;
+import step.grid.io.OutputMessage;
+
 public class RemoteQueryTask implements RangeTask {
 
 	protected List<Selector> sel;
 	protected MeasurementAccumulator accumulator;
 	protected Properties prop;
 
+	public static GridClient gridCLient;
+	
 	public RemoteQueryTask(List<Selector> sel, Properties prop){
 		this.sel = sel;
 		this.accumulator = new MeasurementAccumulator(prop);
@@ -32,17 +38,15 @@ public class RemoteQueryTask implements RangeTask {
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) throws IOException {
 		LongRangeValue lrv = null;
-		String workerIp = null;
-		String response = null;
-		try{
-			String[] workerIps = System.getProperty("clusterArray").split(";");
-			workerIp = workerIps[ThreadLocalRandom.current().nextInt(0, workerIps.length)];
-		}catch(Throwable e){
-			e.printStackTrace();
-			//workerIp = "localhost";
+		
+		TokenWrapper tokenHandle = null;
+		try {
+			tokenHandle = gridCLient.getTokenHandle(new HashMap<>(), new HashMap<>(), false);
+		} catch (AgentCommunicationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-
-		HttpClient client = new HttpClient(workerIp, 8097);
+		
 		WorkerRequest req = new WorkerRequest();
 		req.setSelectors(this.sel);
 		req.setRangeBucket(bucket);
@@ -54,14 +58,24 @@ public class RemoteQueryTask implements RangeTask {
         module.addDeserializer(LongRangeValue.class, new LongRangeValueDeserializer());
         om.registerModule(module);
  
-		try{
-		response = client.call(om.writeValueAsString(req), "/worker" ,"/work");
-		}catch(Exception e){
+        //gridCLient.registerFile(new File())
+        OutputMessage message = null;
+		try {
+			message = gridCLient.call(tokenHandle, om.valueToTree(req), "org.rtm.request.WorkerService", null, new HashMap<>(), 300000);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		finally{
+			try {
+				gridCLient.returnTokenHandle(tokenHandle);
+			} catch (AgentCommunicationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
-		client.close();
-		lrv = om.readValue(response, LongRangeValue.class);
+		lrv = om.treeToValue(message.getPayload(), LongRangeValue.class);
 		
 		return lrv;
 	}

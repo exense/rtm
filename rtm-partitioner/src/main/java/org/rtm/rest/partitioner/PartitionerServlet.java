@@ -18,6 +18,8 @@
  *******************************************************************************/
 package org.rtm.rest.partitioner;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,6 +29,7 @@ import javax.ws.rs.core.Response;
 
 import org.rtm.measurement.MeasurementStatistics;
 import org.rtm.metrics.postprocessing.MetricsManager;
+import org.rtm.pipeline.commons.tasks.RemoteQueryTask;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.PartitionerService;
@@ -39,16 +42,22 @@ import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import step.grid.Grid;
+import step.grid.client.GridClient;
+import step.grid.client.GridClientImpl;
+
 /**
  * @author doriancransac
  *
  */
+@Singleton
 @Path("/partitioner")
 public class PartitionerServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(PartitionerServlet.class);
 	private static StreamBroker streamBroker = new StreamBroker();
 	private PartitionerService partitionerService = new PartitionerService(streamBroker);
+
 
 	@POST
 	@Path("/partition")

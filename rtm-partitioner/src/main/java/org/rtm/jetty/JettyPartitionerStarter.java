@@ -27,9 +27,14 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.rtm.commons.Configuration;
+import org.rtm.pipeline.commons.tasks.RemoteQueryTask;
 import org.rtm.rest.partitioner.PartitionerServlet;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+
+import step.grid.Grid;
+import step.grid.client.GridClient;
+import step.grid.client.GridClientImpl;
 
 /**
  * @author dcransac
@@ -42,6 +47,27 @@ public class JettyPartitionerStarter {
 
 
 	public static void main(String[] args){
+		
+		
+		
+		Grid grid;
+		GridClient gridCLient;
+		grid = new Grid(8082);
+		
+		try {
+			grid.start();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		gridCLient = new GridClientImpl(grid);
+		
+		
+		RemoteQueryTask.gridCLient = gridCLient;
+		
+		
+		
 		ArgumentParser arguments = new ArgumentParser(args);
 
 		String agentConfStr = arguments.getOption("config");

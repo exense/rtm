@@ -28,15 +28,20 @@ import org.rtm.range.RangeBucket;
 import org.rtm.selection.Selector;
 import org.rtm.stream.LongRangeValue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import step.grid.agent.handler.AbstractMessageHandler;
+import step.grid.agent.handler.context.OutputMessageBuilder;
+import step.grid.agent.tokenpool.AgentTokenWrapper;
+import step.grid.io.InputMessage;
+import step.grid.io.OutputMessage;
 
 
 /**
  * @author doriancransac
  *
  */
-public class WorkerService{
+public class WorkerService extends AbstractMessageHandler{
 
 	public LongRangeValue produceValueForBucket(List<Selector> selectors, RangeBucket<Long> rangeBucket, Properties prop) {
 
@@ -46,6 +51,20 @@ public class WorkerService{
 			new MeasurementAccumulator(prop).handle(lrv, new DBClient().executeQuery(query));
 			
 			return lrv;
+	}
+
+	/* (non-Javadoc)
+	 * @see step.grid.agent.handler.MessageHandler#handle(step.grid.agent.tokenpool.AgentTokenWrapper, step.grid.io.InputMessage)
+	 */
+	@Override
+	public OutputMessage handle(AgentTokenWrapper token, InputMessage message) throws Exception {
+		ObjectMapper om = new ObjectMapper();
+		WorkerRequest req = om.treeToValue(message.getPayload(), WorkerRequest.class);
+
+		OutputMessageBuilder omb = new OutputMessageBuilder();
+		omb.setPayload(om.valueToTree(produceValueForBucket(req.getSelectors(), req.getRangeBucket(), req.getProp())));
+		
+		return omb.build();
 	}
 
 }
