@@ -2,9 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<artifactId>rtm-commons</artifactId>
+	<artifactId>rtm-core</artifactId>
 	<packaging>jar</packaging>
-	<name>Response Time Manager - Commons libs</name>
 	<parent>
 		<groupId>org.rtm</groupId>
 		<artifactId>rtm-parent</artifactId>
@@ -20,19 +19,14 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver</artifactId>
-			<version>3.4.2</version>
+			<groupId>org.rtm</groupId>
+			<artifactId>rtm-commons</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.5</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<groupId>org.rtm</groupId>
+			<artifactId>rtm</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
