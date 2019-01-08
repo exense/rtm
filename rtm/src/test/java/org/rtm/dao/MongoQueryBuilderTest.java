@@ -59,7 +59,7 @@ public class MongoQueryBuilderTest{
 
 	@Test
 	public void validateJsonSyntaxForMongo() throws Exception{
-		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true, true)));
+		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true, false)));
 	}
 
 	@Test
@@ -70,8 +70,8 @@ public class MongoQueryBuilderTest{
 	private void testOccurences(String query){
 		Assert.assertEquals(1, countPatternOccurences(query,"\\$or"));
 		Assert.assertEquals(2, countPatternOccurences(query,"\\$regex"));
-		Assert.assertEquals(2, countPatternOccurences(query,"\\$lt"));
-		Assert.assertEquals(2, countPatternOccurences(query,"\\$gt"));
+		Assert.assertEquals(1, countPatternOccurences(query,"\\$lt"));
+		Assert.assertEquals(1, countPatternOccurences(query,"\\$gt"));
 	}
 
 	private String replaceOperatorsAndBinds(String query, boolean replaceHashasBindCharacter, boolean surroundRegexPatterns, boolean addQuotes){
@@ -80,7 +80,7 @@ public class MongoQueryBuilderTest{
 			replacedQuery = query
 				.replace("$gte", "\"gte\"")
 				.replace("$lte", "\"lte\"")
-				.replace("$or", "\"or\"")
+				//.replace("$or", "\"or\"")
 				.replace("$lt", "\"lt\"")
 				.replace("$gt", "\"gt\"")
 				.replace("$regex", "\"regex\"")
@@ -89,17 +89,25 @@ public class MongoQueryBuilderTest{
 			replacedQuery = query
 					.replace("$gte", "gte")
 					.replace("$lte", "lte")
-					.replace("$or", "or")
+					//.replace("$or", "or")
 					.replace("$lt", "lt")
 					.replace("$gt", "gt")
 					.replace("$regex", "regex")
 					.replace("$and", "and");
 		}
+		
+		replacedQuery = replacedQuery.replace("$or", "\"or\"");
+		
+		replacedQuery = replacedQuery.replace("=[", ":[");
+		
 		if(replaceHashasBindCharacter)
-			replacedQuery = replacedQuery.replace("#", "\"val\"");
+			replacedQuery = replacedQuery.replace("#", "val");
 
 		if(surroundRegexPatterns)
-			replacedQuery = replacedQuery.replace(".*", "\"val\"");
+			replacedQuery = replacedQuery.replace(".*", "val");
+		
+		replacedQuery = replacedQuery.replace("Document{", "");
+		replacedQuery = replacedQuery.substring(0, replacedQuery.length()-1);
 
 		return replacedQuery;
 	}

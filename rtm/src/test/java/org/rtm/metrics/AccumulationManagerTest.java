@@ -6,7 +6,8 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.metrics.accumulation.base.SumAccumulator;
+import org.rtm.metrics.accumulation.base.HistogramAccumulator;
+import org.rtm.metrics.accumulation.base.HistogramAccumulator.HistogramAccumulatorState;
 import org.rtm.stream.WorkDimension;
 
 public class AccumulationManagerTest {
@@ -26,6 +27,6 @@ public class AccumulationManagerTest {
 		metricsManager.accumulateAll(dimension, 110L);
 		
 		System.out.println(metricsManager.getAllValues(dimension));
-		Assert.assertEquals(565L, metricsManager.getValueForAccumulator(dimension, SumAccumulator.class.getName()));
+		Assert.assertEquals(565L, ((HistogramAccumulatorState)metricsManager.getValueForAccumulator(dimension, HistogramAccumulator.class.getName())).getTotalSum());
 	}
 }
