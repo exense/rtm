@@ -4,8 +4,9 @@
 	
 	<artifactId>rtm-core</artifactId>
 	<packaging>jar</packaging>
+	<name>Response Time Manager - Core libs</name>
 	<parent>
-		<groupId>org.rtm</groupId>
+		<groupId>ch.exense.rtm</groupId>
 		<artifactId>rtm-parent</artifactId>
 		<version>2.2.3-SNAPSHOT</version>
 		<relativePath>../rtm-parent</relativePath>
@@ -19,12 +20,12 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>org.rtm</groupId>
+			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.rtm</groupId>
+			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm</artifactId>
 			<version>${project.version}</version>
 		</dependency>
