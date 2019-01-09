@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>rtm</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<name>Response Time Manager</name>
 	<parent>
 		<groupId>ch.exense.rtm</groupId>
