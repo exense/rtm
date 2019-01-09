@@ -154,7 +154,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warName>${project.artifactId}</warName>
-					<outputDirectory>${tomcat.rtm.installdir}/webapps</outputDirectory>
+					<outputDirectory>${project.basedir}/webapps</outputDirectory>
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -164,6 +164,8 @@
 						<resource>
 							<!-- this is relative to the pom.xml directory -->
 							<directory>src/main/resources/webapp</directory>
+							<!-- For replacing the version number in the index.html : -->
+    						<filtering>true</filtering>
 						</resource>
 					</webResources>
 				</configuration>
@@ -183,7 +185,7 @@
 					<verbose>false</verbose>
 					<filesets>
 						<fileset>
-							<directory>${tomcat.rtm.installdir}/webapps/${project.artifactId}</directory>
+							<directory>${project.basedir}/webapps/${project.artifactId}</directory>
 							<followSymlinks>false</followSymlinks>
 						</fileset>
 					</filesets>

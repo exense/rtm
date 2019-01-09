@@ -36,9 +36,7 @@ import org.rtm.commons.Configuration;
 @Path("/configuration")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationServlet {
-
-	private static String version = "2.2.3";
-
+	
 	@POST
 	@Path("/getConfiguration")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -56,7 +54,7 @@ public class ConfigurationServlet {
 			response = new ConfigurationOutput();
 
 			Map p = (Map)Configuration.getInstance().getUnderlyingPropertyObject();
-			p.put("rtmVersion", version);
+			p.put("rtmVersion", this.getClass().getPackage().getImplementationVersion());
 			response.setConfig(p);
 
 			return Response.ok(response).build();
@@ -110,7 +108,7 @@ public class ConfigurationServlet {
 	public Response versionPost(@Context ServletContext sc) {return version(sc);}
 
 	public Response version(ServletContext sc) {
-		return Response.ok(version).build();
+		return Response.ok(this.getClass().getPackage().getImplementationVersion()).build();
 	}
 
 }
