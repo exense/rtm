@@ -3,7 +3,7 @@
 
 	<groupId>ch.exense.rtm</groupId>
 	<artifactId>rtm-parent</artifactId>
-	<version>2.2.4-SNAPSHOT</version>
+	<version>2.2.4</version>
 	<packaging>pom</packaging>
 
 	<name>RTM</name>
@@ -37,7 +37,7 @@
 		<connection>scm:git:git://github.com/exense/rtm.git</connection>
 		<developerConnection>scm:git:[push=]https://github.com/exense/rtm.git[fetch=]https://github.com/exense/rtm.git</developerConnection>
 		<url>https://github.com/exense/rtm.git</url>
-	  <tag>HEAD</tag>
+	  <tag>2.2.4</tag>
   </scm>
 
 	<properties>
