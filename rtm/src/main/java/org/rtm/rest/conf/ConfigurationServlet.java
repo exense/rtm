@@ -18,7 +18,9 @@
  *******************************************************************************/
 package org.rtm.rest.conf;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
@@ -54,7 +56,7 @@ public class ConfigurationServlet {
 			response = new ConfigurationOutput();
 
 			Map p = (Map)Configuration.getInstance().getUnderlyingPropertyObject();
-			p.put("rtmVersion", this.getClass().getPackage().getImplementationVersion());
+			p.put("rtmVersion", getVersion());
 			response.setConfig(p);
 
 			return Response.ok(response).build();
@@ -108,7 +110,22 @@ public class ConfigurationServlet {
 	public Response versionPost(@Context ServletContext sc) {return version(sc);}
 
 	public Response version(ServletContext sc) {
-		return Response.ok(this.getClass().getPackage().getImplementationVersion()).build();
+		try  {
+			return Response.ok(getVersion()).build();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
+		}
+	}
+	
+	private String getVersion() throws IOException {
+		/*String version = this.getClass().getPackage().getImplementationVersion();*/
+		Properties prop = new Properties();
+		prop.load(this.getClass().getClassLoader().getResourceAsStream("version.properties"));
+		String version = prop.getProperty("rtmVersion");
+		
+		return version;
 	}
 
 }

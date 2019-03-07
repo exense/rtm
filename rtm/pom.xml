@@ -1,6 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<artifactId>rtm</artifactId>
 	<packaging>war</packaging>
 	<name>Response Time Manager</name>
@@ -10,13 +12,13 @@
 		<version>2.2.4-SNAPSHOT</version>
 		<relativePath>../rtm-parent</relativePath>
 	</parent>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -117,8 +119,17 @@
 			<version>21.0</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -164,7 +175,7 @@
 							<!-- this is relative to the pom.xml directory -->
 							<directory>src/main/resources/webapp</directory>
 							<!-- For replacing the version number in the index.html : -->
-    						<filtering>true</filtering>
+							<filtering>true</filtering>
 						</resource>
 					</webResources>
 				</configuration>
