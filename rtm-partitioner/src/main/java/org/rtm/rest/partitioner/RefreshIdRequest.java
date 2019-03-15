@@ -16,24 +16,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.stream.result;
+package org.rtm.rest.partitioner;
 
-import java.util.Map;
+import org.rtm.stream.StreamId;
 
-import org.rtm.stream.Dimension;
-import org.rtm.stream.PayloadIdentifier;
+/**
+ * @author doriancransac
+ *
+ */
+public class RefreshIdRequest {
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+	private StreamId streamId;
 
-@JsonTypeInfo(use=Id.CLASS, property="_class")
-@SuppressWarnings("rawtypes")
-public interface AggregationResult<T> {
+	public StreamId getStreamId() {
+		return streamId;
+	}
+
+	public void setStreamId(StreamId streamId) {
+		this.streamId = streamId;
+	}
 	
-	public PayloadIdentifier<T> getStreamPayloadIdentifier();
-	
-	public Map<String, Dimension> getDimensionsMap();
-	
-	public void setDimensionsMap(Map<String, Dimension> map);
-
 }

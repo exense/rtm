@@ -38,6 +38,7 @@ public class PartitionerRequest {
 	private long end;
 	private long increment;
 	private long optimalSize;
+	
 	public List<Selector> getSel() {
 		return sel;
 	}

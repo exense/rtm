@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.client.HttpClient;
 import org.rtm.commons.Configuration;
 import org.rtm.db.DBClient;
 import org.rtm.range.time.LongTimeInterval;
@@ -18,22 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import step.grid.GridImpl;
 import step.grid.TokenWrapper;
-import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
 import step.grid.client.GridClient;
-import step.grid.client.LocalGridClientImpl;
+import step.grid.io.AgentError;
 import step.grid.io.OutputMessage;
 
 public class RequestHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-	private GridImpl partitionerGrid;
-	
-	public RequestHandler(GridImpl partitionerGrid) {
-		this.partitionerGrid = partitionerGrid;
-	}
-
-	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
+	public StreamId aggregate(AggregationRequest aggReq, GridClient client, TokenWrapper handle) throws Exception{
 		
 		logger.info(" --- New Aggregation Request ---"); 
 		List<Selector> sel = aggReq.getSelectors1();
@@ -88,26 +80,20 @@ public class RequestHandler {
 		req.setTimeoutSecs(timeoutSecs);
 		ObjectMapper om = new ObjectMapper();
 		
-		//TODO: Isolate & cache
-		TokenWrapper tokenHandle = null;
-		GridClient partitionerClient = null;
-		try {
-			 partitionerClient = new LocalGridClientImpl(partitionerGrid);
-			
-			tokenHandle = partitionerClient.getTokenHandle(new HashMap<>(), new HashMap<>(), false);
-		} catch (AgentCommunicationException e1) {	e1.printStackTrace();}
-		
         OutputMessage message = null;
 		try {
-			message = partitionerClient.call(tokenHandle, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
+			message = client.call(handle, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
 		} catch (Exception e) {e.printStackTrace();}
-		finally{
-			try {
-				partitionerClient.returnTokenHandle(tokenHandle);
-				partitionerClient.close();
-			} catch (AgentCommunicationException e) {e.printStackTrace();}
-		}
+		
 		StreamId sId = om.treeToValue(message.getPayload(), StreamId.class);
+		
+		if(message.getAgentError() != null) {
+			AgentError error = message.getAgentError();
+			System.err.println("Error in agent.");
+			System.err.println(error.getClass());
+			System.err.println(error.getErrorCode());
+			System.err.println(error.getErrorDetails());
+		}
 		
 		logger.info(" --- Returning StreamId --- (" +sId+")"  );
 		return sId;

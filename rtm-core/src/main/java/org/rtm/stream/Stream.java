@@ -36,6 +36,8 @@ public class Stream<T> {
 	@JsonIgnore
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
 
+	public Stream(){}
+
 	public Stream(Properties prop){
 		this.streamProp = prop;
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());

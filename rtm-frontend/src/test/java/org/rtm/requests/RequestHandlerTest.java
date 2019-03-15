@@ -58,7 +58,7 @@ public class RequestHandlerTest {
 			long start = System.currentTimeMillis();
 			AbstractResponse response = null;
 			try {
-				response = new SuccessResponse(rh.aggregate(ar), "Stream initialized. Call the streaming service next to start retrieving data.");
+				response = new SuccessResponse(rh.aggregate(ar,null,null), "Stream initialized. Call the streaming service next to start retrieving data.");
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
