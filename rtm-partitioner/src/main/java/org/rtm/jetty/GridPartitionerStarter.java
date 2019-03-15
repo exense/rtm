@@ -21,19 +21,25 @@ package org.rtm.jetty;
 import java.io.File;
 import java.util.HashMap;
 
-import org.eclipse.jetty.server.Server;
 import org.rtm.commons.Configuration;
+import org.rtm.pipeline.commons.tasks.RemoteQueryTask;
 
 import step.grid.agent.Agent;
 import step.grid.agent.conf.AgentConf;
+import step.grid.client.GridClient;
+import step.grid.client.RemoteGridClientImpl;
 
 /**
  * @author dcransac
  *
  */
-public class GridWorkerStarter {
+public class GridPartitionerStarter {
+
 	public static void main(String[] args){
 		
+		GridClient workerGridClient = new RemoteGridClientImpl("http://localhost:8016");
+		
+		RemoteQueryTask.gridCLient = workerGridClient;
 		
 		ArgumentParser arguments = new ArgumentParser(args);
 
@@ -48,7 +54,7 @@ public class GridWorkerStarter {
 		Configuration.initSingleton(new File(agentConfStr));
 
 		try {
-			new GridWorkerStarter().start();
+			new GridPartitionerStarter().start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -59,8 +65,8 @@ public class GridWorkerStarter {
 
 		AgentConf conf = new AgentConf();
 		conf.setAgentHost("localhost");
-		conf.setAgentPort(8018);
-		conf.setGridHost("http://localhost:8016");
+		conf.setAgentPort(8017);
+		conf.setGridHost("http://localhost:8015");
 
 		Agent agent = new Agent(conf);
 		agent.addTokens(2, new HashMap<>(), new HashMap<>(), new HashMap<>());

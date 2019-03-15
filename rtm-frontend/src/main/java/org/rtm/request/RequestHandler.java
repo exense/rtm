@@ -1,5 +1,6 @@
 package org.rtm.request;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,10 +16,22 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import step.grid.GridImpl;
+import step.grid.TokenWrapper;
+import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
+import step.grid.client.GridClient;
+import step.grid.client.LocalGridClientImpl;
+import step.grid.io.OutputMessage;
+
 public class RequestHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
+	private GridImpl partitionerGrid;
+	
+	public RequestHandler(GridImpl partitionerGrid) {
+		this.partitionerGrid = partitionerGrid;
+	}
 
 	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
 		
@@ -63,7 +76,6 @@ public class RequestHandler {
 		/* SHIP TO PARTITIONER */
 		// Add map of <streamId,partitionerId> to know where to forward the stream refresh calls
 
-		HttpClient client = new HttpClient("localhost", 8098);
 		PartitionerRequest req = new PartitionerRequest();
 		req.setSubPoolSize(subPoolSize);
 		req.setSubPartitioning(subPartitioning);
@@ -76,9 +88,27 @@ public class RequestHandler {
 		req.setTimeoutSecs(timeoutSecs);
 		ObjectMapper om = new ObjectMapper();
 		
-		String response = client.call(om.writeValueAsString(req), "/partitioner" ,"/partition");
-		client.close();
-		StreamId sId = om.readValue(response, StreamId.class); 
+		//TODO: Isolate & cache
+		TokenWrapper tokenHandle = null;
+		GridClient partitionerClient = null;
+		try {
+			 partitionerClient = new LocalGridClientImpl(partitionerGrid);
+			
+			tokenHandle = partitionerClient.getTokenHandle(new HashMap<>(), new HashMap<>(), false);
+		} catch (AgentCommunicationException e1) {	e1.printStackTrace();}
+		
+        OutputMessage message = null;
+		try {
+			message = partitionerClient.call(tokenHandle, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
+		} catch (Exception e) {e.printStackTrace();}
+		finally{
+			try {
+				partitionerClient.returnTokenHandle(tokenHandle);
+				partitionerClient.close();
+			} catch (AgentCommunicationException e) {e.printStackTrace();}
+		}
+		StreamId sId = om.treeToValue(message.getPayload(), StreamId.class);
+		
 		logger.info(" --- Returning StreamId --- (" +sId+")"  );
 		return sId;
 	}

@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.NoSuchElementException;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -33,8 +35,10 @@ import org.rtm.client.HttpClient;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
+import org.rtm.request.PartitionerService;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
+import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,16 +48,29 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import step.grid.GridImpl;
+
 /**
  * @author doriancransac
  *
  */
+@Singleton
 @Path(AggregationConstants.servletPrefix)
 public class AggregationServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
+	private RequestHandler rh;
+	
+	//TODO: set up gracefully
+	public static GridImpl partitionerGrid;
+	public static GridImpl workerGrid;
 
-	RequestHandler rh = new RequestHandler();
+	//TODO: maybe move the worker grid init somewhere else..
+	@PostConstruct
+	public void init() {
+		//optim (for local reservation instead of network based)
+		rh = new RequestHandler(partitionerGrid);
+	}
 
 	@POST
 	@Path(AggregationConstants.getpath)
@@ -72,6 +89,7 @@ public class AggregationServlet {
 
 	}
 
+	//TODO: re-enable
 	/*
 	@POST
 	@Path(AggregationConstants.comparepath)
@@ -117,6 +135,8 @@ public class AggregationServlet {
 	private ErrorResponse generateError(Exception e, String details, boolean logError){
 		if(logError)
 			logger.error(details);
+		System.err.println(details);
+		e.printStackTrace();
 		return new ErrorResponse(details +  "   (" + e.getClass().getName()+" : " +  (e.getMessage() == null?"no exception message":e.getMessage()) +  ")");
 	}
 }

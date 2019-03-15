@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import step.grid.TokenWrapper;
+import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
 import step.grid.client.GridClient;
-import step.grid.client.GridClientImpl.AgentCommunicationException;
 import step.grid.io.OutputMessage;
 
 public class RemoteQueryTask implements RangeTask {
@@ -26,6 +26,7 @@ public class RemoteQueryTask implements RangeTask {
 	protected MeasurementAccumulator accumulator;
 	protected Properties prop;
 
+	//TODO: pass gracefully and isolate outside of "core"
 	public static GridClient gridCLient;
 	
 	public RemoteQueryTask(List<Selector> sel, Properties prop){

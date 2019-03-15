@@ -38,17 +38,32 @@ import org.rtm.rest.security.AuthenticationFilter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
+import step.grid.GridImpl;
+
 /**
  * @author dcransac
  *
  */
 public class JettyFrontendStarter {
 	
-	private Server server;
-	//private ContextHandlerCollection handlers;
-	
+	private Server server;	
 	
 	public static void main(String[] args){
+		
+		AggregationServlet.partitionerGrid = new GridImpl(8015);
+		AggregationServlet.workerGrid = new GridImpl(8016);
+
+		try {
+			System.out.println("[MAIN] Starting partitioner grid..");
+			AggregationServlet.partitionerGrid.start();
+			System.out.println("[MAIN] Starting worker grid..");
+			AggregationServlet.workerGrid.start();
+			System.out.println("[MAIN] Grids initialized.");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		ArgumentParser arguments = new ArgumentParser(args);
 		
 		String agentConfStr = arguments.getOption("config");

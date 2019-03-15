@@ -28,6 +28,7 @@ import org.rtm.pipeline.builders.task.PartitionedRangeTaskBuilder;
 import org.rtm.pipeline.builders.task.RangeTaskBuilder;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.commons.PipelineExecutionHelper;
+import org.rtm.rest.partitioner.PartitionerRequest;
 import org.rtm.selection.Selector;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
@@ -35,13 +36,21 @@ import org.rtm.stream.StreamId;
 import org.rtm.stream.result.ResultHandler;
 import org.rtm.stream.result.StreamResultHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import step.grid.agent.handler.AbstractMessageHandler;
+import step.grid.agent.handler.context.OutputMessageBuilder;
+import step.grid.agent.tokenpool.AgentTokenWrapper;
+import step.grid.io.InputMessage;
+import step.grid.io.OutputMessage;
+
 
 /**
  * @author doriancransac
  *
  */
 @SuppressWarnings({"unchecked"})
-public class PartitionerService{
+public class PartitionerService extends AbstractMessageHandler{
 	
 	private StreamBroker streamBroker;
 	
@@ -83,5 +92,17 @@ public class PartitionerService{
 		stream.setTimeoutDurationSecs(timeout);
 
 		return stream;
+	}
+
+
+	@Override
+	public OutputMessage handle(AgentTokenWrapper token, InputMessage message) throws Exception {
+		ObjectMapper om = new ObjectMapper();
+		PartitionerRequest req = om.treeToValue(message.getPayload(), PartitionerRequest.class);
+
+		OutputMessageBuilder omb = new OutputMessageBuilder();
+		omb.setPayload(om.valueToTree(aggregate(req.getSel(), req.getProp(), req.getSubPartitioning(), req.getSubPoolSize(), req.getTimeoutSecs(), req.getStart(), req.getEnd(), req.getIncrement(), req.getOptimalSize())));
+		
+		return omb.build();
 	}
 }

@@ -16,8 +16,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<step.grid.version>1.0.0-SNAPSHOT</step.grid.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>ch.exense.step</groupId>
+			<artifactId>step-grid-server</artifactId>
+			<version>${step.grid.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
