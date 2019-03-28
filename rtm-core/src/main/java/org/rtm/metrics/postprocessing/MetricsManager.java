@@ -32,8 +32,8 @@ public class MetricsManager {
 	private Stream computePostMetrics(Stream stream) throws Exception {
 		Stream resStream = new Stream(props);
 		
-		ConcurrentSkipListMap<Long, AggregationResult> originMap = stream.getStreamData();
-		ConcurrentSkipListMap<Long, AggregationResult> resultMap = new ConcurrentSkipListMap<Long, AggregationResult>();
+		Map<Long, AggregationResult> originMap = stream.getStreamData();
+		Map<Long, AggregationResult> resultMap = new ConcurrentSkipListMap<Long, AggregationResult>();
 
 		resStream.setStreamData(resultMap);
 		

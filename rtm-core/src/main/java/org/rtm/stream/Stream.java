@@ -1,5 +1,6 @@
 package org.rtm.stream;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -19,7 +20,7 @@ public class Stream<T> {
 
 	public static final String INTERVAL_SIZE_KEY = "intervalSize";
 	
-	private ConcurrentSkipListMap<Long, AggregationResult<T>> streamData;
+	private Map<Long, AggregationResult<T>> streamData;
 	private StreamId id = new StreamId(); 
 	private boolean isClone = false; 
 
@@ -73,11 +74,11 @@ public class Stream<T> {
 		this.isRefreshedSinceCompletion = isRefreshedSinceCompletion;
 	}
 
-	public ConcurrentSkipListMap<Long, AggregationResult<T>> getStreamData() {
+	public Map<Long, AggregationResult<T>> getStreamData() {
 		return streamData;
 	}
 
-	public void setStreamData(ConcurrentSkipListMap<Long, AggregationResult<T>> streamData) {
+	public void setStreamData(Map<Long, AggregationResult<T>> streamData) {
 		this.streamData = streamData;
 	}
 	
@@ -104,6 +105,10 @@ public class Stream<T> {
 		return isClone;
 	}
 	
+	public void setClone(boolean isClone) {
+		this.isClone = isClone;
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		this.streamData.entrySet().stream().forEach(e -> {
@@ -120,6 +125,7 @@ public class Stream<T> {
 		this.streamProp = streamProp;
 	}
 	
+	@JsonIgnore
 	public long getDurationMs() {
 		if(this.timeEnded > 0)
 			return this.timeEnded - this.timeCreated;

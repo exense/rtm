@@ -55,9 +55,9 @@ public class RemoteQueryTask implements RangeTask {
 		
 		//TODO: pool/cache/static mapper
 		ObjectMapper om = new ObjectMapper();
-		final SimpleModule module = new SimpleModule();
-        module.addDeserializer(LongRangeValue.class, new LongRangeValueDeserializer());
-        om.registerModule(module);
+//		final SimpleModule module = new SimpleModule();
+//        module.addDeserializer(LongRangeValue.class, new LongRangeValueDeserializer());
+//        om.registerModule(module);
  
         //gridCLient.registerFile(new File())
         OutputMessage message = null;

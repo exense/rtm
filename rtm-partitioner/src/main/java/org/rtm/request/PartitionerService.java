@@ -128,7 +128,8 @@ public class PartitionerService extends AbstractMessageHandler{
 		}
 		if(request instanceof RefreshIdRequest) {
 			RefreshIdRequest req = (RefreshIdRequest) request;
-			omb.setPayload(om.valueToTree(refreshResutStreamForId(req.getStreamId())));
+			StreamResponseWrapper refreshResutStreamForId = refreshResutStreamForId(req.getStreamId());
+			omb.setPayload(om.valueToTree(refreshResutStreamForId));
 		}
 
 		return omb.build();

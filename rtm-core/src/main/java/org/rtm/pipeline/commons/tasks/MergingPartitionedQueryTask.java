@@ -58,10 +58,10 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 			tv.getDimensionsMap().values().stream().forEach(d -> {
 				WorkDimension dim = (WorkDimension)d;
 				String dimensionValue = dim.getDimensionName();
-				WorkDimension resDim = (WorkDimension)result.get(dimensionValue);
+				WorkDimension resDim = (WorkDimension)result.getDimensionsMap().get(dimensionValue);
 				if(resDim == null){
 					resDim = new WorkDimension(dimensionValue);
-					result.put(dimensionValue, resDim);
+					result.getDimensionsMap().put(dimensionValue, resDim);
 				}
 				
 				this.accumulator.mergeDimensionsLeft(resDim, dim);

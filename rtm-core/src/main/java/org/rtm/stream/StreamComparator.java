@@ -19,8 +19,8 @@
 package org.rtm.stream;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.rtm.range.RangeBucket;
 import org.rtm.stream.result.AggregationResult;
@@ -50,8 +50,8 @@ public class StreamComparator<T> {
 	}
 
 	public void compare() throws Exception {
-		ConcurrentSkipListMap<Long, AggregationResult<T>> data1 = s1.getStreamData();
-		ConcurrentSkipListMap<Long, AggregationResult<T>> data2 = s2.getStreamData();
+		Map<Long, AggregationResult<T>> data1 = s1.getStreamData();
+		Map<Long, AggregationResult<T>> data2 = s2.getStreamData();
 
 		Iterator<Entry<Long, AggregationResult<T>>> it1 = data1.entrySet().iterator();
 		Iterator<Entry<Long, AggregationResult<T>>> it2 = data2.entrySet().iterator();
@@ -86,7 +86,7 @@ public class StreamComparator<T> {
 				logger.debug("Dimension=" +dimName+ " not found, skipping.", e);
 				continue;
 			}
-			result.put(dimName, dimResult);
+			result.getDimensionsMap().put(dimName, dimResult);
 		}
 		return (AggregationResult<T>)result;
 	}

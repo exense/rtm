@@ -5,7 +5,6 @@ import org.rtm.serialization.WorkDimensionSerializer;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(using = WorkDimensionSerializer.class)
 public class WorkDimension  extends Dimension<String, WorkObject>{
 	private static final long serialVersionUID = 5989391368060961616L;
 	//private static final Logger logger = LoggerFactory.getLogger(Dimension.class);

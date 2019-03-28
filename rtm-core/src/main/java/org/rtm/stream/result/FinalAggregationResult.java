@@ -39,6 +39,10 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 	private Map<String, Dimension> map;
 	private PayloadIdentifier<T> identifier;
 	
+	public FinalAggregationResult() {
+		super();
+	}
+
 	public FinalAggregationResult(PayloadIdentifier<T> id){
 		this.identifier = new SimplePayloadIdentifier(id.getIdAsTypedObject());
 	}
@@ -55,7 +59,7 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 		return map;
 	}
 	
-	@JsonValue
+	@JsonIgnore
 	public Map<String, Dimension> getPrettyDimensionsMap() {
 		return map;
 	}
