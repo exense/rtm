@@ -41,7 +41,7 @@ public class MeasurementStatistics {
 		FinalDimension res = new FinalDimension(data.getDimensionName());
 
 		subscribedMetrics.values().stream().forEach(v ->{
-			res.put(v.getDisplayName(), v.computeMetric((Map)data, intervalSize));
+			res.put(v.getDisplayName(), v.computeMetric(data.getMap(), intervalSize));
 		});
 			
 		return res;

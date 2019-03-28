@@ -20,9 +20,13 @@ package org.rtm.stream;
 
 import org.rtm.range.Identifier;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 /**
  * @author doriancransac
  *
  */
+@JsonTypeInfo(use=Id.CLASS, property="_class")
 public interface PayloadIdentifier<T> extends Identifier<T>{
 }

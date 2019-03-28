@@ -10,12 +10,11 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Histogram {
-	@JsonIgnore
+
 	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
 
-	@JsonIgnore
 	private int nbPairs;
-	@JsonIgnore
+
 	private int approxMs;
 
 	//TODO: reimplement with Map<Integer, CountSumBucker> to find match & closest faster
@@ -142,6 +141,7 @@ public class Histogram {
 		return sb.toString();
 	}
 
+	@JsonIgnore
 	public long getTotalCount(){
 		long count = 0;
 		for(CountSumBucket b : histogram)
@@ -149,6 +149,7 @@ public class Histogram {
 		return count;
 	}
 
+	@JsonIgnore
 	public long getTotalSum(){
 		long sum = 0;
 		for(CountSumBucket b : histogram)
@@ -156,6 +157,7 @@ public class Histogram {
 		return sum;
 	}
 
+	@JsonIgnore
 	public long size(){
 		return histogram.length;
 	}

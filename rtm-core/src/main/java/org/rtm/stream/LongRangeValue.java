@@ -29,8 +29,8 @@ public class LongRangeValue implements AggregationResult<Long>{
 		return (PayloadIdentifier<Long>) this.streamPayloadIdentifier;
 	}
 	
-	public void setStreamPayloadIdentifier(Long id) {
-		this.streamPayloadIdentifier = new TimeBasedPayloadIdentifier(id);
+	public void setStreamPayloadIdentifier(PayloadIdentifier<Long> streamPayloadIdentifier) {
+		this.streamPayloadIdentifier = streamPayloadIdentifier;
 	}
 	
 	public Dimension getDimension(String dimensionName) {
@@ -43,38 +43,50 @@ public class LongRangeValue implements AggregationResult<Long>{
 
 
 	@Override
-	@JsonIgnore
 	public Map<String, Dimension> getDimensionsMap() {
 		return dimensionMap;
 	}
 
 	@Override
-	@JsonIgnore
 	public void setDimensionsMap(Map<String, Dimension> map) {
 		dimensionMap = map;
 	}
 
-	private class TimeBasedPayloadIdentifier implements PayloadIdentifier<Long>{
+	public static class TimeBasedPayloadIdentifier implements PayloadIdentifier<Long>{
 
-		Long id;
+		protected Long longId;
+
+		public TimeBasedPayloadIdentifier() {
+			super();
+		}
 
 		public TimeBasedPayloadIdentifier(Long id){
-			this.id = id;
+			this.longId = id;
 		}
 
 		@Override
+		@JsonIgnore
 		public Identifier<Long> getId() {
 			return this;
 		}
 
+		public void setLongId(long id) {
+			this.longId = id;
+		}
+		
+		public long getLongId() {
+			return longId;
+		}
+
 		@Override
+		@JsonIgnore
 		public Long getIdAsTypedObject() {
-			return this.id;
+			return this.longId;
 		}
 
 		@Override
 		public int compareTo(Identifier<Long> o) {
-			return this.id.compareTo(o.getIdAsTypedObject());
+			return this.longId.compareTo(o.getIdAsTypedObject());
 		}
 
 	}

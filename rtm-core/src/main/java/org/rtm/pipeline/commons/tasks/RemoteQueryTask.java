@@ -9,11 +9,9 @@ import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.WorkerRequest;
 import org.rtm.selection.Selector;
-import org.rtm.serialization.LongRangeValueDeserializer;
 import org.rtm.stream.LongRangeValue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import step.grid.TokenWrapper;
 import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
@@ -35,7 +33,6 @@ public class RemoteQueryTask implements RangeTask {
 		this.prop = prop;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) throws IOException {
 		LongRangeValue lrv = null;
@@ -55,10 +52,6 @@ public class RemoteQueryTask implements RangeTask {
 		
 		//TODO: pool/cache/static mapper
 		ObjectMapper om = new ObjectMapper();
-//		final SimpleModule module = new SimpleModule();
-//        module.addDeserializer(LongRangeValue.class, new LongRangeValueDeserializer());
-//        om.registerModule(module);
- 
         //gridCLient.registerFile(new File())
         OutputMessage message = null;
 		try {

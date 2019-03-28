@@ -1,17 +1,19 @@
 package org.rtm.stream;
 
 public class FinalDimension  extends Dimension<String, Object>{
-	private static final long serialVersionUID = 5989391368060961616L;
-	//private static final Logger logger = LoggerFactory.getLogger(Dimension.class);
 
 	public FinalDimension(String name){
 		super(name);
 	}
 
+	public FinalDimension() {
+		super();
+	}
+
 	public FinalDimension diff(FinalDimension dim2) throws Exception {
 		FinalDimension diff = new FinalDimension(this.getDimensionName());
 		
-		this.entrySet().stream().forEach(e -> {
+		this.map.entrySet().stream().forEach(e -> {
 			String metricName = e.getKey();
 			Object val2 = dim2.get(metricName);
 			Object val1 = this.get(metricName);

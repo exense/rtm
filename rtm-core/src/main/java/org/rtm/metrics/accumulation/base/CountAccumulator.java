@@ -19,7 +19,7 @@ public class CountAccumulator extends LongBinaryAccumulator{
 		return new CountAccumulatorState();
 	}
 	
-	public class CountAccumulatorState extends LongBinaryAccumulatorState{
+	public static class CountAccumulatorState extends LongBinaryAccumulatorState{
 		
 		public CountAccumulatorState() {
 			super((x,y) -> x+1, 0L);

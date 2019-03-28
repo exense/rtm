@@ -62,7 +62,13 @@ public class WorkerService extends AbstractMessageHandler{
 		WorkerRequest req = om.treeToValue(message.getPayload(), WorkerRequest.class);
 
 		OutputMessageBuilder omb = new OutputMessageBuilder();
-		omb.setPayload(om.valueToTree(produceValueForBucket(req.getSelectors(), req.getRangeBucket(), req.getProp())));
+		LongRangeValue valueForBucket = produceValueForBucket(req.getSelectors(), req.getRangeBucket(), req.getProp());
+		try {
+			omb.setPayload(om.valueToTree(valueForBucket));
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 		
 		return omb.build();
 	}

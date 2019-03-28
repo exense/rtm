@@ -21,12 +21,25 @@ public class LongBinaryAccumulatorState implements WorkObject{
 		operator = op;
 	}
 	
+	public LongBinaryAccumulatorState() {
+		super();
+	}
+
+	@JsonIgnore
 	public LongAccumulator getAccumulator() {
 		return accumulator;
 	}
 
 	public void setAccumulator(LongAccumulator accumulator) {
 		this.accumulator = accumulator;
+	}
+	
+	public long getAccumulatorValue() {
+		return accumulator.get();
+	}
+	
+	public void setAccumulatorValue(long value) {
+		accumulator = new LongAccumulator(null, value);
 	}
 
 	public LongBinaryOperator getOperator() {

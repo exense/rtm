@@ -1,5 +1,7 @@
 package org.rtm.metrics.accumulation.histograms;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class CountSumBucket implements Comparable<CountSumBucket>{
 
 	private long count;
@@ -23,6 +25,7 @@ public class CountSumBucket implements Comparable<CountSumBucket>{
 		return sum;
 	}
 
+	@JsonIgnore
 	public long getAvg() {
 		if(count > 0)
 			return this.sum / this.count;

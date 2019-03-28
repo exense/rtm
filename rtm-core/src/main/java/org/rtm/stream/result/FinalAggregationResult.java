@@ -53,7 +53,6 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 		return this.identifier;
 	}
 
-	@JsonIgnore
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
 		return map;
@@ -64,7 +63,6 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 		return map;
 	}
 	
-	//@JsonIgnore
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
 		this.map = map;
