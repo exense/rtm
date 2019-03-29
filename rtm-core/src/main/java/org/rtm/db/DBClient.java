@@ -97,10 +97,6 @@ public class DBClient {
 		return new LongTimeInterval(minVal, maxVal);
 	}
 
-	public static long computeOptimalIntervalSize(long timeWindow, int targetSeriesDots){
-		return Math.abs(timeWindow / targetSeriesDots) + 1;
-	}
-
 	public static long run90PclOnFirstSample(int heuristicSampleSize, List<Selector> sel) {
 		logger.info("Starting sampling of first " + heuristicSampleSize + " data points...");
 		long start = System.currentTimeMillis();

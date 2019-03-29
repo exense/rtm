@@ -29,7 +29,7 @@ public class OptimisticLongPartitioner extends OptimisticRangePartitioner<Long>{
 		 * The caller needs to test null case explicitely.
 		 * 
 		 */
-		if(newLower > super.max){
+		if(newLower >= super.max){
 			return null;
 		}
 

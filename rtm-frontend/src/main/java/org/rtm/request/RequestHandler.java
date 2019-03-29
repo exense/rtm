@@ -119,7 +119,7 @@ public class RequestHandler {
 		{
 			switch(hardInterval){
 			case "auto":
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
+				optimalSize = Math.abs(effective.getSpan() / Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")) + 1);
 				break;
 			case "max":
 				optimalSize = effective.getSpan() + 1;
