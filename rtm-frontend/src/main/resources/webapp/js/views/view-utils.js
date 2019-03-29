@@ -220,8 +220,8 @@ function convertToOld(payload, metrics){
 					thisMeasure['begin'] = parseInt(dot);
 					var complete = true;
 					_.each(metrics, function(metric){
-						if(payload[dot][sery]){
-							thisMeasure[metric] = payload[dot][sery][metric];
+						if(payload[dot]['dimensionsMap'][sery]['map']){
+							thisMeasure[metric] = payload[dot]['dimensionsMap'][sery]['map'][metric];
 						}else
 							complete = false;
 					});
@@ -242,7 +242,7 @@ function convertToOld(payload, metrics){
 function getSeriesFullTraversal(payload){
 	var series = [];
 	for(dot in payload){
-		for(sery in  payload[dot]){
+		for(sery in  payload[dot]['dimensionsMap']){
 			if($.inArray(sery, series) < 0)
 				series.push(sery);
 		}
