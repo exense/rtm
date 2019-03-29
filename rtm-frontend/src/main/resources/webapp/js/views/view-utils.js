@@ -220,7 +220,7 @@ function convertToOld(payload, metrics){
 					thisMeasure['begin'] = parseInt(dot);
 					var complete = true;
 					_.each(metrics, function(metric){
-						if(payload[dot]['dimensionsMap'][sery]['map']){
+						if(payload[dot]['dimensionsMap'][sery] && payload[dot]['dimensionsMap'][sery]['map']){
 							thisMeasure[metric] = payload[dot]['dimensionsMap'][sery]['map'][metric];
 						}else
 							complete = false;
