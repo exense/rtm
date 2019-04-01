@@ -21,9 +21,9 @@ package org.rtm.jetty;
 import java.io.File;
 import java.util.HashMap;
 
-import org.eclipse.jetty.server.Server;
 import org.rtm.commons.Configuration;
 
+import ch.exense.commons.app.ArgumentParser;
 import step.grid.agent.Agent;
 import step.grid.agent.conf.AgentConf;
 
@@ -32,9 +32,8 @@ import step.grid.agent.conf.AgentConf;
  *
  */
 public class GridWorkerStarter {
+	
 	public static void main(String[] args){
-		
-		
 		ArgumentParser arguments = new ArgumentParser(args);
 
 		String agentConfStr = arguments.getOption("config");

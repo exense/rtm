@@ -19,6 +19,7 @@
 package org.rtm.jetty;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -38,6 +39,7 @@ import org.rtm.rest.security.AuthenticationFilter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
+import ch.exense.commons.app.ArgumentParser;
 import step.grid.GridImpl;
 
 /**
@@ -48,7 +50,7 @@ public class JettyFrontendStarter {
 	
 	private Server server;	
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		
 		AggregationServlet.partitionerGrid = new GridImpl(8015);
 		AggregationServlet.workerGrid = new GridImpl(8016);

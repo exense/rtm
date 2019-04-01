@@ -41,6 +41,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<exense-commons.version>1.0.0-SNAPSHOT</exense-commons.version>
+		<step.grid.version>1.0.0-SNAPSHOT</step.grid.version>
 	</properties>
 
 	<distributionManagement>
@@ -53,6 +55,14 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 	</distributionManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>ch.exense</groupId>
+			<artifactId>exense-commons</artifactId>
+			<version>${exense-commons.version}</version>
+		</dependency>
+	</dependencies>
 
 	<modules>
 		<module>../rtm-commons</module>

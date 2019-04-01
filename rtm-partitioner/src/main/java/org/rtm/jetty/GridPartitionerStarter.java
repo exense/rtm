@@ -24,6 +24,7 @@ import java.util.HashMap;
 import org.rtm.commons.Configuration;
 import org.rtm.pipeline.commons.tasks.RemoteQueryTask;
 
+import ch.exense.commons.app.ArgumentParser;
 import step.grid.agent.Agent;
 import step.grid.agent.conf.AgentConf;
 import step.grid.client.GridClient;
