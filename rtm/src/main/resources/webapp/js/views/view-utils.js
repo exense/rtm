@@ -249,3 +249,43 @@ function getSeriesFullTraversal(payload){
 	}
 	return series;
 }
+
+function convertArrayOfObjectsToCSV(args) {  
+	var result = "";
+
+    _.each(args.data, function(item) {
+    	var series = item.groupby;
+    	_.each(item.data, function(ytem) {
+    		result += series + ',';
+    		_.each(ytem, function(yytem) {
+    			result += yytem;
+        		result += ',';
+            });
+    		result = result.substring(0, result.length - 1);
+            result += '\n';
+    	});
+    });
+    return result;
+}
+
+function downloadCSV(args) {  
+    var data, filename, link;
+    var csv = convertArrayOfObjectsToCSV({
+        data: args.data
+    });
+    if (csv == null) return;
+
+    filename = args.filename || 'export.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+        csv = 'data:text/csv;charset=utf-8,' + csv;
+    }
+
+    console.log("csv=" +  csv);
+    data = encodeURI(csv);
+    console.log("data=" +  data);
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
+}

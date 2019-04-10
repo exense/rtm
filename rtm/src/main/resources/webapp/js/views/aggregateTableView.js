@@ -2,7 +2,8 @@ var AggregateTableView = Backbone.View.extend({
 	el: '.TableView',
 	events : {
 		"click .mlCheckbox": "updateTableMetricChoice",
-		"click .displayTable": "switchTable"
+		"click .displayTable": "switchTable",
+		"click #exportData": "exportData"
 	},
 
 	checkedAggTableMetrics: [],
@@ -37,6 +38,12 @@ var AggregateTableView = Backbone.View.extend({
 		}
 		this.render();
 	},
+	
+	exportData:function(e){
+		var aggregateData = convertToOld(this.collection.models[0].get('payload').stream.streamData, this.getMetricsList());
+		downloadCSV({ filename: "rtm-data.csv", data: aggregateData});
+	},
+	
 	getGuiFragment :function(){
 		return {
 			'checkedAggTableMetrics' : this.getCurrentTableMetricChoices(),
