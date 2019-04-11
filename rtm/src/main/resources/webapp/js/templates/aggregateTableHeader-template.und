@@ -5,7 +5,7 @@
 <a data-toggle="collapse" data-parent="#accordion" href="#collapseATable">
 Table
 </a>
-&nbsp
+&nbsp;
 <% if(displayTable === 'true'){ %>
 	<input type="checkbox" class="displayTable" id="DisplayTable" value="displayed" checked="checked">
 <% } else {%>

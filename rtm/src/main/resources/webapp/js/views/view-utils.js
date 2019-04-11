@@ -251,14 +251,21 @@ function getSeriesFullTraversal(payload){
 }
 
 function convertArrayOfObjectsToCSV(args) {  
-	var result = "";
+	var result = "Groupby,";
 
+	_.each(Object.keys(args.data[0].data[0]), function(key) {
+		result += key + ',';
+	});
+	
+	result = result.substring(0, result.length - 1);
+	result += '\n';
+	
     _.each(args.data, function(item) {
     	var series = item.groupby;
     	_.each(item.data, function(ytem) {
     		result += series + ',';
-    		_.each(ytem, function(yytem) {
-    			result += yytem;
+    		_.each(Object.keys(ytem), function(key) {
+    			result += ytem[key];
         		result += ',';
             });
     		result = result.substring(0, result.length - 1);
@@ -277,15 +284,41 @@ function downloadCSV(args) {
 
     filename = args.filename || 'export.csv';
 
-    if (!csv.match(/^data:text\/csv/i)) {
-        csv = 'data:text/csv;charset=utf-8,' + csv;
-    }
+     data = encodeURI(csv);
 
-    console.log("csv=" +  csv);
-    data = encodeURI(csv);
-    console.log("data=" +  data);
-    link = document.createElement('a');
-    link.setAttribute('href', data);
-    link.setAttribute('download', filename);
-    link.click();
+    if(msieversion()){
+    	
+    	var IEwindow = window.open();
+    	IEwindow.document.write(csv);
+    	IEwindow.document.close();
+    	IEwindow.document.execCommand('SaveAs', true, "rtm-data.csv");
+    	IEwindow.close();
+    	
+    }else{
+
+        if (!csv.match(/^data:text\/csv/i)) {
+        	data = 'data:text/csv;charset=utf-8,' + data;
+        }
+
+        link = document.createElement('a');
+        link.setAttribute('href', data);
+    	link.setAttribute('id', 'tempDownloadElement');
+    	link.setAttribute('download', filename);
+    
+    	$('#tempHolder').append(link);
+    
+    	link.click();
+    }
 }
+
+function msieversion() {
+	  var ua = window.navigator.userAgent;
+	  var msie = ua.indexOf("MSIE ");
+	  if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) // If Internet Explorer, return true
+	  {
+	    return true;
+	  } else { // If another browser,
+	  return false;
+	  }
+	  return false;
+	}
