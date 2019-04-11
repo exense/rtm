@@ -1,8 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>rtm</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>Response Time Manager</name>
 	<parent>
 		<groupId>ch.exense.rtm</groupId>
@@ -119,6 +121,22 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>webapp/index.html</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -153,7 +171,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
 					<warName>${project.artifactId}</warName>
-					<outputDirectory>${project.basedir}/webapps</outputDirectory>
+					<primaryArtifact>true</primaryArtifact>
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -163,6 +181,7 @@
 						<resource>
 							<!-- this is relative to the pom.xml directory -->
 							<directory>src/main/resources/webapp</directory>
+							<include>index.html</include>
 							<!-- For replacing the version number in the index.html : -->
 							<filtering>true</filtering>
 						</resource>
@@ -181,7 +200,7 @@
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<configuration>
-					<verbose>false</verbose>
+				<verbose>false</verbose>
 					<filesets>
 						<fileset>
 							<directory>${project.basedir}/webapps/${project.artifactId}</directory>
@@ -189,6 +208,29 @@
 						</fileset>
 					</filesets>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.basedir}/webapps/rtm.war</file>
+									<type>war</type>
+									<classifier>war</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

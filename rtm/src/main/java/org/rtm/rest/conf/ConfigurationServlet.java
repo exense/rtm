@@ -18,9 +18,7 @@
  *******************************************************************************/
 package org.rtm.rest.conf;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.servlet.ServletContext;
@@ -34,6 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.rtm.commons.Configuration;
+import org.rtm.commons.Version;
 
 @Path("/configuration")
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -56,7 +55,7 @@ public class ConfigurationServlet {
 			response = new ConfigurationOutput();
 
 			Map p = (Map)Configuration.getInstance().getUnderlyingPropertyObject();
-			p.put("rtmVersion", getVersion());
+			p.put("rtmVersion", Version.getVersion());
 			response.setConfig(p);
 
 			return Response.ok(response).build();
@@ -111,21 +110,11 @@ public class ConfigurationServlet {
 
 	public Response version(ServletContext sc) {
 		try  {
-			return Response.ok(getVersion()).build();
+			return Response.ok(Version.getVersion()).build();
 		}
 		catch(Exception e){
 			e.printStackTrace();
 			return Response.status(500).entity("Exception occured : " + e.getMessage()).build();
 		}
 	}
-	
-	private String getVersion() throws IOException {
-		/*String version = this.getClass().getPackage().getImplementationVersion();*/
-		Properties prop = new Properties();
-		prop.load(this.getClass().getClassLoader().getResourceAsStream("version.properties"));
-		String version = prop.getProperty("rtmVersion");
-		
-		return version;
-	}
-
 }
