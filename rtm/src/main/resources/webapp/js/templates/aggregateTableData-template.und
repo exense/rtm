@@ -4,7 +4,7 @@
 <div class="panel-body">
 <div class="container" style="justify-content: right">
 <label> Metrics : </label>
-<button id="exportData" class="btn btn-warning" style="text-align: right;">Export</button>
+<button id="exportData" class="btn btn-warning pull-right">Export</button>
 <span id="tempHolder"></span>
 </div>
 <% var length = metricsList.length %>
