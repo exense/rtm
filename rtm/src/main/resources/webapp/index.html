@@ -18,71 +18,59 @@
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-<script src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
+<script
+	src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
+<script
+	src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
+<script
+	src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
+<script
+	src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
+
+<script src="js/rtm-sidebar.js"></script>
 
 <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
-<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
-<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet"
+	href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
+<link rel="stylesheet"
+	href="bower_components/bootstrap/dist/css/bootstrap.css">
 
-<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-dashlet.css">
-<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-mgd-widget.css">
-<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-widget-manager.css">
+<link rel="stylesheet"
+	href="bower_components/exense-visualization/src/css/viz-dashlet.css">
+<link rel="stylesheet"
+	href="bower_components/exense-visualization/src/css/viz-mgd-widget.css">
+<link rel="stylesheet"
+	href="bower_components/exense-visualization/src/css/viz-widget-manager.css">
 
 </head>
 
 <script>
-	var rtmApp = angular.module('rtm', [ 'viz-widget-manager' ]);
+	var rtmApp = angular.module('rtm', [ 'viz-widget-manager', 'rtm-sidebar' ]);
+	rtmApp.controller('topController', [ '$scope', function($scope) {
+		
+		$scope.deriveEventName = function(sbName){
+			return sbName.split('.')[1];
+		};
+
+		$scope.$on('sb.dashboard-new', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-clear', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-current-addWidget', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-current-clearWidgets', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-save', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-load', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-configure', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.docs', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+
+	}]);
 </script>
 
 <body>
-
 	<div ng-app='rtm'>
-		<nav class="navbar navbar-inverse navbar-fixed-left" role="navigation"
-			style="justify-content: center; text-align: center;">
-			<ul class="nav navbar-nav nav-pills nav-stacked">
-				<li><img src="img/brandlogo.png" height="40px"></li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-new')">
-						<span class="glyphicon glyphicon-file glyphicon-app"></span>
-					</button></li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-clear')">
-						<span class="glyphicon glyphicon-trash glyphicon-app"></span>
-					</button></li>
-				<li>&nbsp;</li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-current-addWidget')">
-						<span class="glyphicon glyphicon-plus glyphicon-app"></span>
-					</button></li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-current-clearWidgets')">
-						<span class="glyphicon glyphicon-minus glyphicon-app"></span>
-					</button></li>
-				<li>&nbsp;</li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-save')">
-						<span class="glyphicon glyphicon-floppy-save glyphicon-app"></span>
-					</button></li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-load')">
-						<span class="glyphicon glyphicon-floppy-open glyphicon-app"></span>
-					</button></li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('dashboard-configure')">
-						<span class="glyphicon glyphicon-cog glyphicon-app"></span>
-					</button></li>
-				<li>&nbsp;</li>
-				<li><button class="btn btn-primary btn-nav"
-						ng-click="$emit('docs')">
-						<span class="glyphicon glyphicon-question-sign glyphicon-app"></span>
-					</button></li>
-			</ul>
-		</nav>
-		<div style="margin-left: 80px;">
-			<viz-dashboard-manager></viz-dashboard-manager>
+		<div ng-controller="topController">
+			<rtm-sidebar></rtm-sidebar>
+			<div style="margin-left: 80px;">
+				<viz-dashboard-manager></viz-dashboard-manager>
+			</div>
 		</div>
 	</div>
 </body>
