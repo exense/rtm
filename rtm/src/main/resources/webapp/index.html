@@ -2,47 +2,88 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="">
-	<meta name="author" content="">
-	<link rel="shortcut icon" href="img/favicon.png">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="img/favicon.png">
 
-	<title>RTM</title>
-	<script src="bower_components/jquery/dist/jquery.js"></script>
-	<script src="bower_components/angular/angular.js"></script>
-	<script src="bower_components/d3/d3.js"></script>
-	<script src="bower_components/nvd3/build/nv.d3.js"></script>
-	<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
-	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<title>RTM 3.0.0</title>
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/nvd3/build/nv.d3.js"></script>
+<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-	<script src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
-	<script src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
-	<script src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
-	<script src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
+<script src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
 
-	<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
-	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
-	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
+<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
 
-	<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-dashlet.css">
-	<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-mgd-widget.css">
-	<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-widget-manager.css">
+<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-dashlet.css">
+<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-mgd-widget.css">
+<link rel="stylesheet" href="bower_components/exense-visualization/src/css/viz-widget-manager.css">
 
 </head>
 
 <script>
-
-var rtmApp = angular.module('rtm', ['viz-widget-manager']);
-
+	var rtmApp = angular.module('rtm', [ 'viz-widget-manager' ]);
 </script>
 
 <body>
 
 	<div ng-app='rtm'>
-		<viz-widget-manager></viz-widget-manager>
+		<nav class="navbar navbar-inverse navbar-fixed-left" role="navigation"
+			style="justify-content: center; text-align: center;">
+			<ul class="nav navbar-nav nav-pills nav-stacked">
+				<li><img src="img/brandlogo.png" height="40px"></li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-new')">
+						<span class="glyphicon glyphicon-file glyphicon-app"></span>
+					</button></li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-clear')">
+						<span class="glyphicon glyphicon-trash glyphicon-app"></span>
+					</button></li>
+				<li>&nbsp;</li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-current-addWidget')">
+						<span class="glyphicon glyphicon-plus glyphicon-app"></span>
+					</button></li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-current-clearWidgets')">
+						<span class="glyphicon glyphicon-minus glyphicon-app"></span>
+					</button></li>
+				<li>&nbsp;</li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-save')">
+						<span class="glyphicon glyphicon-floppy-save glyphicon-app"></span>
+					</button></li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-load')">
+						<span class="glyphicon glyphicon-floppy-open glyphicon-app"></span>
+					</button></li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('dashboard-configure')">
+						<span class="glyphicon glyphicon-cog glyphicon-app"></span>
+					</button></li>
+				<li>&nbsp;</li>
+				<li><button class="btn btn-primary btn-nav"
+						ng-click="$emit('docs')">
+						<span class="glyphicon glyphicon-question-sign glyphicon-app"></span>
+					</button></li>
+			</ul>
+		</nav>
+		<div style="margin-left: 80px;">
+			<viz-dashboard-manager></viz-dashboard-manager>
+		</div>
 	</div>
 </body>
 
