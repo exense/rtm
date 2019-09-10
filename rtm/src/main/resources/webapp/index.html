@@ -20,6 +20,8 @@
 
 <script
 	src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
+<script src="bower_components/exense-visualization/src/js/global-classes.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-query.js"></script>
 <script
 	src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
 <script
@@ -47,21 +49,37 @@
 <script>
 	var rtmApp = angular.module('rtm', [ 'viz-widget-manager', 'rtm-sidebar' ]);
 	rtmApp.controller('topController', [ '$scope', function($scope) {
-		
-		$scope.deriveEventName = function(sbName){
+
+		$scope.deriveEventName = function(sbName) {
 			return sbName.split('.')[1];
 		};
 
-		$scope.$on('sb.dashboard-new', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-clear', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-current-addWidget', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-current-clearWidgets', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-save', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-load', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.dashboard-configure', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
-		$scope.$on('sb.docs', function(event){$scope.$broadcast($scope.deriveEventName(event.name))});
+		$scope.$on('sb.dashboard-new', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('sb.dashboard-clear', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('sb.dashboard-current-addWidget', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('sb.dashboard-current-clearWidgets', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('dashboard-change', function(event) {
+			$scope.$broadcast('dashboard-reload');
+		});
+		$scope.$on('sb.dashboard-load', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('sb.dashboard-configure', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
+		$scope.$on('sb.docs', function(event) {
+			$scope.$broadcast($scope.deriveEventName(event.name))
+		});
 
-	}]);
+	} ]);
 </script>
 
 <body>
