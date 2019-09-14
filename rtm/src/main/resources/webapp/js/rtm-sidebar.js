@@ -8,7 +8,8 @@ angular.module('rtm-sidebar', [])
 		controller: function ($scope, $element, wmservice, $http) {
 
 			$scope.saveDashboard = function(){
-				$http.post('/rtm/rest/dashboard/save',
+				console.log(JSON.stringify({ name : 'mydashboard', state : wmservice.dashboards}));
+				$http.post('/rtm/rest/visualization/session',
 						JSON.stringify({ name : 'mydashboard', state : wmservice.dashboards}))
 				.then(function (response) {
 					console.log('cool')
@@ -17,11 +18,10 @@ angular.module('rtm-sidebar', [])
 					console.log('fakk')
 					console.log(response)
 				});
-
 			};
 			
 			$scope.loadDashboard = function(name){
-				$http.get('/rtm/rest/dashboard/load?name=mydashboard')
+				$http.get('/rtm/rest/visualization/session?name=mydashboard')
 				.then(function (response) {
 					console.log(response.data.state)
 					wmservice.dashboards = response.data.state;

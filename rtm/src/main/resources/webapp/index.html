@@ -18,16 +18,13 @@
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-<script
-	src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
+<script src="bower_components/exense-visualization/src/js/wmservice.js"></script>
+<script src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
 <script src="bower_components/exense-visualization/src/js/global-classes.js"></script>
 <script src="bower_components/exense-visualization/src/js/viz-query.js"></script>
-<script
-	src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
-<script
-	src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
-<script
-	src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
+<script src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
 
 <script src="js/rtm-sidebar.js"></script>
 
@@ -50,6 +47,8 @@
 	var rtmApp = angular.module('rtm', [ 'viz-widget-manager', 'rtm-sidebar' ]);
 	rtmApp.controller('topController', [ '$scope', function($scope) {
 
+		console.log('called')
+		
 		$scope.deriveEventName = function(sbName) {
 			return sbName.split('.')[1];
 		};

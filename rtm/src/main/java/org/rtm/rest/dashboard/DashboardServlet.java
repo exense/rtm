@@ -30,28 +30,28 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.rtm.rest.dashboard.Dashboard;
+import org.rtm.rest.dashboard.Session;
 
 /**
  * @author doriancransac
  *
  */
-@Path("/dashboard")
+@Path("/visualization")
 public class DashboardServlet {
 
-	private static Map<String, Dashboard> dmap = new HashMap<>();
+	private static Map<String, Session> dmap = new HashMap<>();
 	
 	@POST
-	@Path("/save")
+	@Path("/session")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object saveDashboard(final Dashboard toSave) {
+	public Response saveDashboard(final Session toSave) {
 		dmap.put(toSave.getName(), toSave);
 		return Response.status(200).entity("{ \"status\" : \"ok\"}").build();
 	}
 	
 	@GET
-	@Path("/load")
+	@Path("/session")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Object loadDashboard(@QueryParam(value = "name") String name) {

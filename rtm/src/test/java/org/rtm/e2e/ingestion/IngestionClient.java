@@ -42,7 +42,7 @@ public class IngestionClient {
 
 	static boolean init = false;
 
-	//@Before
+	@Before
 	public synchronized void init(){
 		if(!init){
 			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
@@ -55,7 +55,7 @@ public class IngestionClient {
 		//removeAllData();
 	}
 
-	//@Test
+	@Test
 	public synchronized void simpleEndToEndTest(){
 
 		Map<String, Object> m = TestMeasurementBuilder.buildStatic(TestMeasurementType.SIMPLE);
@@ -65,12 +65,13 @@ public class IngestionClient {
 			tc.sendStructuredMeasurement(m);
 		} catch (Exception e) {
 			exception = true;
+			e.printStackTrace();
 		}
 		Assert.assertEquals(false, exception);
 		Assert.assertEquals(1L, ma.getMeasurementCount());
 	}
 
-	//@Test
+	@Test
 	public synchronized void simpleParallelTest(){
 
 		LoadDescriptor ld = new BasicLoadDescriptor();
