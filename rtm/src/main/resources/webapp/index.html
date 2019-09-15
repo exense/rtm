@@ -18,13 +18,9 @@
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-<script src="bower_components/exense-visualization/src/js/wmservice.js"></script>
-<script src="bower_components/exense-visualization/src/js/rtm-controls.js"></script>
-<script src="bower_components/exense-visualization/src/js/global-classes.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-query.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-dashlet.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-mgd-widget.js"></script>
-<script src="bower_components/exense-visualization/src/js/viz-widget-manager.js"></script>
+<script src="bower_components/exense-visualization/dist/viz.js"></script>
+
+<script src="bower_components/exense-visualization/static-presets.js"></script>
 
 <script src="js/rtm-sidebar.js"></script>
 
@@ -35,19 +31,14 @@
 	href="bower_components/bootstrap/dist/css/bootstrap.css">
 
 <link rel="stylesheet"
-	href="bower_components/exense-visualization/src/css/viz-dashlet.css">
-<link rel="stylesheet"
-	href="bower_components/exense-visualization/src/css/viz-mgd-widget.css">
-<link rel="stylesheet"
-	href="bower_components/exense-visualization/src/css/viz-widget-manager.css">
-
+	href="bower_components/exense-visualization/dist/viz.css">
 </head>
 
 <script>
 	var rtmApp = angular.module('rtm', [ 'viz-widget-manager', 'rtm-sidebar' ]);
 	rtmApp.controller('topController', [ '$scope', function($scope) {
-
-		console.log('called')
+		
+		$scope.staticPresets = new StaticPresets();
 		
 		$scope.deriveEventName = function(sbName) {
 			return sbName.split('.')[1];
@@ -86,7 +77,7 @@
 		<div ng-controller="topController">
 			<rtm-sidebar></rtm-sidebar>
 			<div style="margin-left: 80px;">
-				<viz-dashboard-manager></viz-dashboard-manager>
+				<viz-dashboard-manager presets="staticPresets"></viz-dashboard-manager>
 			</div>
 		</div>
 	</div>
