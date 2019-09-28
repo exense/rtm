@@ -15,6 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "exense-visualization": "alpha-001"
+    "exense-visualization": "alpha-002"
   }
 }

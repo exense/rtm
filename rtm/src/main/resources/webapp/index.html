@@ -20,8 +20,7 @@
 
 <script src="bower_components/exense-visualization/dist/viz.js"></script>
 
-<script src="bower_components/exense-visualization/static-presets.js"></script>
-
+<script src="js/static-presets.js"></script>
 <script src="js/rtm-sidebar.js"></script>
 
 <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
@@ -32,13 +31,17 @@
 
 <link rel="stylesheet"
 	href="bower_components/exense-visualization/dist/viz.css">
+	<link rel="stylesheet"
+	
+	href="css/rtm.css">
 </head>
 
 <script>
-	var rtmApp = angular.module('rtm', [ 'viz-widget-manager', 'rtm-sidebar' ]);
+	var rtmApp = angular.module('rtm', [ 'viz-dashboard-manager', 'rtm-sidebar' ]);
 	rtmApp.controller('topController', [ '$scope', function($scope) {
 		
 		$scope.staticPresets = new StaticPresets();
+		$scope.dashboardsendpoint = [];
 		
 		$scope.deriveEventName = function(sbName) {
 			return sbName.split('.')[1];
@@ -75,9 +78,9 @@
 <body>
 	<div ng-app='rtm'>
 		<div ng-controller="topController">
-			<rtm-sidebar></rtm-sidebar>
+			<rtm-sidebar dashboards="dashboardsendpoint"></rtm-sidebar>
 			<div style="margin-left: 80px;">
-				<viz-dashboard-manager presets="staticPresets"></viz-dashboard-manager>
+				<viz-dashboard-manager displaymode="'managed'" presets="staticPresets" dashboards="dashboardsendpoint"></viz-dashboard-manager>
 			</div>
 		</div>
 	</div>

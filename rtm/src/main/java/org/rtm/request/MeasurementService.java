@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.request.selection.Selector;
 
 
@@ -38,7 +38,7 @@ public class MeasurementService{
 	
 	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Iterable it = new DBClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, 1, skip, limit);
+		Iterable it = new QueryClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, 1, skip, limit);
 		
 		for(Object o : it){
 			Map<String, Object> m = (Map) o;

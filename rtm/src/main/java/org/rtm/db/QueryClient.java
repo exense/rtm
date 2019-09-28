@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCursor;
 
-public class DBClient {
+public class QueryClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueryClient.class);
 
 	MeasurementAccessor ma = MeasurementAccessor.getInstance();
 
-	public DBClient() {
+	public QueryClient() {
 		this.ma = MeasurementAccessor.getInstance();
 	}
 
@@ -67,7 +67,7 @@ public class DBClient {
 	public static LongTimeInterval findEffectiveBoundariesViaMongo(LongTimeInterval lti, List<Selector> sel) throws Exception {
 		BsonQuery query = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 
-		DBClient db = new DBClient();
+		QueryClient db = new QueryClient();
 
 		//TODO: get Time key from request Properties
 		//logger.debug(completeQuery.toString());
@@ -106,7 +106,7 @@ public class DBClient {
 		long start = System.currentTimeMillis();
 		BsonQuery query = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 
-		DBClient db = new DBClient();
+		QueryClient db = new QueryClient();
 
 		SortedSet<Long> sortedValues = new TreeSet<>();
 		

@@ -3,7 +3,7 @@ package org.rtm.pipeline.tasks;
 import java.util.List;
 
 import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
@@ -22,9 +22,9 @@ public class SimpleQueryTask implements RangeTask {
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) {
 		LongRangeValue lrv = new LongRangeValue(bucket.getLowerBound());
-		BsonQuery query = DBClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
+		BsonQuery query = QueryClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
 		
-		accumulator.handle(lrv, new DBClient().executeQuery(query));
+		accumulator.handle(lrv, new QueryClient().executeQuery(query));
 		
 		return lrv;
 	}

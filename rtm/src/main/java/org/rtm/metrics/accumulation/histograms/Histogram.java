@@ -3,12 +3,12 @@ package org.rtm.metrics.accumulation.histograms;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Histogram {
-	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueryClient.class);
 	
 	private int nbPairs;
 	private int approxMs;

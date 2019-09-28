@@ -30,7 +30,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.rtm.rest.dashboard.Session;
+import org.bson.Document;
+import org.rtm.commons.DBClient;
+import org.rtm.commons.DashboardAccessor;
+import org.rtm.commons.DashboardAccessor.DashboardCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author doriancransac
@@ -39,14 +48,35 @@ import org.rtm.rest.dashboard.Session;
 @Path("/visualization")
 public class DashboardServlet {
 
+	private static final Logger logger = LoggerFactory.getLogger(DashboardServlet.class);
 	private static Map<String, Session> dmap = new HashMap<>();
+	
+	DashboardAccessor da = DashboardAccessor.getInstance();
 	
 	@POST
 	@Path("/session")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response saveDashboard(final Session toSave) {
+	public Response saveSession(final Session toSave) {
 		dmap.put(toSave.getName(), toSave);
+		ObjectMapper om = new ObjectMapper();
+		//Map<String, Object> session = new HashMap<String, Object>();
+		//session.put(toSave.getName(), om.valueToTree(toSave).toString());
+		
+		String sessionStr = "";
+		try {
+			sessionStr = om.writeValueAsString(toSave);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		logger.info("asText= " + sessionStr);
+
+		Document session = Document.parse(sessionStr);
+		logger.info("sessionDoc= " + session);
+		
+		//session = Document.parse("{\"mydashboard\" : \"is awesome\"}");
+		da.insertObject(session, DashboardCollection.SESSIONS);
 		return Response.status(200).entity("{ \"status\" : \"ok\"}").build();
 	}
 	
@@ -54,9 +84,8 @@ public class DashboardServlet {
 	@Path("/session")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Object loadDashboard(@QueryParam(value = "name") String name) {
-		return Response.status(200).entity(
-				dmap.get(name)).build();
+	public Object loadSession(@QueryParam(value = "name") String name) {
+		return Response.status(200).entity(da.getObject("mysession", DashboardCollection.SESSIONS)).build();
 	}
 
 }

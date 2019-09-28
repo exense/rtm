@@ -5,8 +5,9 @@ import java.util.List;
 public class Dashboard {
 
 	private String title;
-	private String dashboardid;
-	private List<Object> widgets;
+	private String oid;
+	private WidgetWrapper widgets;
+	private ManagerState mgrstate;
 	
 	public String getTitle() {
 		return title;
@@ -14,16 +15,22 @@ public class Dashboard {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getDashboardid() {
-		return dashboardid;
+	public String getOid() {
+		return oid;
 	}
-	public void setDashboardid(String dashboardid) {
-		this.dashboardid = dashboardid;
+	public void setOid(String oid) {
+		this.oid = oid;
 	}
-	public List<Object> getWidgets() {
+	public WidgetWrapper getWidgets() {
 		return widgets;
 	}
-	public void setWidgets(List<Object> widgets) {
+	public void setWidgets(WidgetWrapper widgets) {
 		this.widgets = widgets;
+	}
+	public ManagerState getMgrstate() {
+		return mgrstate;
+	}
+	public void setMgrstate(ManagerState mgrstate) {
+		this.mgrstate = mgrstate;
 	}
 }
