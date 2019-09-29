@@ -69,7 +69,7 @@ public class MeasurementAccessor implements TransportClient{
 	}
 
 	public Iterable<Document> find(Bson filter, Bson sortOrder, int skip, int limit){
-		return measurements.find(filter).skip(skip).limit(limit);
+		return measurements.find(filter).sort(sortOrder).skip(skip).limit(limit);
 	}
 
 	@Override

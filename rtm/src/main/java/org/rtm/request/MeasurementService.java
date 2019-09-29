@@ -35,16 +35,16 @@ import org.rtm.request.selection.Selector;
 public class MeasurementService{
 
 	public MeasurementService(){}
-	
-	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
+
+	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit) throws Exception{
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Iterable it = new QueryClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, 1, skip, limit);
-		
+		Iterable it = new QueryClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, direction, skip, limit);
+
 		for(Object o : it){
 			Map<String, Object> m = (Map) o;
 			res.add(m);
 		}
-		
+
 		return res;
 	}
 }
