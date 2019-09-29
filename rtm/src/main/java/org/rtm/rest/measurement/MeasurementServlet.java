@@ -49,13 +49,30 @@ public class MeasurementServlet {
 	@Path("/find")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getResutStreamForQuery(final AggregationRequest body) {
+	public Response getMeasurements(final AggregationRequest body) {
 		AbstractResponse response;
 		try {
 			int pager = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
 			int pageSize = Configuration.getInstance().getPropertyAsInteger("client.MeasurementListView.pagingValue");
 			
-			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, pager * pageSize, pageSize), "ok");
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, 1, pager * pageSize, pageSize), "ok");
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
+		}
+		return Response.status(200).entity(response).build();
+	}
+	
+	@POST
+	@Path("/latest")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getLatestMeasurements(final AggregationRequest body) {
+		AbstractResponse response;
+		try {
+			int howmany = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
+
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, -1, 0, howmany), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
