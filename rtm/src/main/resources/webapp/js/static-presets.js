@@ -26,6 +26,30 @@ function StaticPresets() {
                 }
             },
             {
+                "name": "RTM Latest - Call",
+                "query": {
+                    "inputtype": "Raw",
+                    "type": "Simple",
+                    "datasource": {
+                        "service": {
+                            "url": "/rtm/rest/measurement/latest",
+                            "method": "Post",
+                            "data": "{\
+                                \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \".*\", \"regex\": \"true\" }], \"numericalFilters\": [] }],\
+                                \"serviceParams\": { \"measurementService.nextFactor\": \"100\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" }\
+                            }",
+                            "postproc": {
+                                "transform": {
+                                    "function": "function (response) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
+                                    "abs": { "title": "time", "unit": "seconds" }, "ord": { "title": "duration", "unit": "ms" },
+                                    "transformations": [{ "path": "timestamp", "function": "function () {Math.random().toString(36).substr(2, 9);}" }]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
                 "name": "RTM Aggregates - Call",
                 "query": {
                     "inputtype": "Raw",
