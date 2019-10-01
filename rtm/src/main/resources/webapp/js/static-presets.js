@@ -2,24 +2,28 @@ function PerformanceDashboard() {
 
 	var widgetsArray = [];
 
-	addLastMeasurements(widgetsArray);	
-	//addLastMeasurementsTpl(widgetsArray);
+	//addLastMeasurements(widgetsArray);	
+	addLastMeasurementsTpl(widgetsArray);
 	//addAggregatesOverTime(widgetsArray);
-	
-	var dashboardObject = new Dashboard(widgetsArray, 'Perf dashboard', new DefaultMgrState());
+
+	var dashboardObject = new Dashboard(
+			widgetsArray,
+			'Transaction Performance',
+			new MgrState([new Placeholder("__eId__", ".*", false)],false, false, "Global Settings"));
+
 	dashboardObject.oid = "perfDashboardId";
 	return dashboardObject;
 };
 
 var getMasterSlaveConfig = function(rawOrTransformed, masterTitle, slaveTitle){
 	var masterId, slaveId, masterTitle, slaveTitle, masterConfig, slaveConfig, datatype;
-	
+
 	if(rawOrTransformed === 'raw'){
 		datatype = 'state.data.rawresponse';
 	}else{
 		datatype = 'state.data.transformed';
 	}
-	
+
 	var random = getUniqueId();
 	masterId = random + "-master";
 	slaveId = random + "-slave";
@@ -34,32 +38,37 @@ var getMasterSlaveConfig = function(rawOrTransformed, masterTitle, slaveTitle){
 	return {masterid: masterId, slaveid: slaveId, mastertitle: masterTitle, slavetitle: slaveTitle, masterconfig : masterConfig, slaveconfig: slaveConfig};
 };
 
-function RTMLatestMeasurementBaseQuery(){
-	return new SimpleQuery(
-			"Raw", new Service(
-					"/rtm/rest/measurement/latest", "Post",
-					"{\"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \".*\", \"regex\": \"true\" }], \"numericalFilters\": [] }],\"serviceParams\": { \"measurementService.nextFactor\": \"100\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" }\}",
-					new Preproc("data", ""), new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
-							[], {}, "")
-			)
-	);
-};
-
+//No paging: FACTOR 100 via template
 var addLastMeasurementsTpl = function(widgetsArray){
+	function RTMLatestMeasurementBaseQueryTmpl(){
+		return new SimpleQuery(
+				"Raw", new Service(
+						"/rtm/rest/measurement/latest", "Post",
+						"",
+						new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].key, workData[i].value);}return newRequestFragment;}"),
+						new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
+								[], {}, "")
+				)
+		);
+	};
+
 	function RTMLatestMeasurementTemplatedQuery(){
 		return new TemplatedQuery(
-				new RTMLatestMeasurementBaseQuery(),
+				'Template',
+				new RTMLatestMeasurementBaseQueryTmpl(),
 				new DefaultOffPaging(),
 				//new Paging("On", new Offset("__FACTOR__", "return 0;", "return value + 1;", "if(value > 0){return value - 1;} else{return 0;}"), null),
-				new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }, { \"key\": \"name\", \"value\": \"__name__\", \"regex\": \"true\" }], \"numericalFilters\": [{\"key\":\"value\",\"minValue\":\"__minValue__\",\"maxValue\":\"__maxValue__\"}] }], \"serviceParams\": { \"measurementService.nextFactor\": \"__FACTOR__\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
+				new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }], \"numericalFilters\": [] }], \"serviceParams\": { \"measurementService.nextFactor\": \"__FACTOR__\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
 						null,
-						[new Placeholder("__eId__", ".*", false)]));
+						[new Placeholder("__FACTOR__", "100", false)]));
 	};
-	
+
+	//console.log(new RTMLatestMeasurementTemplatedQuery());
+
 	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
 
 	var latestMaster = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementTemplatedQuery()) );
-	var latestSlave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementQuery()) );
+	var latestSlave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
 
 	widgetsArray.push(latestMaster);
 	widgetsArray.push(latestSlave);
@@ -70,8 +79,19 @@ var addAggregatesOverTime = function(widgetsArray){
 };
 
 var addLastMeasurements = function(widgetsArray){
-	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
 
+	function RTMLatestMeasurementBaseQuery(){
+		return new SimpleQuery(
+				"Raw", new Service(
+						"/rtm/rest/measurement/latest", "Post",
+						"{\"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \".*\", \"regex\": \"true\" }], \"numericalFilters\": [] }],\"serviceParams\": { \"measurementService.nextFactor\": \"100\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" }\}",
+						new Preproc("data", ""), new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
+								[], {}, "")
+				)
+		);
+	};
+
+	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
 	var latestMaster = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementBaseQuery()) );
 	var latestSlave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementBaseQuery()) );
 
