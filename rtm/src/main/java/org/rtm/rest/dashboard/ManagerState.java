@@ -8,6 +8,7 @@ public class ManagerState {
 	private boolean globalsettingsautorefresh;
 	private boolean globalsettingschevron;
 	private String globalsettingsname;
+	private String gsautorefreshInterval;
 	
 	public List<Object> getGlobalsettings() {
 		return globalsettings;
@@ -32,5 +33,11 @@ public class ManagerState {
 	}
 	public void setGlobalsettingsname(String globalsettingsname) {
 		this.globalsettingsname = globalsettingsname;
+	}
+	public String getGsautorefreshInterval() {
+		return gsautorefreshInterval;
+	}
+	public void setGsautorefreshInterval(String gsautorefreshInterval) {
+		this.gsautorefreshInterval = gsautorefreshInterval;
 	}
 }

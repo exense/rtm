@@ -42,6 +42,7 @@
 		
 		$scope.staticPresets = new StaticPresets();
 		$scope.dashboardsendpoint = [];
+		$scope.dashboardsendpoint.push(new PerformanceDashboard());
 		
 		$scope.deriveEventName = function(sbName) {
 			return sbName.split('.')[1];

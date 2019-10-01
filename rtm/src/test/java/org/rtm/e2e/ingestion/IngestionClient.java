@@ -100,9 +100,9 @@ public class IngestionClient {
 	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
-				500,  // pauseTime
+				250,  // pauseTime
 				100000, // nbIterations
-				2,    // nbTasks
+				5,    // nbTasks
 				30000,  // timeOut
 				1000, // skewFactor
 				200, // stdFactor
