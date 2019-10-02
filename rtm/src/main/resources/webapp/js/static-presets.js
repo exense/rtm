@@ -3,8 +3,8 @@ function PerformanceDashboard() {
 	var widgetsArray = [];
 	
 	//addLastMeasurements(widgetsArray);	
-	addLastMeasurementsTpl(widgetsArray);
 	addAggregatesOverTimeTpl(widgetsArray);
+	addLastMeasurementsTpl(widgetsArray);
 	addAggregatesSummaryTpl(widgetsArray);
 	//TODO:addMeasurementExplorer(widgetsArray) //with paging
 	//TODO:addAggregatesSummaryOptzTpl(widgetsArray);
@@ -45,7 +45,7 @@ function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity, transform){
 
 var addAggregatesSummaryTpl = function(widgetsArray){
 	var summaryTransform = "function (response) {\r\n    //var metrics = response.data.payload.metricList;\r\n    var metrics = [\"cnt\",\"avg\", \"min\", \"max\", \"tpm\", \"tps\", \"50th pcl\", \"90th pcl\"];\r\n    var retData = [], series = {};\r\n\r\n    var payload = response.data.payload.stream.streamData;\r\n    var payloadKeys = Object.keys(payload);\r\n\r\n    if (payload && payloadKeys.length > 0) {\r\n        var serieskeys = Object.keys(payload[payloadKeys[0]])\r\n        for (j = 0; j < serieskeys.length; j++) {\r\n            for (i = 0; i < metrics.length; i++) {\r\n                var metric = metrics[i];\r\n                if (payload[payloadKeys[0]][serieskeys[j]][metric]) {\r\n                    retData.push({\r\n                        x: serieskeys[j],\r\n                        y: payload[payloadKeys[0]][serieskeys[j]][metric],\r\n                        z: metric\r\n                    });\r\n                }\r\n            }\r\n        }\r\n    }\r\n    return retData;\r\n}";
-	var standalone = new Widget(getUniqueId(),'col-md-12', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new Config('Off', false, false, ''), new RTMAggBaseTemplatedQueryTmpl("sum", "max", summaryTransform)));
+	var standalone = new Widget(getUniqueId(),'col-md-6', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new Config('Off', false, false, ''), new RTMAggBaseTemplatedQueryTmpl("sum", "max", summaryTransform)));
 	widgetsArray.push(standalone);
 };
 
@@ -91,7 +91,7 @@ var addLastMeasurementsTpl = function(widgetsArray){
 	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
 
 	widgetsArray.push(master);
-	widgetsArray.push(slave);
+	//widgetsArray.push(slave);
 };
 
 //No paging: hardcoded simple query
