@@ -4,8 +4,8 @@ function PerformanceDashboard() {
 	
 	//addLastMeasurements(widgetsArray);	
 	//addLastMeasurementsTpl(widgetsArray);
-	addAggregatesOverTimeTpl(widgetsArray);
-	//addAggregatesSummaryTpl(widgetsArray);
+	//addAggregatesOverTimeTpl(widgetsArray);
+	addAggregatesSummaryTpl(widgetsArray);
 	//TODO:addMeasurementExplorer(widgetsArray) //with paging
 	//TODO:addAggregatesSummaryOptzTpl(widgetsArray);
 	var dashboardObject = new Dashboard(
@@ -24,7 +24,7 @@ function RTMAggBaseQueryTmpl(metric){
 					"/rtm/rest/aggregate/get", "Post",
 					"",//templated
 					new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].key, workData[i].value);}return newRequestFragment;}"),
-					new Postproc("", "",[], "function(response){return [{ placeholder : '__streamedSessionId__', value : response.data.payload.streamedSessionId, isDynamic : false }];}", "")
+					new Postproc("", "",[], "function(response){if(!response.data.payload){console.log('No payload ->' + JSON.stringify(response)); return null;}return [{ placeholder : '__streamedSessionId__', value : response.data.payload.streamedSessionId, isDynamic : false }];}", "")
 			),
 			new Service(//callback
 					"/rtm/rest/aggregate/refresh", "Post",
@@ -48,13 +48,17 @@ function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity){
 var addAggregatesSummaryTpl = function(widgetsArray){
 	var standalone = new Widget(getUniqueId(),'col-md-12', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new DefaultConfig(), new RTMAggBaseTemplatedQueryTmpl("avg", "max")));
 	widgetsArray.push(standalone);
+	
+//	var config = getMasterSlaveConfig("raw", "Average Response Time over entire run (ms)", "");
+//	var master = new Widget(config.masterid,'col-md-12', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('table'), new DefaultConfig(), new RTMAggBaseTemplatedQueryTmpl("avg", "max")));
+//	widgetsArray.push(master);
 };
 
 var addAggregatesOverTimeTpl = function(widgetsArray){
 	var config = getMasterSlaveConfig("raw", "Average Response Time over time (ms)", "Average Transaction count over time (#)");
 
-	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('lineChart'), config.masterconfig, new RTMAggBaseTemplatedQueryTmpl("avg", "auto")));
-	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMAggBaseTemplatedQueryTmpl("cnt", "auto")));
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('lineChart'), config.masterconfig, new RTMAggBaseTemplatedQueryTmpl("avg", "auto")));
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMAggBaseTemplatedQueryTmpl("cnt", "auto")));
 
 	widgetsArray.push(master);
 	widgetsArray.push(slave);
@@ -87,8 +91,8 @@ var addLastMeasurementsTpl = function(widgetsArray){
 
 	var config = getMasterSlaveConfig("transformed", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
 
-	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementTemplatedQuery()) );
-	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementTemplatedQuery()) );
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
 
 	widgetsArray.push(master);
 	widgetsArray.push(slave);
@@ -109,8 +113,8 @@ var addLastMeasurements = function(widgetsArray){
 	};
 
 	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
-	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementBaseQuery()) );
-	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementBaseQuery()) );
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementBaseQuery()) );
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementBaseQuery()) );
 
 	widgetsArray.push(master);
 	widgetsArray.push(slave);
