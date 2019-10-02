@@ -26,6 +26,8 @@ import org.rtm.db.BsonQuery;
 import org.rtm.db.QueryClient;
 import org.rtm.request.selection.Selector;
 
+import com.mongodb.client.MongoCursor;
+
 
 /**
  * @author doriancransac
@@ -38,12 +40,16 @@ public class MeasurementService{
 
 	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit) throws Exception{
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
+		
 		Iterable it = new QueryClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, direction, skip, limit);
+		MongoCursor cursor = (MongoCursor) it.iterator();
 
 		for(Object o : it){
 			Map<String, Object> m = (Map) o;
 			res.add(m);
 		}
+		
+		cursor.close();
 
 		return res;
 	}
