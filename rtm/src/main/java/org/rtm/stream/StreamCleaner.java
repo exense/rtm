@@ -71,7 +71,7 @@ public class StreamCleaner implements Runnable{
 				//TODO: close should not be needed. remove this line and check for no mem leak 
 				thisStream.closeStream();
 				registry.remove(id);
-				logger.info("Evicted stream " + id + " - Duration: "+s.getDurationMs()+" ms. Reason: consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
+				logger.debug("Evicted stream " + id + " - Duration: "+s.getDurationMs()+" ms. Reason: consumed="+s.isRefreshedSinceCompletion() + ", evictionTimeReached=" + isEvictionTimeReached(s));
 			}
 		});
 	}
