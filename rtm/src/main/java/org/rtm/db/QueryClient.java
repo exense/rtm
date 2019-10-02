@@ -1,7 +1,6 @@
 package org.rtm.db;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -71,13 +70,13 @@ public class QueryClient {
 
 		//TODO: get Time key from request Properties
 		//logger.debug(completeQuery.toString());
-		Iterable naturalIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1);
-		Iterable reverseIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, -1);
+		MongoCursor naturalIt = (MongoCursor)db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1).iterator();
+		MongoCursor reverseIt = (MongoCursor)db.executeQuery(query, MeasurementConstants.BEGIN_KEY, -1).iterator();
 		Map min = null;
 		Map max = null;
 		try{
-			min = (Map) naturalIt.iterator().next();
-			max = (Map) reverseIt.iterator().next();
+			min = (Map) naturalIt.next();
+			max = (Map) reverseIt.next();
 		}catch(NoSuchElementException e){
 			return new LongTimeInterval(0L, 1L);
 		}
@@ -91,8 +90,8 @@ public class QueryClient {
 		if(result < 1L)
 			throw new Exception("Could not compute auto-granularity : result="+result);
 
-		((MongoCursor) naturalIt.iterator()).close();
-		((MongoCursor) reverseIt.iterator()).close();
+		naturalIt.close();
+		reverseIt.close();
 
 		return new LongTimeInterval(minVal, maxVal);
 	}
@@ -110,7 +109,7 @@ public class QueryClient {
 
 		SortedSet<Long> sortedValues = new TreeSet<>();
 		
-		Iterator naturalIt = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1).iterator();
+		MongoCursor naturalIt = (MongoCursor)db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1).iterator();
 		int i = 0;
 		while(i < heuristicSampleSize){
 			Map dot = null;
@@ -123,7 +122,7 @@ public class QueryClient {
 			sortedValues.add((Long)dot.get(MeasurementConstants.VALUE_KEY));
 			i++;
 		}
-		((MongoCursor) naturalIt).close();
+		naturalIt.close();
 		
 		int position = Math.round(sortedValues.size()*0.9F);
 		

@@ -9,6 +9,8 @@ import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
 import org.rtm.stream.LongRangeValue;
 
+import com.mongodb.client.MongoCursor;
+
 public class SimpleQueryTask implements RangeTask {
 
 	protected List<Selector> sel;
@@ -24,8 +26,12 @@ public class SimpleQueryTask implements RangeTask {
 		LongRangeValue lrv = new LongRangeValue(bucket.getLowerBound());
 		BsonQuery query = QueryClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
 		
-		accumulator.handle(lrv, new QueryClient().executeQuery(query));
+		Iterable it = new QueryClient().executeQuery(query);
+		MongoCursor iterator = (MongoCursor)it.iterator();
 		
+		accumulator.handle(lrv, it);
+
+		iterator.close();
 		return lrv;
 	}
 }
