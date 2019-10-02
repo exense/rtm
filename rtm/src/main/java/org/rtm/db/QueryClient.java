@@ -101,33 +101,34 @@ public class QueryClient {
 	}
 
 	public static long run90PclOnFirstSample(int heuristicSampleSize, List<Selector> sel) {
-		logger.info("Starting sampling of first " + heuristicSampleSize + " data points...");
+		logger.debug("Starting sampling of first " + heuristicSampleSize + " data points...");
 		long start = System.currentTimeMillis();
 		BsonQuery query = new BsonQuery(BsonQuery.selectorsToQuery(sel));
 
 		QueryClient db = new QueryClient();
 
 		SortedSet<Long> sortedValues = new TreeSet<>();
-		
-		MongoCursor naturalIt = (MongoCursor)db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1).iterator();
-		int i = 0;
-		while(i < heuristicSampleSize){
-			Map dot = null;
+
+		Iterable it = db.executeQuery(query, MeasurementConstants.BEGIN_KEY, 1, 0, heuristicSampleSize);
+		MongoCursor cursor = (MongoCursor) it.iterator();
+		Map dot = null;
+		for(Object o : it) {
 			try{
-			dot = (Map) naturalIt.next();
+				dot = (Map) o;
 			}catch(Exception e){
 				//no more elements
 				break;
 			}
-			sortedValues.add((Long)dot.get(MeasurementConstants.VALUE_KEY));
-			i++;
+			if(dot != null) {
+				sortedValues.add((Long)dot.get(MeasurementConstants.VALUE_KEY));
+			}
 		}
-		naturalIt.close();
+		cursor.close();
 		
 		int position = Math.round(sortedValues.size()*0.9F);
-		
-		logger.info("Sampling complete. Duration was "+ (System.currentTimeMillis() - start) +" ms.");
-		
+
+		logger.debug("Sampling complete. Duration was "+ (System.currentTimeMillis() - start) +" ms.");
+
 		if(position >= sortedValues.size())
 			return sortedValues.last();
 		else

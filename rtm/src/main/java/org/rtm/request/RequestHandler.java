@@ -58,7 +58,7 @@ public class RequestHandler {
 			//prop.put("aggregateService.histSize", "40");
 			// however, the heuristic will override the user-defined parameter fow now if useHistHeuristic is set to true in central conf
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
-			logger.info("Using value " + optimalHistApp + " for histApp heuristic.");
+			logger.debug("Using value " + optimalHistApp + " for histApp heuristic.");
 		}
 		
 		LongTimeInterval effective = QueryClient.findEffectiveBoundariesViaMongo(lti, sel);
@@ -67,7 +67,7 @@ public class RequestHandler {
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-		logger.info("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
+		logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
 		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
@@ -132,14 +132,14 @@ public class RequestHandler {
 		AggregationRequest request1 = new AggregationRequest(aggReq.getTimeWindow1(), aggReq.getSelectors1(), aggReq.getServiceParams());
 		AggregationRequest request2 = new AggregationRequest(aggReq.getTimeWindow2(), aggReq.getSelectors2(), aggReq.getServiceParams());
 
-		logger.info("Launching comparison streams with request1=" + request1 + ", and request2=" + request2); 
+		logger.debug("Launching comparison streams with request1=" + request1 + ", and request2=" + request2); 
 		
 		Stream s1 = sb.getStream(aggregate(request1));
 		Stream s2 = sb.getStream(aggregate(request2));
 
 		Properties props = s1.getStreamProp();
 		
-		long timeoutSecs = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout")) * 1000;
+		long timeoutSecs = Long.parseLong(aggReq.getServiceParams().getProperty("aggregateService.timeout")) * 300;
 		long start = System.currentTimeMillis();
 		
 		while(!s1.isComplete() || !s2.isComplete()){
@@ -150,7 +150,7 @@ public class RequestHandler {
 			}
 		}
 		
-		logger.info("Comparison streams completed. Creating diff result stream.");
+		logger.debug("Comparison streams completed. Creating diff result stream.");
 		
 		s1 = new MetricsManager(props).handle(s1);
 		s2 = new MetricsManager(props).handle(s2);
@@ -173,7 +173,7 @@ public class RequestHandler {
 
 		sb.registerStreamSession(outStream);
 		
-		logger.info("Diff stream completed, results are available at id=" + outStream.getId());
+		logger.debug("Diff stream completed, results are available at id=" + outStream.getId());
 		
 		return outStream.getId();
 	}
