@@ -1,11 +1,13 @@
 function PerformanceDashboard() {
 
 	var widgetsArray = [];
-
+	
 	//addLastMeasurements(widgetsArray);	
-	addLastMeasurementsTpl(widgetsArray);
-	//addAggregatesOverTime(widgetsArray);
-
+	//addLastMeasurementsTpl(widgetsArray);
+	addAggregatesOverTimeTpl(widgetsArray);
+	//addAggregatesSummaryTpl(widgetsArray);
+	//TODO:addMeasurementExplorer(widgetsArray) //with paging
+	//TODO:addAggregatesSummaryOptzTpl(widgetsArray);
 	var dashboardObject = new Dashboard(
 			widgetsArray,
 			'Transaction Performance',
@@ -14,6 +16,106 @@ function PerformanceDashboard() {
 	dashboardObject.oid = "perfDashboardId";
 	return dashboardObject;
 };
+
+function RTMAggBaseQueryTmpl(metric){
+	return new AsyncQuery(
+			null,
+			new Service(//service
+					"/rtm/rest/aggregate/get", "Post",
+					"",//templated
+					new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].key, workData[i].value);}return newRequestFragment;}"),
+					new Postproc("", "",[], "function(response){return [{ placeholder : '__streamedSessionId__', value : response.data.payload.streamedSessionId, isDynamic : false }];}", "")
+			),
+			new Service(//callback
+					"/rtm/rest/aggregate/refresh", "Post",
+					"{\"streamedSessionId\": \"__streamedSessionId__\"}",
+					new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].placeholder, workData[i].value);}return newRequestFragment;}"),
+					new Postproc("function(response){return response.data.payload.stream.complete;}", "function (response, args) {\r\n    var metric = args.metric;\r\n    var retData = [], series = {};\r\n\r\n    var payload = response.data.payload.stream.streamData;\r\n    var payloadKeys = Object.keys(payload);\r\n\r\n    for (i = 0; i < payloadKeys.length; i++) {\r\n        var serieskeys = Object.keys(payload[payloadKeys[i]])\r\n        for (j = 0; j < serieskeys.length; j++) {\r\n            retData.push({\r\n                x: payloadKeys[i],\r\n                y: payload[payloadKeys[i]][serieskeys[j]][metric],\r\n                z: serieskeys[j]\r\n            });\r\n        }\r\n    }\r\n    return retData;\r\n}",
+							[{"key" : "metric", "value" : metric, "isDynamic" : false}], {}, ""))
+	);
+
+};
+function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity){
+	return new TemplatedQuery(
+			"Template",
+			new RTMAggBaseQueryTmpl(metric),
+			new DefaultOffPaging(),
+			new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }], \"numericalFilters\": [] }], \"serviceParams\": { \"measurementService.nextFactor\": \"0\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"__granularity__\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
+					null,
+					[new Placeholder("__granularity__", pGranularity, false)]));
+};
+
+var addAggregatesSummaryTpl = function(widgetsArray){
+	var standalone = new Widget(getUniqueId(),'col-md-12', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new DefaultConfig(), new RTMAggBaseTemplatedQueryTmpl("avg", "max")));
+	widgetsArray.push(standalone);
+};
+
+var addAggregatesOverTimeTpl = function(widgetsArray){
+	var config = getMasterSlaveConfig("raw", "Average Response Time over time (ms)", "Average Transaction count over time (#)");
+
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('lineChart'), config.masterconfig, new RTMAggBaseTemplatedQueryTmpl("avg", "auto")));
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMAggBaseTemplatedQueryTmpl("cnt", "auto")));
+
+	widgetsArray.push(master);
+	widgetsArray.push(slave);
+};
+
+//No paging: FACTOR 100 via template
+var addLastMeasurementsTpl = function(widgetsArray){
+	function RTMLatestMeasurementBaseQueryTmpl(){
+		return new SimpleQuery(
+				"Raw", new Service(
+						"/rtm/rest/measurement/latest", "Post",
+						"",
+						new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].key, workData[i].value);}return newRequestFragment;}"),
+						new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
+								[], {}, "")
+				)
+		);
+	};
+
+	function RTMLatestMeasurementTemplatedQuery(){
+		return new TemplatedQuery(
+				"Template",
+				new RTMLatestMeasurementBaseQueryTmpl(),
+				new DefaultOffPaging(),
+				//new Paging("On", new Offset("__FACTOR__", "return 0;", "return value + 1;", "if(value > 0){return value - 1;} else{return 0;}"), null),
+				new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }], \"numericalFilters\": [] }], \"serviceParams\": { \"measurementService.nextFactor\": \"__FACTOR__\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
+						null,
+						[new Placeholder("__FACTOR__", "100", false)]));
+	};
+
+	var config = getMasterSlaveConfig("transformed", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
+
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementTemplatedQuery()) );
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
+
+	widgetsArray.push(master);
+	widgetsArray.push(slave);
+};
+
+//No paging: hardcoded simple query
+var addLastMeasurements = function(widgetsArray){
+
+	function RTMLatestMeasurementBaseQuery(){
+		return new SimpleQuery(
+				"Raw", new Service(
+						"/rtm/rest/measurement/latest", "Post",
+						"{\"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \".*\", \"regex\": \"true\" }], \"numericalFilters\": [] }],\"serviceParams\": { \"measurementService.nextFactor\": \"100\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" }\}",
+						new Preproc("data", ""), new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
+								[], {}, "")
+				)
+		);
+	};
+
+	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementBaseQuery()) );
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementBaseQuery()) );
+
+	widgetsArray.push(master);
+	widgetsArray.push(slave);
+};
+
 
 var getMasterSlaveConfig = function(rawOrTransformed, masterTitle, slaveTitle){
 	var masterId, slaveId, masterTitle, slaveTitle, masterConfig, slaveConfig, datatype;
@@ -36,67 +138,6 @@ var getMasterSlaveConfig = function(rawOrTransformed, masterTitle, slaveTitle){
 	};
 
 	return {masterid: masterId, slaveid: slaveId, mastertitle: masterTitle, slavetitle: slaveTitle, masterconfig : masterConfig, slaveconfig: slaveConfig};
-};
-
-//No paging: FACTOR 100 via template
-var addLastMeasurementsTpl = function(widgetsArray){
-	function RTMLatestMeasurementBaseQueryTmpl(){
-		return new SimpleQuery(
-				"Raw", new Service(
-						"/rtm/rest/measurement/latest", "Post",
-						"",
-						new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].key, workData[i].value);}return newRequestFragment;}"),
-						new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
-								[], {}, "")
-				)
-		);
-	};
-
-	function RTMLatestMeasurementTemplatedQuery(){
-		return new TemplatedQuery(
-				'Template',
-				new RTMLatestMeasurementBaseQueryTmpl(),
-				new DefaultOffPaging(),
-				//new Paging("On", new Offset("__FACTOR__", "return 0;", "return value + 1;", "if(value > 0){return value - 1;} else{return 0;}"), null),
-				new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }], \"numericalFilters\": [] }], \"serviceParams\": { \"measurementService.nextFactor\": \"__FACTOR__\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
-						null,
-						[new Placeholder("__FACTOR__", "100", false)]));
-	};
-
-	//console.log(new RTMLatestMeasurementTemplatedQuery());
-
-	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
-
-	var latestMaster = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementTemplatedQuery()) );
-	var latestSlave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementTemplatedQuery()) );
-
-	widgetsArray.push(latestMaster);
-	widgetsArray.push(latestSlave);
-};
-
-var addAggregatesOverTime = function(widgetsArray){
-	var config = getMasterSlaveConfig("raw", "Average Response Time over time (ms)", "Average Transaction count over time (#)");
-};
-
-var addLastMeasurements = function(widgetsArray){
-
-	function RTMLatestMeasurementBaseQuery(){
-		return new SimpleQuery(
-				"Raw", new Service(
-						"/rtm/rest/measurement/latest", "Post",
-						"{\"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \".*\", \"regex\": \"true\" }], \"numericalFilters\": [] }],\"serviceParams\": { \"measurementService.nextFactor\": \"100\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"auto\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" }\}",
-						new Preproc("data", ""), new Postproc("", "function (response, args) {\r\n    var x = 'begin', y = 'value', z = 'name';\r\n    var retData = [], index = {};\r\n    var payload = response.data.payload;\r\n    for (var i = 0; i < payload.length; i++) {\r\n        retData.push({\r\n            x: payload[i][x],\r\n            y: payload[i][y],\r\n            z: payload[i][z]\r\n        });\r\n    }\r\n    return retData;\r\n}",
-								[], {}, "")
-				)
-		);
-	};
-
-	var config = getMasterSlaveConfig("raw", "Last 100 Measurements - Scattered values (ms)", "Last 100 Measurements - Value table (ms)");
-	var latestMaster = new Widget(config.masterid,'col-md-6', new DashletState(config.masterTitle, false, 0, {}, new ChartOptions('scatterChart'), config.masterconfig, new RTMLatestMeasurementBaseQuery()) );
-	var latestSlave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slaveTitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMLatestMeasurementBaseQuery()) );
-
-	widgetsArray.push(latestMaster);
-	widgetsArray.push(latestSlave);
 };
 
 function StaticPresets() {
