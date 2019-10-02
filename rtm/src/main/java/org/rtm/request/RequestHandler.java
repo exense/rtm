@@ -37,7 +37,8 @@ public class RequestHandler {
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		
-		Properties prop = Configuration.getInstance().getUnderlyingPropertyObject();
+		Properties prop = new Properties();
+		prop.putAll(Configuration.getInstance().getUnderlyingPropertyObject());
 		//prop.putAll(mapWhereNeeded(aggReq.getServiceParams()));
 		prop.putAll(aggReq.getServiceParams());
 
