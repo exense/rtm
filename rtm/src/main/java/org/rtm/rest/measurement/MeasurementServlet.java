@@ -59,6 +59,7 @@ public class MeasurementServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
+			return Response.status(500).entity(response).build();
 		}
 		return Response.status(200).entity(response).build();
 	}
@@ -76,6 +77,7 @@ public class MeasurementServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
+			return Response.status(500).entity(response).build();
 		}
 		return Response.status(200).entity(response).build();
 	}
