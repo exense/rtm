@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.commons.Configuration;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.pipeline.PipelineExecutionHelper;
 import org.rtm.pipeline.commons.BlockingMode;
@@ -52,7 +52,7 @@ public class RequestHandler {
 		{
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
-			int optimalHistApp = (int)Math.round(DBClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
+			int optimalHistApp = (int)Math.round(QueryClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
 			
 			// allowing user to set histSize (in case of memory problems)
 			//prop.put("aggregateService.histSize", "40");
@@ -61,7 +61,7 @@ public class RequestHandler {
 			logger.info("Using value " + optimalHistApp + " for histApp heuristic.");
 		}
 		
-		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
+		LongTimeInterval effective = QueryClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
@@ -114,7 +114,7 @@ public class RequestHandler {
 		{
 			switch(hardInterval){
 			case "auto":
-				optimalSize = DBClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
+				optimalSize = QueryClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
 				break;
 			case "max":
 				optimalSize = effective.getSpan() + 1;
