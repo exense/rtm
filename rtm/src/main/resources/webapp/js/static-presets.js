@@ -3,8 +3,8 @@ function PerformanceDashboard() {
 	var widgetsArray = [];
 	
 	//addLastMeasurements(widgetsArray);	
-	//addLastMeasurementsTpl(widgetsArray);
-	//addAggregatesOverTimeTpl(widgetsArray);
+	addLastMeasurementsTpl(widgetsArray);
+	addAggregatesOverTimeTpl(widgetsArray);
 	addAggregatesSummaryTpl(widgetsArray);
 	//TODO:addMeasurementExplorer(widgetsArray) //with paging
 	//TODO:addAggregatesSummaryOptzTpl(widgetsArray);
@@ -17,7 +17,7 @@ function PerformanceDashboard() {
 	return dashboardObject;
 };
 
-function RTMAggBaseQueryTmpl(metric){
+function RTMAggBaseQueryTmpl(metric, transform){
 	return new AsyncQuery(
 			null,
 			new Service(//service
@@ -30,15 +30,13 @@ function RTMAggBaseQueryTmpl(metric){
 					"/rtm/rest/aggregate/refresh", "Post",
 					"{\"streamedSessionId\": \"__streamedSessionId__\"}",
 					new Preproc("data", "function(requestFragment, workData){var newRequestFragment = requestFragment;for(i=0;i<workData.length;i++){newRequestFragment = newRequestFragment.replace(workData[i].placeholder, workData[i].value);}return newRequestFragment;}"),
-					new Postproc("function(response){return response.data.payload.stream.complete;}", "function (response, args) {\r\n    var metric = args.metric;\r\n    var retData = [], series = {};\r\n\r\n    var payload = response.data.payload.stream.streamData;\r\n    var payloadKeys = Object.keys(payload);\r\n\r\n    for (i = 0; i < payloadKeys.length; i++) {\r\n        var serieskeys = Object.keys(payload[payloadKeys[i]])\r\n        for (j = 0; j < serieskeys.length; j++) {\r\n            retData.push({\r\n                x: payloadKeys[i],\r\n                y: payload[payloadKeys[i]][serieskeys[j]][metric],\r\n                z: serieskeys[j]\r\n            });\r\n        }\r\n    }\r\n    return retData;\r\n}",
-							[{"key" : "metric", "value" : metric, "isDynamic" : false}], {}, ""))
+					new Postproc("function(response){return response.data.payload.stream.complete;}", transform ,[{"key" : "metric", "value" : metric, "isDynamic" : false}], {}, ""))
 	);
-
 };
-function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity){
+function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity, transform){
 	return new TemplatedQuery(
 			"Template",
-			new RTMAggBaseQueryTmpl(metric),
+			new RTMAggBaseQueryTmpl(metric, transform),
 			new DefaultOffPaging(),
 			new TemplateControls("{ \"selectors1\": [{ \"textFilters\": [{ \"key\": \"eId\", \"value\": \"__eId__\", \"regex\": \"true\" }], \"numericalFilters\": [] }], \"serviceParams\": { \"measurementService.nextFactor\": \"0\", \"aggregateService.sessionId\": \"defaultSid\", \"aggregateService.granularity\": \"__granularity__\", \"aggregateService.groupby\": \"name\", \"aggregateService.cpu\": \"1\", \"aggregateService.partition\": \"8\", \"aggregateService.timeout\": \"600\" } }",
 					null,
@@ -46,19 +44,17 @@ function RTMAggBaseTemplatedQueryTmpl(metric, pGranularity){
 };
 
 var addAggregatesSummaryTpl = function(widgetsArray){
-	var standalone = new Widget(getUniqueId(),'col-md-12', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new DefaultConfig(), new RTMAggBaseTemplatedQueryTmpl("avg", "max")));
+	var summaryTransform = "function (response) {\r\n    var metrics = response.data.payload.metricList;\r\n    var retData = [], series = {};\r\n\r\n    var payload = response.data.payload.stream.streamData;\r\n    var payloadKeys = Object.keys(payload);\r\n    \r\n    if (payload && payloadKeys.length > 0) {\r\n        var serieskeys = Object.keys(payload[payloadKeys[0]])\r\n        for (j = 0; j < serieskeys.length; j++) {\r\n            for (i = 0; i < metrics.length; i++) {\r\n                var metric = metrics[i];\r\n                if (payload[payloadKeys[0]][serieskeys[j]][metric]) {\r\n                    retData.push({\r\n                        x: serieskeys[j],\r\n                        y: payload[payloadKeys[0]][serieskeys[j]][metric],\r\n                        z: metric\r\n                    });\r\n                }\r\n            }\r\n        }\r\n    }\r\n    return retData;\r\n}";
+	var standalone = new Widget(getUniqueId(),'col-md-12', new DashletState("Transaction summary", false, 0, {}, new ChartOptions('table'), new Config('Off', false, false, ''), new RTMAggBaseTemplatedQueryTmpl("sum", "max", summaryTransform)));
 	widgetsArray.push(standalone);
-	
-//	var config = getMasterSlaveConfig("raw", "Average Response Time over entire run (ms)", "");
-//	var master = new Widget(config.masterid,'col-md-12', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('table'), new DefaultConfig(), new RTMAggBaseTemplatedQueryTmpl("avg", "max")));
-//	widgetsArray.push(master);
 };
 
 var addAggregatesOverTimeTpl = function(widgetsArray){
+	var overtimeTransform = "function (response, args) {\r\n    var metric = args.metric;\r\n    var retData = [], series = {};\r\n\r\n    var payload = response.data.payload.stream.streamData;\r\n    var payloadKeys = Object.keys(payload);\r\n\r\n    for (i = 0; i < payloadKeys.length; i++) {\r\n        var serieskeys = Object.keys(payload[payloadKeys[i]])\r\n        for (j = 0; j < serieskeys.length; j++) {\r\n            retData.push({\r\n                x: payloadKeys[i],\r\n                y: payload[payloadKeys[i]][serieskeys[j]][metric],\r\n                z: serieskeys[j]\r\n            });\r\n        }\r\n    }\r\n    return retData;\r\n}";
 	var config = getMasterSlaveConfig("raw", "Average Response Time over time (ms)", "Average Transaction count over time (#)");
 
-	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('lineChart'), config.masterconfig, new RTMAggBaseTemplatedQueryTmpl("avg", "auto")));
-	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('table'), config.slaveconfig, new RTMAggBaseTemplatedQueryTmpl("cnt", "auto")));
+	var master = new Widget(config.masterid,'col-md-6', new DashletState(config.mastertitle, false, 0, {}, new ChartOptions('lineChart'), config.masterconfig, new RTMAggBaseTemplatedQueryTmpl("avg", "auto", overtimeTransform)));
+	var slave = new Widget(config.slaveid,'col-md-6', new DashletState(config.slavetitle, false, 0, {}, new ChartOptions('stackedAreaChart'), config.slaveconfig, new RTMAggBaseTemplatedQueryTmpl("cnt", "auto", overtimeTransform)));
 
 	widgetsArray.push(master);
 	widgetsArray.push(slave);
@@ -134,7 +130,7 @@ var getMasterSlaveConfig = function(rawOrTransformed, masterTitle, slaveTitle){
 	masterId = random + "-master";
 	slaveId = random + "-slave";
 
-	masterConfig = new Config('On', true, false, 'unnecessaryAsMaster');
+	masterConfig = new Config('Off', true, false, 'unnecessaryAsMaster');
 	slaveConfig = new Config('Off', false, true, datatype);
 	slaveConfig.currentmaster = {
 			oid: masterId,
