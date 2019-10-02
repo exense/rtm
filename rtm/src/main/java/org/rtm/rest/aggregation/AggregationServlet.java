@@ -68,6 +68,7 @@ public class AggregationServlet {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			return Response.status(500).entity(rtmResponse).build();
 		}
 			return Response.status(200).entity(rtmResponse).build();
 		
@@ -85,6 +86,7 @@ public class AggregationServlet {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			return Response.status(500).entity(rtmResponse).build();
 		}
 			return Response.status(200).entity(rtmResponse).build();
 		
@@ -114,6 +116,7 @@ public class AggregationServlet {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);
 			rtmResponse = new ErrorResponse(message + e.getClass() + "; " + e.getMessage());
+			return Response.status(500).entity(rtmResponse).build();
 		}
 		return Response.status(200).entity(rtmResponse).build();
 	}
