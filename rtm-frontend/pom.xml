@@ -51,17 +51,17 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
-			<version>9.4.14.v20181114</version>
+			<version>9.4.21.v20190926</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
-			<version>9.4.14.v20181114</version>
+			<version>9.4.21.v20190926</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
-			<version>9.4.14.v20181114</version>
+			<version>9.4.21.v20190926</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jersey.containers</groupId>
@@ -86,12 +86,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr353</artifactId>
-			<version>2.5.2</version>
+			<version>2.9.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-json-org</artifactId>
-			<version>2.5.2</version>
+			<version>2.9.10</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
