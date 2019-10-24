@@ -39,7 +39,6 @@ import org.rtm.rest.security.AuthenticationFilter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
-import ch.exense.viz.persistence.MongoClientSession;
 import ch.exense.viz.persistence.accessors.GenericVizAccessor;
 import ch.exense.viz.rest.VizServlet;
 
@@ -93,7 +92,7 @@ public class JettyStarter {
 		
 		resourceConfig.registerClasses(VizServlet.class);
 		ch.exense.commons.app.Configuration config = convertConfig(Configuration.getInstance());
-		GenericVizAccessor accessor = new GenericVizAccessor(new MongoClientSession(config));
+		GenericVizAccessor accessor = new GenericVizAccessor(new ch.exense.viz.persistence.mongodb.MongoClientSession(config));
 		resourceConfig.register(new AbstractBinder() {	
 			@Override
 			protected void configure() {
