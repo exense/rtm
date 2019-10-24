@@ -11,7 +11,7 @@ angular.module('rtm-sidebar', [])
 			$scope.saveDashboard = function(){
 				console.log($scope.dashboards);
 				var serialized = angular.toJson({ name : 'mysession', state : $scope.dashboards }); 
-				$http.post('/rtm/rest/visualization/session', serialized)
+				$http.post('/rtm/rest/crud/session', serialized)
 				.then(function (response) {
 					console.log(response)
 				}, function (response) {
@@ -20,15 +20,11 @@ angular.module('rtm-sidebar', [])
 			};
 
 			$scope.loadDashboard = function(name){
-				$http.get('/rtm/rest/visualization/session?name=mysession')
+				$http.get('/rtm/rest/crud/session?name=mysession')
 				.then(function (response) {
-					$scope.dashboards.length = 0;
 					console.log(response.data.state)
-					$.each(response.data.state, function(index, dashboard){
-						dashboard.widgets = new IdIndexArray(dashboard.widgets.array);
-						$scope.dashboards.push(dashboard);
-					});
-					$scope.$emit('dashboard-change');
+					$scope.dashboards = response.data.state;
+					//$scope.$emit('dashboard-change');
 					console.log(response.data)
 				}, function (response) {
 					console.log('response')

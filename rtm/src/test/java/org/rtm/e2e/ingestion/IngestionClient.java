@@ -100,13 +100,13 @@ public class IngestionClient {
 	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
-				250,  // pauseTime
+				1000,  // pauseTime
 				100000, // nbIterations
-				5,    // nbTasks
+				50,    // nbTasks
 				30000,  // timeOut
 				1000, // skewFactor
 				200, // stdFactor
-				5);  //  targetCardinality
+				50);  //  targetCardinality
 
 		Assert.assertEquals(true, executeEndToEndParallelTest(ld, tc));
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());

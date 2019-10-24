@@ -26,9 +26,19 @@
 			<version>4.5.1</version>
 		</dependency>
 		<dependency>
+			<groupId>ch.exense</groupId>
+			<artifactId>exense-commons</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.viz</groupId>
+			<artifactId>viz-server</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
