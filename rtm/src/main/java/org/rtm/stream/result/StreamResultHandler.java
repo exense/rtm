@@ -1,6 +1,6 @@
 package org.rtm.stream.result;
 
-import org.rtm.stream.PayloadIdentifier;
+import org.rtm.commons.Identifier;
 import org.rtm.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class StreamResultHandler implements ResultHandler<Long>{
 
 	public void attachResult(AggregationResult<Long> tv) {
 
-		PayloadIdentifier<Long> id = tv.getStreamPayloadIdentifier();
+		Identifier<Long> id = tv.getStreamPayloadIdentifier();
 		
 		if(stream == null){
 			logger.error("Can not attach result to null stream. Stream with id " + stream.getId() + " was probably evicted too early.");

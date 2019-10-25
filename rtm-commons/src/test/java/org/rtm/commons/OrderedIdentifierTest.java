@@ -16,13 +16,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.stream;
+package org.rtm.commons;
 
-import org.rtm.range.Identifier;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 
 /**
  * @author doriancransac
  *
  */
-public interface PayloadIdentifier<T> extends Identifier<T>{
+
+public class OrderedIdentifierTest{
+
+	@BeforeClass
+	public static void beforeClass() {
+	}
+
+	@AfterClass
+	public static void afterClass(){
+	}
+
+	@Test
+	public void basicTest(){
+		Assert.assertEquals(-1, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(3L)));
+		Assert.assertEquals(0, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(2L)));
+		Assert.assertEquals(1, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(1L)));
+
+		Assert.assertEquals(-1, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abd")));
+		Assert.assertEquals(0, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abc")));
+		Assert.assertEquals(1, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abb")));
+	}	
 }

@@ -16,17 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.range;
+package org.rtm.commons;
 
 /**
  * @author doriancransac
  *
  */
 
-public interface Identifier<T> extends Comparable<Identifier<T>>{
+public class OrderedIdentifier<T extends Comparable<T>> extends Identifier<T> implements Comparable<OrderedIdentifier<T>>{
 	
-	public Identifier<T> getId();
-	public T getIdAsTypedObject();
-	//TODO: getIdAsHash();
+	public OrderedIdentifier(T underlyingObject) {
+		super(underlyingObject);
+	}
 
+	@Override
+	public int compareTo(OrderedIdentifier<T> o) {
+		return this.getIdAsTypedObject().compareTo(o.getIdAsTypedObject());
+	}
+	
 }
