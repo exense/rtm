@@ -18,6 +18,3 @@ curl localhost:8099/rtm/rest/ingest/structured/myMeasurementGroup/1494428139000/
 
 --> Accessing the webapp:
 http://localhost:8099/rtm
-
---> Documentation:
-http://denkbar.io/documentation/rtm/2_0/
