@@ -71,8 +71,6 @@ public class MongoQueryBuilderTest{
 	private void testOccurences(String query){
 		Assert.assertEquals(1, countPatternOccurences(query,"\\$or"));
 		Assert.assertEquals(2, countPatternOccurences(query,"\\$regex"));
-		Assert.assertEquals(1, countPatternOccurences(query,"\\$lt"));
-		Assert.assertEquals(1, countPatternOccurences(query,"\\$gt"));
 	}
 
 	private String replaceOperatorsAndBinds(String query, boolean replaceHashasBindCharacter, boolean surroundRegexPatterns, boolean addQuotes){
