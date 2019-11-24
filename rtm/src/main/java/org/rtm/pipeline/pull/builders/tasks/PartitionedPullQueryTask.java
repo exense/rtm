@@ -14,15 +14,17 @@ import org.rtm.request.selection.Selector;
 public class PartitionedPullQueryTask extends MergingPartitionedQueryTask{
 
 	//private static final Logger logger = LoggerFactory.getLogger(PartitionedPullQueryTask.class);
-
+	private Properties prop;
+	
 	public PartitionedPullQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int subPoolSize, long timeoutSecs) {
 		super(sel, prop, partitioningFactor, subPoolSize, timeoutSecs);
+		this.prop = prop;
 	}
 
 	@Override
 	protected void executeParallel(RangeBucket<Long> bucket) throws Exception {
 
-		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator);
+		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator, prop);
 
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
 				bucket.getLowerBound(),

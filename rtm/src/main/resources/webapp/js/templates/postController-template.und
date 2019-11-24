@@ -15,6 +15,7 @@ Selectors Group <%= instId %>
 <div style="display: inline-block;">
 <button type="submit" id="clearAll" class="btn btn-default" instId="<%= instId %>">Clear All</button>
 </div>
+
 <% if(instId === 1) {%>
 <div style="display: inline-block;">
 <button type="submit" id="sendSearch" class="btn btn-success">Search</button>
@@ -26,6 +27,7 @@ Selectors Group <%= instId %>
 <button type="submit" id="resume" class="btn btn-info">Resume</button>
 </div>
 <% } %>
+
 <div style="display: inline-block;">
 &nbsp
 </div>

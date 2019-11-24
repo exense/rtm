@@ -142,10 +142,9 @@ dispatchComparesRefreshed: function(){
 //    console.log('serializeInput')
 //    console.log(selPayload);
     var serviceParams = new ServiceParams();
-    
+
     serviceParams.setFragment(this.measurementListView.getServiceDomain(), this.measurementListView.getServiceFragment()); // toSkipValue()
     serviceParams.setFragment(this.aggSPControllerView.getServiceDomain(), this.aggSPControllerView.getServiceFragment());
-
     var serviceInput = new ServiceInput();
     serviceInput.setSelectors(selPayload, this.activeContext);
     serviceInput.setServiceParams(serviceParams);

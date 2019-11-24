@@ -3,7 +3,6 @@ package org.rtm.metrics.accumulation;
 import java.util.Map;
 import java.util.Properties;
 
-import org.rtm.commons.MeasurementConstants;
 import org.rtm.measurement.MeasurementHelper;
 import org.rtm.metrics.AccumulationManager;
 import org.rtm.stream.LongRangeValue;
@@ -14,15 +13,17 @@ public class MeasurementAccumulator {
 
 	private MeasurementHelper mh;
 	private AccumulationManager amgr;
+	private Properties prop;
 
 	public MeasurementAccumulator(Properties prop){
+		this.prop = prop;
 		this.mh = new MeasurementHelper(prop);
 		this.amgr = new AccumulationManager(prop);
 	}
 
 	public void handle(LongRangeValue lrv, Iterable<? extends Map> iterable) {
 		for(Map m : iterable) {
-			amgr.accumulateAll(getOrInitDimension(lrv, m), m.get(MeasurementConstants.VALUE_KEY));
+			amgr.accumulateAll(getOrInitDimension(lrv, m), m.get(prop.get("aggregateService.valueField")));
 		}
 	}
 

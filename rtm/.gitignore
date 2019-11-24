@@ -1,3 +1,12 @@
-/bin
-/target/
-/.DS_Store
+bin/
+target/
+.settings/
+*.class
+*.log
+*.bak
+.classpath
+.project
+node_modules/
+bower_components/
+.DS_Store
+**/testdb/

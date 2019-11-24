@@ -1,6 +1,7 @@
 package org.rtm.db;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,20 +12,33 @@ import org.rtm.request.selection.TextFilter;
 
 import com.mongodb.BasicDBObject;
 
-public class BsonQuery extends Document {
+public class BsonQuery {
 
-	private static final long serialVersionUID = -2093436314450930059L;
+	private String timeField;
+	private String timeFormat;
+	private Document query;
 
-	public BsonQuery(Document timelessQuery) {
-		super(timelessQuery);
+	public BsonQuery() {}
+			
+	public BsonQuery(List<Selector> sel, String timeField, String timeFormat) {
+		this.timeFormat = timeFormat;
+		this.timeField = timeField;
+		this.query = selectorsToQuery(sel);
+	}
+	
+	public Document getQuery() {
+		return query;
+	}
+	
+	public void setQuery(Document query) {
+		this.query = query;
 	}
 
-	@Override
 	public void putAll(Map<? extends String, ? extends Object> m) {
-		super.putAll(m);
+		query.putAll(m);
 	}
 
-	public static Document selectorsToQuery(List<Selector> selectors) {
+	public Document selectorsToQuery(List<Selector> selectors) {
 		BasicDBObject top = new BasicDBObject();
 
 		List<BasicDBObject> dbFilterList = new ArrayList<>();
@@ -52,27 +66,41 @@ public class BsonQuery extends Document {
 		return new Document(top);
 	}
 
-	private static List<BasicDBObject> processNumFilters(List<NumericalFilter> numericalFilters) {
+	private List<BasicDBObject> processNumFilters(List<NumericalFilter> numericalFilters) {
 		List<BasicDBObject> numFilterList = new ArrayList<>();
 
 		for (NumericalFilter f : numericalFilters) {
+			String key = f.getKey();
 			BasicDBObject numFilter = new BasicDBObject();
 			BasicDBObject local = new BasicDBObject();
 
 			if (f.hasMaxValue() || f.hasMinValue()) {
-				if (f.hasMaxValue())
-					local.append("$lt", f.getMaxValue());
-				if (f.hasMinValue())
-					local.append("$gte", f.getMinValue());
+				if (f.hasMaxValue()) {
+					if(key.equals(this.timeField))
+						if(this.timeFormat.equals("date")) {
+							local.append("$lt", new Date(f.getMaxValue()));							
+						}else {
+							local.append("$lt", f.getMaxValue());	
+						}
+				}
+				if (f.hasMinValue()) {
+					if(key.equals(this.timeField)) {
+						if(this.timeFormat.equals("date")) {
+							local.append("$gte", new Date(f.getMinValue()));
+						}else {
+							local.append("$gte", f.getMinValue());
+						}
+					}
+				}
 
-				numFilter.append(f.getKey(), local);
+				numFilter.append(key, local);
 				numFilterList.add(numFilter);
 			}
 		}
 		return numFilterList;
 	}
 
-	private static List<BasicDBObject> processTextFilters(List<TextFilter> textFilters) {
+	private List<BasicDBObject> processTextFilters(List<TextFilter> textFilters) {
 		List<BasicDBObject> textFilterList = new ArrayList<>();
 
 		for (TextFilter f : textFilters) {

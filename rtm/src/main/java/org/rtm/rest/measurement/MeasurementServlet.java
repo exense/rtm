@@ -55,7 +55,7 @@ public class MeasurementServlet {
 			int pager = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
 			int pageSize = Configuration.getInstance().getPropertyAsInteger("client.MeasurementListView.pagingValue");
 			
-			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, 1, pager * pageSize, pageSize), "ok");
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), (String) body.getServiceParams().get("aggregateService.timeField"), 1, pager * pageSize, pageSize, body.getServiceParams()), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
@@ -73,7 +73,7 @@ public class MeasurementServlet {
 		try {
 			int howmany = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
 
-			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), MeasurementConstants.BEGIN_KEY, -1, 0, howmany), "ok");
+			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), (String) body.getServiceParams().get("aggregateService.timeField"), -1, 0, howmany, body.getServiceParams()), "ok");
 		} catch (Exception e) {
 			e.printStackTrace();
 			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
