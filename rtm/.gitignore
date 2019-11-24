@@ -1,5 +1,20 @@
+<<<<<<< 3.0.0-new-frontend
 /bin
 /target/
 /.DS_Store
 bower_components/
 .classpath
+=======
+bin/
+target/
+.settings/
+*.class
+*.log
+*.bak
+.classpath
+.project
+node_modules/
+bower_components/
+.DS_Store
+**/testdb/
+>>>>>>> 9a4173e Implementing dynamic time and value field, long+dates

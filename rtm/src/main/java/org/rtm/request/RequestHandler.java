@@ -42,6 +42,8 @@ public class RequestHandler {
 		//prop.putAll(mapWhereNeeded(aggReq.getServiceParams()));
 		prop.putAll(aggReq.getServiceParams());
 
+		QueryClient db = new QueryClient(prop);
+		
 		/* Parallization inputs*/
 		long timeoutSecs = Long.parseLong(prop.getProperty("aggregateService.timeout"));
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
@@ -52,7 +54,7 @@ public class RequestHandler {
 		{
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
-			int optimalHistApp = (int)Math.round(QueryClient.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
+			int optimalHistApp = (int)Math.round(db.run90PclOnFirstSample(heuristicSampleSize, sel) * errorMarginPercentage);
 			
 			// allowing user to set histSize (in case of memory problems)
 			//prop.put("aggregateService.histSize", "40");
@@ -61,7 +63,7 @@ public class RequestHandler {
 			logger.debug("Using value " + optimalHistApp + " for histApp heuristic.");
 		}
 		
-		LongTimeInterval effective = QueryClient.findEffectiveBoundariesViaMongo(lti, sel);
+		LongTimeInterval effective = db.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);

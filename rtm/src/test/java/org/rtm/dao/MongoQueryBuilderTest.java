@@ -31,6 +31,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.stream.JsonParsingException;
 
+import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class MongoQueryBuilderTest{
 		if(!init){
 
 			selList = TestSelectorBuilder.buildSimpleSelectorList();
-			this.mongoQuery = BsonQuery.selectorsToQuery(this.selList).toString();
+			this.mongoQuery = new BsonQuery(this.selList, "begin", "long").getQuery().toString();
 		}
 	}
 
