@@ -6,7 +6,7 @@ function InstrumentationDashboard() {
 	var groupby = "method";
 
 	var textFilters = "[]";
-	var numericalFilters = "[]";
+	var numericalFilters = "[{ \"key\": \"start\", \"minValue\": \"__from__\", \"maxValue\": \"__to__\" }]";
 
 	var widgetsArray = [];
 
@@ -18,7 +18,10 @@ function InstrumentationDashboard() {
 			'Method Performance',
 			new DashboardState(
 					new GlobalSettings(
-							[],
+							[
+								new Placeholder("__from__", "new Date(new Date().getTime() - 300000).getTime()", true),
+								new Placeholder("__to__", "new Date().getTime()", true)
+							],
 							false,
 							false,
 							'Global Settings',
@@ -75,7 +78,8 @@ function PerformanceDashboard() {
 function EffectiveChartOptions(charType, xAxisOverride){
 	var opts = new ChartOptions(charType, false, false,
 			xAxisOverride?xAxisOverride:'function (d) {\r\n    var value;\r\n    if ((typeof d) === \"string\") {\r\n        value = parseInt(d);\r\n    } else {\r\n        value = d;\r\n    }\r\n\r\n    return d3.time.format(\"%H:%M:%S\")(new Date(value));\r\n}', 
-			'function (d) { return d.toFixed(0); }'
+			'function (d) { return d.toFixed(0); }',
+			'[new Date(new Date().getTime() - 300000).getTime(), new Date().getTime()]'
 	);
 	opts.margin.left = 75;
 	return opts;
