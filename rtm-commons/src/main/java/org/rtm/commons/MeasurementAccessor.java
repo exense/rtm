@@ -36,16 +36,17 @@ public class MeasurementAccessor implements TransportClient{
 		Configuration conf = Configuration.getInstance();
 		String stringAttempt1 = null;
 		String stringAttempt2 = null;
-		try { stringAttempt1 = conf.getProperty("db.host");	} catch (Exception e) { /* fail silently */	}
-		try { stringAttempt2 = conf.getProperty("ds.host"); } catch (Exception e) { /* fail silently */	}
+		try { stringAttempt1 = conf.getProperty("db.host");	logger.info("property 'db.host' found and used, value:" + stringAttempt1);} catch (Exception e) { /* fail silently */ logger.info("Property 'db.host' not found."); }
+		try { stringAttempt2 = conf.getProperty("ds.host"); logger.info("property 'ds.host' found and used, value:" + stringAttempt2);} catch (Exception e) { /* fail silently */ logger.info("Property 'ds.host' not found.");}
 		host = (stringAttempt1 == null || stringAttempt1.isEmpty())?((stringAttempt2 == null || stringAttempt2.isEmpty())?"localhost":stringAttempt2):stringAttempt1;
-
+		logger.info("Applied value:" + host);
+		
 		Integer intAttempt1 = null;
 		Integer intAttempt2 = null;
-		try { intAttempt1 = conf.getPropertyAsInteger("db.port"); } catch (Exception e) { /* fail silently */	}
-		try { intAttempt2 = conf.getPropertyAsInteger("ds.port"); } catch (Exception e) { /* fail silently */	}
+		try { intAttempt1 = conf.getPropertyAsInteger("db.port"); 	logger.info("property 'db.port' found and used, value:" + intAttempt1);} catch (Exception e) { /* fail silently */ logger.info("Property 'db.port' not found.");}
+		try { intAttempt2 = conf.getPropertyAsInteger("ds.port");   logger.info("property 'ds.host' found and used, value:" + intAttempt2);} catch (Exception e) { /* fail silently */ logger.info("Property 'ds.port' not found.");}
 		port = (intAttempt1 == null || intAttempt1 <= 0)?((intAttempt2 == null || intAttempt2 <= 0)?27017:intAttempt2):intAttempt1;
-
+		logger.info("Applied value:" + port);
 		stringAttempt1 = null;
 		stringAttempt2 = null;
 		try { stringAttempt1 = conf.getProperty("db.username"); } catch (Exception e) { /* fail silently */	}
