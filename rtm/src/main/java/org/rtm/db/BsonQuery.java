@@ -19,17 +19,17 @@ public class BsonQuery {
 	private Document query;
 
 	public BsonQuery() {}
-			
+
 	public BsonQuery(List<Selector> sel, String timeField, String timeFormat) {
 		this.timeFormat = timeFormat;
 		this.timeField = timeField;
 		this.query = selectorsToQuery(sel);
 	}
-	
+
 	public Document getQuery() {
 		return query;
 	}
-	
+
 	public void setQuery(Document query) {
 		this.query = query;
 	}
@@ -76,26 +76,23 @@ public class BsonQuery {
 
 			if (f.hasMaxValue() || f.hasMinValue()) {
 				if (f.hasMaxValue()) {
-					if(key.equals(this.timeField))
-						if(this.timeFormat.equals("date")) {
-							local.append("$lt", new Date(f.getMaxValue()));							
-						}else {
-							local.append("$lt", f.getMaxValue());	
-						}
-				}
-				if (f.hasMinValue()) {
-					if(key.equals(this.timeField)) {
-						if(this.timeFormat.equals("date")) {
-							local.append("$gte", new Date(f.getMinValue()));
-						}else {
-							local.append("$gte", f.getMinValue());
-						}
+					if(key.equals(this.timeField) && this.timeFormat.equals("date")) {
+						local.append("$lt", new Date(f.getMaxValue()));							
+					}else {
+						local.append("$lt", f.getMaxValue());	
 					}
 				}
-
-				numFilter.append(key, local);
-				numFilterList.add(numFilter);
+				if (f.hasMinValue()) {
+					if(key.equals(this.timeField) && this.timeFormat.equals("date")) {
+						local.append("$gte", new Date(f.getMinValue()));
+					}else {
+						local.append("$gte", f.getMinValue());
+					}
+				}
 			}
+
+			numFilter.append(key, local);
+			numFilterList.add(numFilter);
 		}
 		return numFilterList;
 	}
