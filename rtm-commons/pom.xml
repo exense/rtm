@@ -1,23 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
 	<artifactId>rtm-commons</artifactId>
 	<packaging>jar</packaging>
 	<name>Response Time Manager - Commons libs</name>
 	<parent>
-		<groupId>org.rtm</groupId>
+		<groupId>ch.exense.rtm</groupId>
 		<artifactId>rtm-parent</artifactId>
 		<version>2.3.0-SNAPSHOT</version>
 		<relativePath>../rtm-parent</relativePath>
 	</parent>
-	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-
 	<distributionManagement>
 		<repository>
 			<id>step-enterprise</id>
@@ -31,14 +27,11 @@
 			<artifactId>mongodb-driver</artifactId>
 			<version>3.8.2</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

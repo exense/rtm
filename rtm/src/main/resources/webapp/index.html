@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="img/favicon.png">
+
+<title>RTM 3.0.0</title>
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/nvd3/build/nv.d3.js"></script>
+<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="bower_components/datatables.net/js/jquery.dataTables.js"></script>
+<script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.js"></script>
+<script src="bower_components/datatables.net-select/js/dataTables.select.js"></script>
+
+<script src="bower_components/exense-visualization/dist/viz.js"></script>
+
+<script src="js/static-presets.js"></script>
+<script src="js/rtm-sidebar.js"></script>
+
+<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css">
+<link rel="stylesheet"
+	href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
+<link rel="stylesheet"
+	href="bower_components/bootstrap/dist/css/bootstrap.css">
+<link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.css" />
+<link rel="stylesheet" href="bower_components/datatables.net-select-dt/css/select.dataTables.css" />
+
+<link rel="stylesheet"
+	href="bower_components/exense-visualization/dist/viz.css">
+<link rel="stylesheet" href="css/rtm.css">
+</head>
+
+<script>
+	var rtmApp = angular.module('rtm', [ 'viz-session-manager']);
+	rtmApp.controller('topController', [ '$scope', '$http', function($scope, $http) {
+		
+		$scope.staticPresets = new StaticPresets();
+		$scope.dashboardsendpoint = [new DefaultDashboard()];
+		$scope.sessionName = 'New Session';
+		$scope.restPrefix = 'rest';
+		
+		$scope.presaveDashboard = function(name, dashboard){
+			var serialized = angular.toJson({ name: name, state: [dashboard] });
+	        $http.post($scope.restPrefix + '/viz/crud/sessions?name=' + name, serialized)
+	            .then(function (response) {
+	            }, function (response) {
+	                console.log('error response')
+	                console.log(response)
+	            });
+		};
+		
+		$scope.startup = function(){
+			$scope.presaveDashboard('pp_PerformanceDashboard', new PerformanceDashboard());
+			$scope.presaveDashboard('pp_InstrumentationDashboard', new InstrumentationDashboard());
+		};
+		
+		$scope.startup();
+
+	} ]);
+</script>
+
+<body>
+	<div ng-app='rtm' ng-controller="topController">
+		<viz-session-manager restprefix="restPrefix" dashboards="dashboardsendpoint" currentsession="sessionName" />
+	</div>
+</body>
+
+</html>

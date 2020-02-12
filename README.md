@@ -18,3 +18,5 @@ curl localhost:8099/rtm/rest/ingest/structured/myMeasurementGroup/1494428139000/
 
 --> Accessing the webapp:
 http://localhost:8099/rtm
+--> Documentation:
+http://docs.exense.ch/wiki/rtm/view/Versions/2.0.x/
