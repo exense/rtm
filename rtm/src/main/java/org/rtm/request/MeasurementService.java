@@ -55,4 +55,8 @@ public class MeasurementService{
 
 		return res;
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> refs/remotes/origin/2.2
