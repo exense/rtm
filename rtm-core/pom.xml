@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
-			<version>3.0.0</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -42,22 +42,22 @@
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
-		    <version>2.9.10</version>
+		    <version>2.10.0</version>
 		</dependency>
 		<dependency>
 		  <groupId>com.fasterxml.jackson.core</groupId>
 		  <artifactId>jackson-databind</artifactId>
-		  <version>2.9.10</version>
+		  <version>2.10.0</version>
 		</dependency>		
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr353</artifactId>
-			<version>2.9.10</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-json-org</artifactId>
-			<version>2.9.10</version>
+			<version>2.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

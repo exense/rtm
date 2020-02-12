@@ -53,6 +53,7 @@ import step.grid.GridImpl;
 import step.grid.TokenWrapper;
 import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
 import step.grid.client.GridClient;
+import step.grid.client.GridClientException;
 import step.grid.client.LocalGridClientImpl;
 import step.grid.io.OutputMessage;
 
@@ -166,16 +167,20 @@ public class AggregationServlet {
 
 		OutputMessage message = null;
 		try {
-			message = partitionerClient.call(tokenHandle, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
+			message = partitionerClient.call(tokenHandle.getID(), om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
 		} catch (Exception e) {e.printStackTrace();}
 
 		StreamResponseWrapper streamResult = om.treeToValue(message.getPayload(), StreamResponseWrapper.class);
 		
 		if(streamResult.getStream().isComplete()) {
 			try {
-				partitionerClient.returnTokenHandle(tokenHandle);
+				partitionerClient.returnTokenHandle(tokenHandle.getID());
 				partitionerClient.close();
-			} catch (AgentCommunicationException e) {e.printStackTrace();}
+			} catch (AgentCommunicationException e) {
+				e.printStackTrace();
+			} catch (GridClientException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		rtmResponse = new SuccessResponse(streamResult,

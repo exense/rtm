@@ -82,7 +82,7 @@ public class RequestHandler {
 		
         OutputMessage message = null;
 		try {
-			message = client.call(handle, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
+			message = client.call(handle.getID(), om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
 		} catch (Exception e) {e.printStackTrace();}
 		
 		StreamId sId = om.treeToValue(message.getPayload(), StreamId.class);

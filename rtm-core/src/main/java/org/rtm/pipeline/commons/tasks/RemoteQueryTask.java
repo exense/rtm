@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import step.grid.TokenWrapper;
 import step.grid.client.AbstractGridClientImpl.AgentCommunicationException;
 import step.grid.client.GridClient;
+import step.grid.client.GridClientException;
 import step.grid.io.OutputMessage;
 
 public class RemoteQueryTask implements RangeTask {
@@ -55,15 +56,18 @@ public class RemoteQueryTask implements RangeTask {
         //gridCLient.registerFile(new File())
         OutputMessage message = null;
 		try {
-			message = gridCLient.call(tokenHandle, om.valueToTree(req), "org.rtm.request.WorkerService", null, new HashMap<>(), 300000);
+			message = gridCLient.call(tokenHandle.getID(), om.valueToTree(req), "org.rtm.request.WorkerService", null, new HashMap<>(), 300000);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		finally{
 			try {
-				gridCLient.returnTokenHandle(tokenHandle);
+				gridCLient.returnTokenHandle(tokenHandle.getID());
 			} catch (AgentCommunicationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (GridClientException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
