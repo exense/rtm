@@ -10,13 +10,27 @@
 <form class="form-inline">
 <div class="form-group">
 <div class="form-group row">
+<div class="col-md-1">
+<label class="control-label">time fld</label> &nbsp
+<input type="text" class="form-control timeField aggserviceparams" id="timeField" value="<%= content.timeField %>">
+</div>
 
-<div class="col-md-2">
-<label class="control-label">agg interval (ms)</label> &nbsp
+<div class="col-md-1">
+<label class="control-label">time fmt</label> &nbsp
+<input type="text" class="form-control timeFormat aggserviceparams" id="timeFormat" value="<%= content.timeFormat %>">
+</div>
+
+<div class="col-md-1">
+<label class="control-label">value fld</label> &nbsp
+<input type="text" class="form-control valueField aggserviceparams" id="valueField" value="<%= content.valueField %>">
+</div>
+
+<div class="col-md-1">
+<label class="control-label">interval</label> &nbsp
 <input type="text" class="form-control granularity aggserviceparams" id="granularity" value="<%= content.granularity %>">
 </div>
 
-<div class="col-md-2">
+<div class="col-md-1">
 <label class="control-label">groupby</label> &nbsp
 <input type="text" class="form-control groupby aggserviceparams" id="groupby" value="<%= content.groupby %>">
 </div>

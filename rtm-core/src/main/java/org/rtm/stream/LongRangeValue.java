@@ -3,91 +3,47 @@ package org.rtm.stream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.rtm.range.Identifier;
+import org.rtm.commons.Identifier;
+import org.rtm.commons.OrderedIdentifier;
 import org.rtm.stream.result.AggregationResult;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @SuppressWarnings("rawtypes")
-public class LongRangeValue implements AggregationResult<Long>{
+public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
 
 	private static final long serialVersionUID = -2891193441467345217L;
 
-	private Identifier<Long> streamPayloadIdentifier;
-
-	private Map<String, Dimension> dimensionMap = new ConcurrentHashMap<String, Dimension>();
-	
-	public LongRangeValue(){}
+	private OrderedIdentifier<Long> ti;
 
 	public LongRangeValue(Long id){
 		super();
-		this.streamPayloadIdentifier = new TimeBasedPayloadIdentifier(id);
+		this.ti = new OrderedIdentifier<Long>(id);
 	}
 
 	@Override
-	public PayloadIdentifier<Long> getStreamPayloadIdentifier() {
-		return (PayloadIdentifier<Long>) this.streamPayloadIdentifier;
+	public Identifier<Long> getStreamPayloadIdentifier() {
+		return (Identifier<Long>) this.ti;
 	}
-	
-	public void setStreamPayloadIdentifier(PayloadIdentifier<Long> streamPayloadIdentifier) {
-		this.streamPayloadIdentifier = streamPayloadIdentifier;
-	}
-	
+
+
 	public Dimension getDimension(String dimensionName) {
-		return dimensionMap.get(dimensionName);
+		return this.get(dimensionName);
 	}
 
 	public void setDimension(Dimension dimension) {
-		dimensionMap.put(dimension.getDimensionName(), dimension);
+		this.put(dimension.getDimensionName(), dimension);
 	}
-
+	
 
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
-		return dimensionMap;
+		return this;
 	}
-
+	
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
-		dimensionMap = map;
-	}
-
-	public static class TimeBasedPayloadIdentifier implements PayloadIdentifier<Long>{
-
-		protected Long longId;
-
-		public TimeBasedPayloadIdentifier() {
-			super();
-		}
-
-		public TimeBasedPayloadIdentifier(Long id){
-			this.longId = id;
-		}
-
-		@Override
-		@JsonIgnore
-		public Identifier<Long> getId() {
-			return this;
-		}
-
-		public void setLongId(long id) {
-			this.longId = id;
-		}
-		
-		public long getLongId() {
-			return longId;
-		}
-
-		@Override
-		@JsonIgnore
-		public Long getIdAsTypedObject() {
-			return this.longId;
-		}
-
-		@Override
-		public int compareTo(Identifier<Long> o) {
-			return this.longId.compareTo(o.getIdAsTypedObject());
-		}
-
+		this.clear();
+		map.entrySet().stream().forEach(e -> {
+			this.put(e.getKey(), e.getValue());
+		});
 	}
 }

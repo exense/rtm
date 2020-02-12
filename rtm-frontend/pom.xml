@@ -6,9 +6,9 @@
 	<packaging>jar</packaging>
 	<name>Response Time Manager - Frontend Server</name>
 	<parent>
-		<groupId>org.rtm</groupId>
+		<groupId>ch.exense.rtm</groupId>
 		<artifactId>rtm-parent</artifactId>
-		<version>2.3.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 		<relativePath>../rtm-parent</relativePath>
 	</parent>
 	
@@ -29,19 +29,24 @@
 			<version>4.5.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.rtm</groupId>
+			<groupId>ch.exense.viz</groupId>
+			<artifactId>viz-server</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-commons</artifactId>
-			<version>2.3.0-SNAPSHOT</version>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.rtm</groupId>
+			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-core</artifactId>
-			<version>2.3.0-SNAPSHOT</version>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.rtm</groupId>
+			<groupId>ch.exense.rtm</groupId>
 			<artifactId>rtm-partitioner</artifactId>
-			<version>2.3.0-SNAPSHOT</version>
+			<version>3.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

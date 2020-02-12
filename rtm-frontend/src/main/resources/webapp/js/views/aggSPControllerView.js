@@ -9,6 +9,9 @@ var AggSPControllerView = Backbone.View.extend(
 
 			aggserviceparams : {},
 			
+			defaultTimeField : '',
+			defaultTimeFormat : '',
+			defaultValueField : '',
 			defaultSessionId : '',
 			defaultGranularity : '',
 			defaultGroupby : '',
@@ -25,8 +28,14 @@ var AggSPControllerView = Backbone.View.extend(
 				  this.defaultTimeout = Config.getProperty('aggregateService.defaultStreamTimeoutSecs');
 				  this.defaultHistSize = Config.getProperty('aggregateService.histSize');
 				  this.defaultHistApp = Config.getProperty('aggregateService.histApp');
+				  this.defaultTimeField = Config.getProperty('client.AggSPControllerView.defaultTimeField');
+				  this.defaultTimeFormat = Config.getProperty('client.AggSPControllerView.defaultTimeFormat');
+				  this.defaultValueField = Config.getProperty('client.AggSPControllerView.defaultValueField');
 				  
 				  this.aggserviceparams = new AggregateServiceParams({
+					defaultTimeField : this.defaultTimeField,
+					defaultTimeFormat : this.defaultTimeFormat,
+					defaultValueField : this.defaultValueField,
 				  	defaultSessionId : this.defaultSessionId,
 				  	defaultGranularity : this.defaultGranularity,
 				  	defaultGroupby : this.defaultGroupby,

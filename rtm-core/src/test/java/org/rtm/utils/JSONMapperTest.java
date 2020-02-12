@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.rtm.selection.Selector;
-import org.rtm.selection.SelectorBuilderTestHelper;
+import org.rtm.selection.TestSelectorBuilder;
 
 @SuppressWarnings("unchecked")
 public class JSONMapperTest {
@@ -16,7 +16,7 @@ public class JSONMapperTest {
 		m.put("foo", "bar");
 		m.put("1", 2);
 		
-		Map<String, Object> selector = new JSONMapper().convertObjectToType(SelectorBuilderTestHelper.buildSimpleSelectorList().get(0), Map.class);
+		Map<String, Object> selector = new JSONMapper().convertObjectToType(TestSelectorBuilder.buildSimpleSelectorList().get(0), Map.class);
 
 		System.out.println("map:" + selector);
 		

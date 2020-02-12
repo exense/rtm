@@ -3,7 +3,6 @@ package org.rtm.metrics.accumulation.histograms;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.rtm.db.DBClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Histogram {
 
-	private static final Logger logger = LoggerFactory.getLogger(DBClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(Histogram.class);
 
 	private int nbPairs;
 

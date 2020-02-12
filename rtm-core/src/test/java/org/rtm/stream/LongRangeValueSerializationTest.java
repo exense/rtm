@@ -41,8 +41,7 @@ public class LongRangeValueSerializationTest {
 		countAccumulator.accumulate(countAccumulatorState, 13L);
 		countAccumulator.accumulate(countAccumulatorState, 13L);
 		
-		LongRangeValue longRangeValue = new LongRangeValue();
-		longRangeValue.setStreamPayloadIdentifier(new LongRangeValue.TimeBasedPayloadIdentifier(1l));
+		LongRangeValue longRangeValue = new LongRangeValue(1l);
 		WorkDimension dimension = new WorkDimension("test");
 		dimension.put("myAccumulator", new HistogramAccumulatorState(11,12));
 		dimension.put("myOtherAccumulator", countAccumulatorState);

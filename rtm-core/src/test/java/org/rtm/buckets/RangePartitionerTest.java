@@ -122,7 +122,7 @@ public class RangePartitionerTest{
 			targetUpperSum+= (i * inc);
 		}
 
-		logger.debug("ComputedValidation["+testName+"]: start="+start+"; end="+end+"; inc="+inc+"; bucketsFound="+effectiveBucketNb+"; targetBuckets="+targetNb+"; sumFound="+effectiveSum+"; targetSum="+targetUpperSum+";");
+		//logger.debug("ComputedValidation["+testName+"]: start="+start+"; end="+end+"; inc="+inc+"; bucketsFound="+effectiveBucketNb+"; targetBuckets="+targetNb+"; sumFound="+effectiveSum+"; targetSum="+targetUpperSum+";");
 		Assert.assertEquals(targetNb, effectiveBucketNb);
 		Assert.assertEquals(targetUpperSum, effectiveSum);
 
@@ -132,7 +132,7 @@ public class RangePartitionerTest{
 	}
 
 	private static boolean validateTestManually(String testName, long start, long end, long inc, int effectiveBucketNb, int effectiveSum, int targetNb, int targetUpperSum) {
-		logger.debug("ManualValidation["+testName+"]: start="+start+"; end="+end+"; inc="+inc+"; bucketsFound="+effectiveBucketNb+"; targetBuckets="+targetNb+"; sumFound="+effectiveSum+"; targetSum="+targetUpperSum+";");
+		//logger.debug("ManualValidation["+testName+"]: start="+start+"; end="+end+"; inc="+inc+"; bucketsFound="+effectiveBucketNb+"; targetBuckets="+targetNb+"; sumFound="+effectiveSum+"; targetSum="+targetUpperSum+";");
 		Assert.assertEquals(targetNb, effectiveBucketNb);
 		Assert.assertEquals(targetUpperSum, effectiveSum);
 
@@ -171,7 +171,7 @@ public class RangePartitionerTest{
 		Map<String, Integer> res = null;
 		do{
 			res = parallelTester(parallelism, start, end, inc, timeout);
-			System.out.println(res);
+			//System.out.println(res);
 		}
 		while(validateTestManually("loopedTest", start, end, inc, res.get("count"), res.get("sum"), 1112, 5569444));
 

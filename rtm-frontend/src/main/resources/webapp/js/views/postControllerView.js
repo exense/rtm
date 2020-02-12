@@ -2,6 +2,7 @@ var PostControllerView = Backbone.View.extend(
 		{
 			el: '.PostControllerView',
 			events: {
+
 				"click #addSelector" : "addSelector",
 				"click #clearAll" : "clearAll",
 				"click .at" : "addTextFilter",
@@ -11,7 +12,7 @@ var PostControllerView = Backbone.View.extend(
 				"click .rtf" : "remFilter",
 				"click .rnf" : "remFilter",
 				"click .rdf" : "remFilter",
-				
+
 				"change .sinp": "refreshController",
 				"click #sendSearch" : "sendSearch",
 				"click #pause" : "pauseEvent",
@@ -21,9 +22,9 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 //			Configurative, will be retrieved from a server configuration service in the next major update
-			defaultTextKeys : ['eId', 'name', 'uId', 'profileId', 'eDesc', 'rnId', 'rnStatus'],
-			defaultNumericalKeys : ['value'],
-			defaultDateKeys : ['begin'],
+			defaultTextKeys : '',
+			defaultNumericalKeys : '',
+			defaultDateKeys : '',
 
 			spinner : '',
 
@@ -46,9 +47,12 @@ var PostControllerView = Backbone.View.extend(
 			},
 
 			initialize : function(){
-			this.activeContext = this.context;
+				this.activeContext = this.context;
+				this.defaultTextKeys = Config.getProperty('defaultTextKeys').split(',');
+				this.defaultNumericalKeys=Config.getProperty('defaultNumericalKeys').split(',');
+				this.defaultDateKeys=Config.getProperty('defaultDateKeys').split(',');
 			},
-			
+
 			setContext : function (context) {
 				this.activeContext = context;
 			},
@@ -94,7 +98,7 @@ var PostControllerView = Backbone.View.extend(
 				e.preventDefault();
 			},
 			getEventInstanceId: function (e) {
-			return e.currentTarget.getAttribute("instid");
+				return e.currentTarget.getAttribute("instid");
 			},
 			render: function () {
 
@@ -108,20 +112,20 @@ var PostControllerView = Backbone.View.extend(
 						defaultDateKeys : that.defaultDateKeys,
 						instId : 1
 					});
-					
+
 					if(that.activeContext === 'Compare'){
-					template2 = _.template(data, {
-						controller: {text : 'Add Selector 2'},
-						selectors : that.selectors2,
-						defaultTextKeys : that.defaultTextKeys,
-						defaultNumericalKeys : that.defaultNumericalKeys,
-						defaultDateKeys : that.defaultDateKeys,
-						instId : 2
-					});
-					
-					that.$el.html(template + template2);
+						template2 = _.template(data, {
+							controller: {text : 'Add Selector 2'},
+							selectors : that.selectors2,
+							defaultTextKeys : that.defaultTextKeys,
+							defaultNumericalKeys : that.defaultNumericalKeys,
+							defaultDateKeys : that.defaultDateKeys,
+							instId : 2
+						});
+
+						that.$el.html(template + template2);
 					}else{
-					that.$el.html(template);
+						that.$el.html(template);
 					}  
 				}, 'html')
 				.success(function(){
@@ -135,7 +139,7 @@ var PostControllerView = Backbone.View.extend(
 						forceParse: 0,
 						showMeridian: 1
 					});
-					
+
 					that.resetSpinner();
 					that.spinner.stop();
 				}) // success
@@ -178,15 +182,21 @@ var PostControllerView = Backbone.View.extend(
 			getGuiFragment: function(event){
 				if(this.activeContext === 'Compare')
 					return { 'selectors1' : this.selectors1, 'selectors2' : this.selectors2};
-				else{
-					return { 'selectors1' : this.selectors1};
-				}
+					else{
+						return { 'selectors1' : this.selectors1};
+					}
 			},
 			getServiceFragment: function(event){
-				if(this.activeContext === 'Compare')
-					return { 'selectors1' : this.selectors1, 'selectors2' : this.selectors2};
+				if(this.activeContext === 'Compare'){
+					return {
+						'selectors1' : this.selectors1,
+						'selectors2' : this.selectors2
+					};
+				}
 				else{
-					return { 'selectors1' : this.selectors1};
+					return {
+						'selectors1' : this.selectors1
+					};
 				}
 			},
 
@@ -203,10 +213,10 @@ var PostControllerView = Backbone.View.extend(
 			hasValidFilters: function(){
 				if(this.activeContext === 'Compare')
 					return this.hasValidFiltersForSelector(1) && this.hasValidFiltersForSelector(2);
-				 else
+				else
 					return this.hasValidFiltersForSelector(1);
 			},
-			
+
 			hasValidFiltersForSelector: function(instId){
 				var result = false;
 				var l = this['selectors' + instId].length;
@@ -321,13 +331,13 @@ var PostControllerView = Backbone.View.extend(
 			loadGuiState: function(input){
 				this.selectors1 = [];
 				this.selectors2 = [];
-			
+
 //				console.log(input);
 				this.selectors1 = this.addFunctionality(input, 1);
 				if(this.activeContext === 'Compare')
 					this.selectors2 = this.addFunctionality(input, 2);
 			},
-			
+
 			addFunctionality: function(inputObject, index){
 				var input = inputObject['selectors' + index];
 				var al = input.length;

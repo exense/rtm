@@ -19,12 +19,9 @@
 package org.rtm.stream.result;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.rtm.range.Identifier;
+import org.rtm.commons.Identifier;
 import org.rtm.stream.Dimension;
-import org.rtm.stream.PayloadIdentifier;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -37,63 +34,34 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class FinalAggregationResult<T> implements AggregationResult<T> {
 
 	private Map<String, Dimension> map;
-	private PayloadIdentifier<T> identifier;
+	private Identifier<T> identifier;
 	
-	public FinalAggregationResult() {
-		super();
-	}
-
-	public FinalAggregationResult(PayloadIdentifier<T> id){
-		this.identifier = new SimplePayloadIdentifier(id.getIdAsTypedObject());
+	public FinalAggregationResult(Identifier<T> id){
+		this.identifier = id;
 	}
 	
 	@JsonIgnore
 	@Override
-	public PayloadIdentifier<T> getStreamPayloadIdentifier() {
+	public Identifier<T> getStreamPayloadIdentifier() {
 		return this.identifier;
 	}
 
+	@JsonIgnore
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
 		return map;
 	}
 	
-	@JsonIgnore
+	@JsonValue
 	public Map<String, Dimension> getPrettyDimensionsMap() {
 		return map;
 	}
 	
+	//@JsonIgnore
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
 		this.map = map;
 		
-	}
-	
-	private class SimplePayloadIdentifier<T> implements PayloadIdentifier<T>{
-
-		T id;
-
-		public SimplePayloadIdentifier(T id){
-			this.id = id;
-		}
-
-		@JsonIgnore
-		@Override
-		public Identifier<T> getId() {
-			return this;
-		}
-
-		@Override
-		public T getIdAsTypedObject() {
-			return this.id;
-		}
-
-		@Override
-		public int compareTo(Identifier<T> o) {
-			throw new RuntimeException("Not Implemented.");
-		}
-
-
 	}
 
 }

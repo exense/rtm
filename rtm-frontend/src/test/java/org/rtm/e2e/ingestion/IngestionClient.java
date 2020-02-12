@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.MongoWaitQueueFullException;
 
+//TODO: turn some of these tests into @Remote
 public class IngestionClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(IngestionClient.class);
@@ -54,7 +55,7 @@ public class IngestionClient {
 		//removeAllData();
 	}
 
-	@Test
+	//@Test
 	public synchronized void simpleEndToEndTest(){
 
 		Map<String, Object> m = TestMeasurementBuilder.buildStatic(TestMeasurementType.SIMPLE);
@@ -69,7 +70,7 @@ public class IngestionClient {
 		Assert.assertEquals(1L, ma.getMeasurementCount());
 	}
 
-	@Test
+	//@Test
 	public synchronized void simpleParallelTest(){
 
 		LoadDescriptor ld = new BasicLoadDescriptor();
@@ -78,7 +79,7 @@ public class IngestionClient {
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	@Test
+	//@Test
 	public synchronized void skewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(
@@ -94,7 +95,7 @@ public class IngestionClient {
 		Assert.assertEquals(ld.getNbIterations() * ld.getNbTasks(), ma.getMeasurementCount());
 	}
 
-	@Test
+	//@Test
 	public synchronized void longSkewedLoadTest(){
 
 		LoadDescriptor ld = new TransactionalProfile(

@@ -3,7 +3,7 @@ package org.rtm.selection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectorBuilderTestHelper {
+public class TestSelectorBuilder {
 
 	public static List<Selector> buildSimpleSelectorList() {
 		

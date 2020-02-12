@@ -12,15 +12,17 @@ public class BackendQueryTask implements RangeTask {
 
 	protected List<Selector> sel;
 	protected MeasurementAccumulator accumulator;
+	protected Properties prop;
 
 	public BackendQueryTask(List<Selector> sel, Properties prop){
 		this.sel = sel;
+		this.prop = prop;
 		this.accumulator = new MeasurementAccumulator(prop);
 	}
 
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) {
-		return new BackendQuery(sel, bucket, this.accumulator).execute();
+		return new BackendQuery(sel, bucket, this.accumulator, prop).execute();
 	}
 }
 

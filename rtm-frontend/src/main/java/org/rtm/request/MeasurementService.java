@@ -21,10 +21,13 @@ package org.rtm.request;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.selection.Selector;
+
+import com.mongodb.client.MongoCursor;
 
 
 /**
@@ -35,16 +38,21 @@ import org.rtm.selection.Selector;
 public class MeasurementService{
 
 	public MeasurementService(){}
-	
-	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int skip, int limit) throws Exception{
+
+	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit, Properties prop) throws Exception{
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
-		Iterable it = new DBClient().executeQuery(BsonQuery.selectorsToQuery(slt), orderBy, 1, skip, limit);
-		
+		String timeField = (String) prop.get("aggregateService.timeField");
+		String timeFormat = (String) prop.get("aggregateService.timeFormat");
+		Iterable it = new QueryClient(prop).executeQuery(new BsonQuery(slt, timeField, timeFormat).getQuery(), orderBy, direction, skip, limit);
+		MongoCursor cursor = (MongoCursor) it.iterator();
+
 		for(Object o : it){
 			Map<String, Object> m = (Map) o;
 			res.add(m);
 		}
 		
+		cursor.close();
+
 		return res;
 	}
 }

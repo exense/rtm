@@ -19,13 +19,16 @@
 package org.rtm.pipeline.commons.tasks;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.selection.Selector;
 import org.rtm.stream.LongRangeValue;
+
+import com.mongodb.client.MongoCursor;
 
 /**
  * @author doriancransac
@@ -36,19 +39,29 @@ public class BackendQuery {
 	private List<Selector> sel;
 	private RangeBucket<Long> bucket;
 	private MeasurementAccumulator accumulator;
+	private Properties prop;
 
-	public BackendQuery(List<Selector> sel, RangeBucket<Long> bucket, MeasurementAccumulator accumulator) {
+	public BackendQuery(List<Selector> sel, RangeBucket<Long> bucket, MeasurementAccumulator accumulator, Properties prop) {
 		this.sel = sel;
 		this.bucket = bucket;
 		this.accumulator = accumulator;
+		this.prop = prop;
 	}
 
 	public LongRangeValue execute() {
 
 		LongRangeValue lrv = new LongRangeValue(bucket.getLowerBound());
-		BsonQuery query = DBClient.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
+		QueryClient client =  new QueryClient(this.prop);
+		BsonQuery query = client.buildQuery(sel, RangeBucket.toLongTimeInterval(bucket));
+
+		// temporary fix for cursor leaks (ugly but works for now)
+		Iterable it = new QueryClient(prop).executeQuery(query.getQuery());
+		MongoCursor iterator = (MongoCursor)it.iterator();
 		
-		this.accumulator.handle(lrv, new DBClient().executeQuery(query));
+		accumulator.handle(lrv, it);
+
+		iterator.close();
+		//
 		
 		return lrv;
 	}

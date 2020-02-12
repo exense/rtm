@@ -28,6 +28,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.rtm.commons.Configuration;
@@ -40,6 +41,8 @@ import org.rtm.rest.security.AuthenticationFilter;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import ch.exense.commons.app.ArgumentParser;
+import ch.exense.viz.persistence.accessors.GenericVizAccessor;
+import ch.exense.viz.rest.VizServlet;
 import step.grid.GridImpl;
 
 /**
@@ -105,6 +108,16 @@ public class JettyFrontendStarter {
 		resourceConfig.registerClasses(IngestionServlet.class);
 		
 		resourceConfig.registerClasses(AuthenticationFilter.class);
+		
+		resourceConfig.registerClasses(VizServlet.class);
+		ch.exense.commons.app.Configuration config = convertConfig(Configuration.getInstance());
+		GenericVizAccessor accessor = new GenericVizAccessor(new ch.exense.viz.persistence.mongodb.MongoClientSession(config));
+		resourceConfig.register(new AbstractBinder() {	
+			@Override
+			protected void configure() {
+				bind(accessor).to(GenericVizAccessor.class);
+			}
+		});
 
 		ServletContainer servletContainer = new ServletContainer(resourceConfig);
 		ServletHolder sh = new ServletHolder(servletContainer);
@@ -127,6 +140,14 @@ public class JettyFrontendStarter {
 		server.start();
 		server.join();
 		
+	}
+	
+	private ch.exense.commons.app.Configuration convertConfig(Configuration instance) throws Exception {
+		ch.exense.commons.app.Configuration config = new ch.exense.commons.app.Configuration();
+		config.putProperty("db.host", Configuration.getInstance().getProperty("ds.host"));
+		config.putProperty("ds.port", Configuration.getInstance().getProperty("ds.port"));
+		config.putProperty("db.dbname", Configuration.getInstance().getProperty("ds.dbname"));
+		return config;
 	}
 
 }

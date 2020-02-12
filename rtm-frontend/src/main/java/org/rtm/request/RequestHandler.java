@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.commons.Configuration;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.rest.partitioner.PartitionerRequest;
 import org.rtm.selection.Selector;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import step.grid.GridImpl;
 import step.grid.TokenWrapper;
 import step.grid.client.GridClient;
 import step.grid.io.AgentError;
@@ -46,11 +45,12 @@ public class RequestHandler {
 		logger.info("Perf info: timeoutSecs=" + timeoutSecs + "; subPartitioning="+subPartitioning+"; subPoolSize=" + subPoolSize);
 
 		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
+		QueryClient queryClient = new QueryClient(prop);
 		if(useHeuristic)
 		{
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
-			long effective90pcl = DBClient.run90PclOnFirstSample(heuristicSampleSize, sel);
+			long effective90pcl = queryClient.run90PclOnFirstSample(heuristicSampleSize, sel);
 			int optimalHistApp = (int)Math.round(effective90pcl * errorMarginPercentage);
 			//We're using the heuristic here, so we're ignoring user inputs for Hist App. (client side fields should actually be removed) 
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
@@ -58,7 +58,7 @@ public class RequestHandler {
 			logger.info("Using histogram heuristic with values: histSize="+prop.getProperty("aggregateService.histApp") + "; heuristicSampleSize="+heuristicSampleSize+"; errorMarginPercentage="+errorMarginPercentage+"; effective90pcl="+effective90pcl+"; optimalHistApp=" + optimalHistApp+";");
 		}
 
-		LongTimeInterval effective = DBClient.findEffectiveBoundariesViaMongo(lti, sel);
+		LongTimeInterval effective = queryClient.findEffectiveBoundariesViaMongo(lti, sel);
 		Long optimalSize = getEffectiveIntervalSize(prop.getProperty("aggregateService.granularity"), effective);
 
 		//TODO: compute target number of subbuckets and raise warning or circuit-break if > 1M?

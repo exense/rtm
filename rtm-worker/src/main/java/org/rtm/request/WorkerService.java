@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.rtm.db.BsonQuery;
-import org.rtm.db.DBClient;
+import org.rtm.db.QueryClient;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.selection.Selector;
@@ -46,10 +46,10 @@ public class WorkerService extends AbstractMessageHandler{
 	public LongRangeValue produceValueForBucket(List<Selector> selectors, RangeBucket<Long> rangeBucket, Properties prop) {
 
 	 		LongRangeValue lrv = new LongRangeValue(rangeBucket.getLowerBound());
-			BsonQuery query = DBClient.buildQuery(selectors, RangeBucket.toLongTimeInterval(rangeBucket));
+	 		QueryClient queryClient = new QueryClient(new Properties());
+			BsonQuery query = queryClient.buildQuery(selectors, RangeBucket.toLongTimeInterval(rangeBucket));
 			
-			new MeasurementAccumulator(prop).handle(lrv, new DBClient().executeQuery(query));
-			
+			new MeasurementAccumulator(prop).handle(lrv, queryClient.executeQuery(query.getQuery()));
 			return lrv;
 	}
 

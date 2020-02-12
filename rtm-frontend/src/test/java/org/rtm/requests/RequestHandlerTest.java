@@ -18,7 +18,7 @@ import org.rtm.request.AggregationRequest;
 import org.rtm.request.ComparisonRequest;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
-import org.rtm.selection.SelectorBuilderTestHelper;
+import org.rtm.selection.TestSelectorBuilder;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
@@ -39,7 +39,7 @@ public class RequestHandlerTest {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
-		AggregationRequest ar = new AggregationRequest(lti, SelectorBuilderTestHelper.buildSimpleSelectorList(), props);
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), props);
 		
 		ar.getServiceParams().put("aggregateService.granularity", "10000");
 		ar.getServiceParams().put("aggregateService.timeout", "600");
@@ -134,7 +134,7 @@ public class RequestHandlerTest {
 		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 
-		ComparisonRequest cr = new ComparisonRequest(lti, lti, SelectorBuilderTestHelper.buildSimpleSelectorList(), SelectorBuilderTestHelper.buildSimpleSelectorList(), new Properties());
+		ComparisonRequest cr = new ComparisonRequest(lti, lti, TestSelectorBuilder.buildSimpleSelectorList(), TestSelectorBuilder.buildSimpleSelectorList(), new Properties());
 		
 		cr.getServiceParams().put("aggregateService.granularity", "10000");
 		cr.getServiceParams().put("aggregateService.timeout", "600000");
