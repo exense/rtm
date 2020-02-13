@@ -20,13 +20,7 @@ package org.rtm.stream.result;
 
 import java.util.Map;
 
-import org.rtm.commons.Identifier;
 import org.rtm.stream.Dimension;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * @author doriancransac
@@ -35,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class FinalAggregationResult<T> implements AggregationResult<T> {
 
-	private Map<String, Dimension> map;
+	private Map<String, Dimension> dimensionsMap;
 	private Identifier<T> streamPayloadIdentifier;
 	
 	public FinalAggregationResult(){
@@ -45,27 +39,19 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 		this.streamPayloadIdentifier = id;
 	}
 	
-	@JsonIgnore
 	@Override
 	public Identifier<T> getStreamPayloadIdentifier() {
 		return this.streamPayloadIdentifier;
 	}
 
-	@JsonIgnore
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
-		return map;
+		return dimensionsMap;
 	}
 	
-	@JsonValue
-	public Map<String, Dimension> getPrettyDimensionsMap() {
-		return map;
-	}
-	
-	//@JsonIgnore
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
-		this.map = map;
+		this.dimensionsMap = map;
 		
 	}
 

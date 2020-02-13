@@ -3,16 +3,15 @@ package org.rtm.stream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.rtm.commons.Identifier;
-import org.rtm.commons.OrderedIdentifier;
 import org.rtm.stream.result.AggregationResult;
+import org.rtm.stream.result.Identifier;
+import org.rtm.stream.result.OrderedIdentifier;
 
 @SuppressWarnings("rawtypes")
-public class LongRangeValue extends ConcurrentHashMap<String, Dimension> implements AggregationResult<Long>{
-
-	private static final long serialVersionUID = -2891193441467345217L;
+public class LongRangeValue implements AggregationResult<Long>{
 
 	private Identifier<Long> streamPayloadIdentifier;
+	private ConcurrentHashMap<String, Dimension> dimensionsMap = new ConcurrentHashMap<String, Dimension>();
 
 	public LongRangeValue(){
 		
@@ -33,24 +32,23 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 	}
 
 	public Dimension getDimension(String dimensionName) {
-		return this.get(dimensionName);
+		return this.dimensionsMap.get(dimensionName);
 	}
 
 	public void setDimension(Dimension dimension) {
-		this.put(dimension.getDimensionName(), dimension);
+		this.dimensionsMap.put(dimension.getDimensionName(), dimension);
 	}
-	
 
 	@Override
 	public Map<String, Dimension> getDimensionsMap() {
-		return this;
+		return this.dimensionsMap;
 	}
 	
 	@Override
 	public void setDimensionsMap(Map<String, Dimension> map) {
-		this.clear();
+		this.dimensionsMap.clear();
 		map.entrySet().stream().forEach(e -> {
-			this.put(e.getKey(), e.getValue());
+			this.dimensionsMap.put(e.getKey(), e.getValue());
 		});
 	}
 }

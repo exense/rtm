@@ -1,6 +1,5 @@
 package org.rtm.stream.result;
 
-import org.rtm.commons.Identifier;
 import org.rtm.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -18,8 +18,6 @@
  *******************************************************************************/
 package org.rtm.rest.aggregation;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,9 +42,7 @@ import org.rtm.stream.StreamId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import step.grid.GridImpl;
@@ -67,7 +63,7 @@ public class AggregationServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
 	private RequestHandler rh = new RequestHandler();
-	
+
 	private ConcurrentHashMap<String, String> tokenRegistry = new ConcurrentHashMap<>();
 
 	//TODO: set up gracefully
@@ -132,29 +128,9 @@ public class AggregationServlet {
 	@Path(AggregationConstants.refreshpath)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response refreshResutStreamForId(StreamId streamId) throws JsonParseException, JsonMappingException, UnsupportedEncodingException, JsonProcessingException, IOException {
-		/*
+	public Response refreshResutStreamForId(StreamId streamId) {
 		AbstractResponse rtmResponse = null;
-		try {
-			HttpClient client = new HttpClient("localhost", 8098);
-			ObjectMapper om = new ObjectMapper();
-			String response = client.call(om.writeValueAsString(streamId), "/partitioner" ,"/read");
 
-			// instanceof Success or Error Response..
-			SuccessResponse partitionerResponse = om.readValue(response, SuccessResponse.class);
-
-			client.close();
-			rtmResponse = new SuccessResponse(partitionerResponse.getPayload(),
-					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
-		} catch (Exception e) {
-			rtmResponse = generateError(e, streamId.toString(), true);
-		}
-		return Response.status(200).entity(rtmResponse).build();
-		 */
-
-
-		AbstractResponse rtmResponse = null;
-		
 		//TODO: Isolate, cache and factorize with RH code
 		RefreshIdRequest req = new RefreshIdRequest();
 		req.setStreamId(streamId);
@@ -169,9 +145,12 @@ public class AggregationServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		StreamResponseWrapper streamResult = om.treeToValue(message.getPayload(), StreamResponseWrapper.class);
-		
+		StreamResponseWrapper streamResult = null;
+		try {
+			streamResult = om.treeToValue(message.getPayload(), StreamResponseWrapper.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		if(streamResult.getStream().isComplete()) {
 			try {
 				partitionerClient.returnTokenHandle(tokenHandleId);
@@ -181,11 +160,16 @@ public class AggregationServlet {
 				e.printStackTrace();
 			}
 		}
-		
-		rtmResponse = new SuccessResponse(streamResult,
-				"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
 
-		
+		try {
+			rtmResponse = new SuccessResponse(streamResult,
+					"Found stream with id=" + streamId + ". Delivering payload at time=" + System.currentTimeMillis());
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
 		return Response.status(200).entity(rtmResponse).build();
 	}
 

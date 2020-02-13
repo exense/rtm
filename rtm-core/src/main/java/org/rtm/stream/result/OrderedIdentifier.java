@@ -16,37 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.commons;
-
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+package org.rtm.stream.result;
 
 /**
  * @author doriancransac
  *
  */
 
-public class OrderedIdentifierTest{
+public class OrderedIdentifier<T extends Comparable<T>> extends Identifier<T> implements Comparable<OrderedIdentifier<T>>{
 
-	@BeforeClass
-	public static void beforeClass() {
+	public OrderedIdentifier() {
+		
+	}
+	
+	public OrderedIdentifier(T underlyingObject) {
+		super(underlyingObject);
 	}
 
-	@AfterClass
-	public static void afterClass(){
+	@Override
+	public int compareTo(OrderedIdentifier<T> o) {
+		return this.getIdAsTypedObject().compareTo(o.getIdAsTypedObject());
 	}
-
-	@Test
-	public void basicTest(){
-		Assert.assertEquals(-1, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(3L)));
-		Assert.assertEquals(0, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(2L)));
-		Assert.assertEquals(1, new OrderedIdentifier<>(2L).compareTo(new OrderedIdentifier<>(1L)));
-
-		Assert.assertEquals(-1, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abd")));
-		Assert.assertEquals(0, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abc")));
-		Assert.assertEquals(1, new OrderedIdentifier<>("abc").compareTo(new OrderedIdentifier<>("abb")));
-	}	
+	
 }
