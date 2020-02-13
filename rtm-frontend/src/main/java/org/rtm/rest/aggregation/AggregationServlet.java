@@ -68,7 +68,7 @@ public class AggregationServlet {
 	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
 	private RequestHandler rh = new RequestHandler();
 	
-	private ConcurrentHashMap<String, TokenWrapper> tokenRegistry = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, String> tokenRegistry = new ConcurrentHashMap<>();
 
 	//TODO: set up gracefully
 	public static GridImpl partitionerGrid;
@@ -98,7 +98,7 @@ public class AggregationServlet {
 		try {
 			StreamId id = rh.aggregate(request, this.partitionerClient, tokenHandle);
 			rtmResponse = new SuccessResponse(id, "Stream initialized. Call the streaming service next to start retrieving data.");
-			tokenRegistry.put(id.getStreamedSessionId(), tokenHandle);
+			tokenRegistry.put(id.getStreamedSessionId(), tokenHandle.getID());
 		} catch (NoSuchElementException e) {
 			rtmResponse = generateError(e, "No data matching selectors.", false);
 		} catch (Exception e) {
@@ -159,23 +159,22 @@ public class AggregationServlet {
 		RefreshIdRequest req = new RefreshIdRequest();
 		req.setStreamId(streamId);
 		ObjectMapper om = new ObjectMapper();
-		TokenWrapper tokenHandle = null;
-		GridClient partitionerClient = null;
-		partitionerClient = new LocalGridClientImpl(partitionerGrid);
+		String tokenHandleId = null;
 
-		tokenHandle = tokenRegistry.get(streamId.getStreamedSessionId());
+		tokenHandleId = tokenRegistry.get(streamId.getStreamedSessionId());
 
 		OutputMessage message = null;
 		try {
-			message = partitionerClient.call(tokenHandle.getID(), om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
-		} catch (Exception e) {e.printStackTrace();}
+			message = partitionerClient.call(tokenHandleId, om.valueToTree(req), "org.rtm.request.PartitionerService", null, new HashMap<>(), 300000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		StreamResponseWrapper streamResult = om.treeToValue(message.getPayload(), StreamResponseWrapper.class);
 		
 		if(streamResult.getStream().isComplete()) {
 			try {
-				partitionerClient.returnTokenHandle(tokenHandle.getID());
-				partitionerClient.close();
+				partitionerClient.returnTokenHandle(tokenHandleId);
 			} catch (AgentCommunicationException e) {
 				e.printStackTrace();
 			} catch (GridClientException e) {

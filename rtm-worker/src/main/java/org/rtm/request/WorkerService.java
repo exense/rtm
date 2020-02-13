@@ -46,7 +46,7 @@ public class WorkerService extends AbstractMessageHandler{
 	public LongRangeValue produceValueForBucket(List<Selector> selectors, RangeBucket<Long> rangeBucket, Properties prop) {
 
 	 		LongRangeValue lrv = new LongRangeValue(rangeBucket.getLowerBound());
-	 		QueryClient queryClient = new QueryClient(new Properties());
+	 		QueryClient queryClient = new QueryClient(prop);
 			BsonQuery query = queryClient.buildQuery(selectors, RangeBucket.toLongTimeInterval(rangeBucket));
 			
 			new MeasurementAccumulator(prop).handle(lrv, queryClient.executeQuery(query.getQuery()));
@@ -63,6 +63,9 @@ public class WorkerService extends AbstractMessageHandler{
 
 		OutputMessageBuilder omb = new OutputMessageBuilder();
 		LongRangeValue valueForBucket = produceValueForBucket(req.getSelectors(), req.getRangeBucket(), req.getProp());
+		
+		System.out.println("["+valueForBucket.getStreamPayloadIdentifier().getIdAsTypedObject()+"]="+valueForBucket);
+		
 		try {
 			omb.setPayload(om.valueToTree(valueForBucket));
 		} catch(Exception e) {

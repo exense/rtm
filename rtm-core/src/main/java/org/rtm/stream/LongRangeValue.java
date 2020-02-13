@@ -12,18 +12,25 @@ public class LongRangeValue extends ConcurrentHashMap<String, Dimension> impleme
 
 	private static final long serialVersionUID = -2891193441467345217L;
 
-	private OrderedIdentifier<Long> ti;
+	private Identifier<Long> streamPayloadIdentifier;
 
-	public LongRangeValue(Long id){
+	public LongRangeValue(){
+		
+	}
+	
+	public LongRangeValue(Long streamPayloadIdentifier){
 		super();
-		this.ti = new OrderedIdentifier<Long>(id);
+		this.streamPayloadIdentifier = new OrderedIdentifier<Long>(streamPayloadIdentifier);
 	}
 
 	@Override
 	public Identifier<Long> getStreamPayloadIdentifier() {
-		return (Identifier<Long>) this.ti;
+		return (Identifier<Long>) this.streamPayloadIdentifier;
 	}
 
+	public void setStreamPayloadIdentifier(Identifier<Long> streamPayloadIdentifier) {
+		this.streamPayloadIdentifier = streamPayloadIdentifier;
+	}
 
 	public Dimension getDimension(String dimensionName) {
 		return this.get(dimensionName);

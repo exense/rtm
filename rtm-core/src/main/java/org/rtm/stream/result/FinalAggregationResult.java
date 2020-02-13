@@ -24,6 +24,8 @@ import org.rtm.commons.Identifier;
 import org.rtm.stream.Dimension;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -34,16 +36,19 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class FinalAggregationResult<T> implements AggregationResult<T> {
 
 	private Map<String, Dimension> map;
-	private Identifier<T> identifier;
+	private Identifier<T> streamPayloadIdentifier;
+	
+	public FinalAggregationResult(){
+	}
 	
 	public FinalAggregationResult(Identifier<T> id){
-		this.identifier = id;
+		this.streamPayloadIdentifier = id;
 	}
 	
 	@JsonIgnore
 	@Override
 	public Identifier<T> getStreamPayloadIdentifier() {
-		return this.identifier;
+		return this.streamPayloadIdentifier;
 	}
 
 	@JsonIgnore
@@ -63,5 +68,11 @@ public class FinalAggregationResult<T> implements AggregationResult<T> {
 		this.map = map;
 		
 	}
+
+	@Override
+	public void setStreamPayloadIdentifier(Identifier<T> streamPayloadIdentifier) {
+		this.streamPayloadIdentifier = streamPayloadIdentifier;
+	}
+
 
 }

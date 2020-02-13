@@ -23,10 +23,16 @@ import java.util.Map;
 import org.rtm.commons.Identifier;
 import org.rtm.stream.Dimension;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 @SuppressWarnings("rawtypes")
+@JsonTypeInfo(use=Id.CLASS, property="_class")
 public interface AggregationResult<T> {
-	
+
 	public Identifier<T> getStreamPayloadIdentifier();
+
+	public void setStreamPayloadIdentifier(Identifier<T> streamPayloadIdentifier);
 	
 	public Map<String, Dimension> getDimensionsMap();
 	

@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.selection.Selector;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class AggregationRequest extends Request{
 	
 	private LongTimeInterval timeWindow1;
@@ -24,6 +26,7 @@ public class AggregationRequest extends Request{
 		this.selectors1 = selectors1;
 	}
 
+	@JsonIgnore
 	public LongTimeInterval getTimeWindow1() {
 		return timeWindow1;
 	}

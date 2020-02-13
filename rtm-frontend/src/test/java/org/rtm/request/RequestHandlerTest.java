@@ -1,4 +1,4 @@
-package org.rtm.requests;
+package org.rtm.request;
 
 import java.io.File;
 import java.io.FileReader;

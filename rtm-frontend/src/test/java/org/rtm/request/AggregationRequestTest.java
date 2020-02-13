@@ -16,8 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with rtm.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package org.rtm.requests;
+package org.rtm.request;
+
+import org.junit.Test;
+import org.rtm.stream.LongRangeValue;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AggregationRequestTest {
+	
+	@Test
+	public void testSerialization() throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		System.out.println(mapper.writeValueAsString(new AggregationRequest()));
+	}
+	
+	@Test
+	public void testSerialization2() throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		System.out.println(mapper.writeValueAsString(new LongRangeValue(1234l)));
+	}
 
 }

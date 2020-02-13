@@ -74,7 +74,7 @@ public class RemoteQueryTask implements RangeTask {
 		}
 		
 		lrv = om.treeToValue(message.getPayload(), LongRangeValue.class);
-		
+		System.out.println("["+lrv.getStreamPayloadIdentifier().getIdAsTypedObject()+"]=" + lrv);
 		return lrv;
 	}
 }
