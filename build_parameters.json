@@ -1,0 +1,39 @@
+{
+	"NAME": "RTM",
+	"OS": "LINUX",
+	
+	"SUBPROJECTS":
+	{
+		"TYPE":		["POM"],
+		"FOLDER":	["rtm-parent/"],
+		
+		"URL_STAGING":	["nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"],
+		"URL_PROD":		  ["sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"],
+		
+		"CONFIG_STAGING": [ "DefaultBuild"],
+		"CONFIG_PROD":    [ "DefaultBuild"]
+	},
+	"DISTRIBUTIONS": { 
+		"TYPE":["FTP", "GITHUB"],
+		
+		"ORIGIN_FILE":[
+			"distribution/target/djigger-${VERSION}.zip",
+			"distribution/target/djigger-${VERSION}.zip"
+		],
+		"DESTINATION_NAME":[
+			"djigger-${VERSION}.zip",
+			"djigger-${VERSION}.zip"
+		],
+		
+		"URL_STAGING":[
+			"build@ftps.exense.ch",
+      "NONE"
+		],
+		"URL_PROD":[
+			"build@ftps.exense.ch",
+      "exense/djigger"
+		],
+		"OS":["NOT_USED","NOT_USED"],
+		"CONFIG":["public","NOT_USED"] 
+	}
+}
