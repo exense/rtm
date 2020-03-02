@@ -14,26 +14,26 @@
 		"CONFIG_PROD":    [ "DefaultBuild"]
 	},
 	"DISTRIBUTIONS": { 
-		"TYPE":["FTP", "GITHUB"],
+		"TYPE":["GITHUB", "GITHUB"],
 		
 		"ORIGIN_FILE":[
-			"distribution/target/djigger-${VERSION}.zip",
-			"distribution/target/djigger-${VERSION}.zip"
+			"rtm-common/target/rtm-commons-${VERSION}.jar",
+			"rtm-core/src/main/resources/rtm.properties"
 		],
 		"DESTINATION_NAME":[
-			"djigger-${VERSION}.zip",
-			"djigger-${VERSION}.zip"
+			"rtm-commons-${VERSION}.jar",
+			"rtm.properties"
 		],
 		
 		"URL_STAGING":[
-			"build@ftps.exense.ch",
+      "NONE",
       "NONE"
 		],
 		"URL_PROD":[
-			"build@ftps.exense.ch",
-      "exense/djigger"
+			"exense/rtm",
+      "exense/rtm"
 		],
-		"OS":["NOT_USED","NOT_USED"],
-		"CONFIG":["public","NOT_USED"] 
+		"OS":     ["NOT_USED","NOT_USED"],
+		"CONFIG": ["NOT_USED","NOT_USED"] 
 	}
 }
