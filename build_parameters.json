@@ -17,7 +17,7 @@
 		"TYPE":["GITHUB", "GITHUB"],
 		
 		"ORIGIN_FILE":[
-			"rtm-common/target/rtm-commons-${VERSION}.jar",
+			"rtm-commons/target/rtm-commons-${VERSION}.jar",
 			"rtm-core/src/main/resources/rtm.properties"
 		],
 		"DESTINATION_NAME":[
