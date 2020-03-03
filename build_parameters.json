@@ -26,12 +26,12 @@
 		],
 		
 		"URL_STAGING":[
-      "NONE",
-      "NONE"
+      "NOT_USED",
+      "NOT_USED"
 		],
 		"URL_PROD":[
-			"exense/rtm",
-      "exense/rtm"
+			"NOT_USED",
+      "NOT_USED"
 		],
 		"OS":     ["NOT_USED","NOT_USED"],
 		"CONFIG": ["NOT_USED","NOT_USED"] 
