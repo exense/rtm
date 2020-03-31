@@ -62,8 +62,8 @@ public class AggregationServlet {
 		try{
 		 rtmResponse = new SuccessResponse(rh.aggregate(body), "Stream initialized. Call the streaming service next to start retrieving data.");
 		} catch (NoSuchElementException e) {
-			String message = "No data matching selectors."; 
-			rtmResponse = new ErrorResponse(message);
+			// silent
+			logger.debug("A request finding no measurements has occured", e);
 		} catch (Exception e) {
 			String message = "A problem occured while retrieving stream with request= " + body; 
 			logger.error(message, e);

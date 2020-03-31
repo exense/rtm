@@ -127,6 +127,8 @@ public class QueryClient {
 		String timeFormat = (String)prop.get("aggregateService.timeFormat");
 		BsonQuery query = new BsonQuery(sel, timeField, timeFormat);
 
+		try{
+		
 		SortedSet<Long> sortedValues = new TreeSet<>();
 
 		Iterable it = executeQuery(query.getQuery(), timeField, 1, 0, heuristicSampleSize);
@@ -158,5 +160,9 @@ public class QueryClient {
 			return sortedValues.last();
 		else
 			return sortedValues.toArray(new Long[0])[position];
+		//temporarily handling no data case this way
+		}catch(NoSuchElementException e){
+			return 1L;
+		}
 	}
 }
