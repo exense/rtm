@@ -49,7 +49,7 @@ public class AccumulationManager {
 
 	private void initWorkObject(Accumulator accumulator, WorkDimension dimension) {
 		String accumulatorName = accumulator.getClass().getName();
-		dimension.put(accumulatorName, accumulator.buildStateObject());
+		dimension.put(accumulatorName, accumulator.buildStateObject(dimension.getDimensionName()));
 	}
 	
 	@SuppressWarnings("unused")

@@ -14,6 +14,13 @@ public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 	@Override
 	public void initAccumulator(Properties props) {
 	}
+	
+	@Override
+	public WorkObject buildStateObject(String dimensionName) {
+		return buildStateObject();
+	}
+
+	protected abstract WorkObject buildStateObject();
 
 	@Override
 	public void accumulate(WorkObject wobj, Long value) {

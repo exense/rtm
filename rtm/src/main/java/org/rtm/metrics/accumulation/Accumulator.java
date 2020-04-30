@@ -13,7 +13,7 @@ public interface Accumulator<V,T> {
 	
 	public void initAccumulator(Properties props);
 	
-	public WorkObject buildStateObject();
+	public WorkObject buildStateObject(String dimensionName);
 	
 	public void accumulate(WorkObject wobj, V value);
 	
