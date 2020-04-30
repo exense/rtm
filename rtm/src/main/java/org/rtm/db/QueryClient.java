@@ -128,8 +128,8 @@ public class QueryClient {
 		BsonQuery query = new BsonQuery(sel, timeField, timeFormat);
 
 		try {
-
-			SortedSet<Long> sortedValues = new TreeSet<>();
+			//duplicated values must be retained for percentile calculations, replacing set by list
+			List<Long> sortedValues = new ArrayList<Long>();
 
 			Iterable it = executeQuery(query.getQuery(), timeField, 1, 0, heuristicSampleSize);
 			MongoCursor cursor = (MongoCursor) it.iterator();
@@ -151,15 +151,15 @@ public class QueryClient {
 				}
 			}
 			cursor.close();
-
+			sortedValues.sort(null);
 			int position = Math.round(sortedValues.size() * 0.9F);
 
 			logger.debug("Sampling complete. Duration was " + (System.currentTimeMillis() - start) + " ms.");
 
 			if (position >= sortedValues.size())
-				return sortedValues.last();
+				return sortedValues.get((sortedValues.size()-1));
 			else
-				return sortedValues.toArray(new Long[0])[position];
+				return sortedValues.get(position);
 			// temporarily handling no data case this way
 		} catch (NoSuchElementException e) {
 			return 1L;
