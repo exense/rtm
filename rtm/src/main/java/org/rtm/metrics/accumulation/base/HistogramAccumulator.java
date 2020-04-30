@@ -10,17 +10,19 @@ import org.rtm.utils.ServiceUtils;
 public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 
 	private int nbPairs;
-	private int approxMs;
+	private Properties props;
 	
 	@Override
 	public void initAccumulator(Properties props) {
+		this.props = props;
 		nbPairs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histSize", 40));
-		approxMs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histApp", 200));
 	}
 
 	@Override
-	public WorkObject buildStateObject() {
-		return new HistogramAccumulatorState(nbPairs, approxMs);
+	public WorkObject buildStateObject(String dimensionName) {
+		String value = (String) ServiceUtils.decideServiceProperty(props, "aggregateService.histApp"+"."+dimensionName, null);
+		int dimensionApproxMs = (value == null) ? Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histApp", 200)) : Integer.parseInt(value);
+		return new HistogramAccumulatorState(nbPairs, dimensionApproxMs);
 	}
 
 	@Override

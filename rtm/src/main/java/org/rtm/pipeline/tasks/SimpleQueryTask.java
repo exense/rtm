@@ -32,7 +32,7 @@ public class SimpleQueryTask implements RangeTask {
 		Iterable it = new QueryClient(prop).executeQuery(query.getQuery());
 		MongoCursor iterator = (MongoCursor)it.iterator();
 		
-		accumulator.handle(lrv, it);
+		accumulator.handle(lrv, it, sel);
 
 		iterator.close();
 		return lrv;

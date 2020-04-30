@@ -18,10 +18,15 @@
  *******************************************************************************/
 package org.rtm.measurement;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.rtm.request.selection.NumericalFilter;
+import org.rtm.request.selection.Selector;
+import org.rtm.request.selection.TextFilter;
 
 @SuppressWarnings("rawtypes")
 public class MeasurementHelper{
@@ -52,6 +57,38 @@ public class MeasurementHelper{
 		}
 		dims.setLength(dims.length() - 1);
 		return dims.toString();
+	}
+
+	public List<Selector> getDimensionSelectors(List<Selector> sel, Map m) {
+		//Create the filter for the current dimension
+		List<TextFilter> dimFilters = new ArrayList<TextFilter> ();
+		for(String dim : this.splitDimensions) {
+			String asString = "default";
+			Object actual = m.get(dim);
+			if(actual != null)
+				asString = actual.toString();
+			dimFilters.add(new TextFilter(false,dim,asString));
+		}
+		//Copy the existing selectors
+		List<Selector> selList = new ArrayList<Selector> ();
+		sel.forEach(s-> {
+			Selector sCopy = new Selector();
+			List<TextFilter> textFilters = sCopy.getTextFilters();
+			List<NumericalFilter> numericalFilters = sCopy.getNumericalFilters();
+			s.getTextFilters().forEach(t->textFilters.add(new TextFilter(t.isRegex(),t.getKey(),t.getValue())));
+			s.getNumericalFilters().forEach(n->numericalFilters.add(new NumericalFilter(n.getKey(),n.getMinValue(),n.getMaxValue())));
+			selList.add(sCopy);
+		});
+		//Add dim filters to all selectors
+		if (selList.size()>0) {
+			selList.forEach(s->dimFilters.forEach(f->s.addTextFilter(f)));
+		} else {
+			Selector selector = new Selector();
+			dimFilters.forEach(f->selector.addTextFilter(f));
+			selList.add(selector);
+		}
+		return selList;
+		
 	}
 	
 }

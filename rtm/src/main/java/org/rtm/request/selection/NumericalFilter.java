@@ -24,6 +24,16 @@ public class NumericalFilter {
 	private Long minValue;
 	private Long maxValue;
 
+	public NumericalFilter() {
+		super();
+	}
+	
+	public NumericalFilter(String key, Long minValue, Long maxValue) {
+		super();
+		this.key = key;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+	}
 	public String getKey() {
 		return key;
 	}

@@ -24,6 +24,17 @@ public class TextFilter {
 	private String key;
 	private String value;
 	
+	public TextFilter() {
+		super();
+	}
+			
+	public TextFilter(boolean isRegex, String key, String value) {
+		super();
+		this.isRegex = isRegex;
+		this.key = key;
+		this.value = value;
+	}
+	
 	public boolean isRegex() {
 		return isRegex;
 	}

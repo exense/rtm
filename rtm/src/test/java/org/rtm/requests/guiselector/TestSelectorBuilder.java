@@ -39,5 +39,25 @@ public class TestSelectorBuilder {
 
 		return selList;
 	}
+	
+	public static List<Selector> buildTestSelectorList(String eId) {
+		
+		List<Selector> selList = new ArrayList<>();
+		
+		
+		TextFilter regTf = new TextFilter();
+		regTf.setKey("eId");
+		//regTf.setValue("JUnit.*");
+		regTf.setValue(eId);
+		regTf.setRegex(false);
+		
+		Selector sel = new Selector();
+		sel.addTextFilter(regTf);
+		//sel.addTextFilter(new TextFilter(false,"name","MeasurementKeyword"));
+
+		selList.add(sel);
+
+		return selList;
+	}
 
 }
