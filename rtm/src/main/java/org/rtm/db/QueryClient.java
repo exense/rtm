@@ -156,11 +156,18 @@ public class QueryClient {
 
 			logger.debug("Sampling complete. Duration was " + (System.currentTimeMillis() - start) + " ms.");
 
-			if (position >= sortedValues.size())
-				return sortedValues.get((sortedValues.size()-1));
-			else
-				return sortedValues.get(position);
+			if (sortedValues.size() > 0) {
+				if (position >= sortedValues.size()) {
+					return sortedValues.get((sortedValues.size() - 1));
+				}
+				else {
+					return sortedValues.get(position);
+				}
 			// temporarily handling no data case this way
+			} else {
+				return 1L;
+			}
+
 		} catch (NoSuchElementException e) {
 			return 1L;
 		}
