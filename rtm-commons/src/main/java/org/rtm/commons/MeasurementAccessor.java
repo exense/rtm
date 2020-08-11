@@ -68,7 +68,7 @@ public class MeasurementAccessor implements TransportClient{
 		ServerAddress address = new ServerAddress(host, port);
 		List<MongoCredential> credentials = new ArrayList<MongoCredential>();
 		if(user!=null) {
-			MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, pwd.toCharArray());
+			MongoCredential credential = MongoCredential.createCredential(user, database, pwd.toCharArray());
 			credentials.add(credential);
 		}
 		String collName = null;
