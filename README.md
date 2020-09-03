@@ -1,22 +1,17 @@
 # rtm
 Response Time Manager
 
--- Requirements:
-The only thing you need prior to starting RTM is a running mongodb instance (if you don't use default settings, you'll need to edit the file "rtm.properties" first).
+This project is currently undergoing a heavy transformation which will soon result in the publication of v3.0.0.
 
--- To start RTM:
+## RTM 2.0 docs
 
-option 1 : standalone jar file (uses jetty internally)
-java -cp "{pathToJar}\rtm-{version}-jar-with-dependencies.jar" org.rtm.jetty.JettyStarter -config={pathToProperties}\rtm.properties
-
-option 2 : WAR file
-add the war file to the webapps folder of a tomcat installation and add the rtm.properties file to its classpath.
-
---> Measurement ingestion:
-
-curl localhost:8099/rtm/rest/ingest/structured/myMeasurementGroup/1494428139000/myMeasurementName/1234
-
---> Accessing the webapp:
-http://localhost:8099/rtm
---> Documentation:
+The  2.X standalone app version serving the legacy backboneJS client is covered in the following documentation pages:
 http://docs.exense.ch/wiki/rtm/view/Versions/2.0.x/
+
+## RTM 3.0 docs
+
+A redesign of the documentation is on-going. A new, generic webapp implementation based on the [viz library](https://github.com/exense/exense-visualization) and angularJS will be packaged by default in this version. While some dedicated pages might be added here, most of the usage will be documented in the viz project page's itself.
+
+## Developer docs (3.0 only)
+
+The primary information relating to the design, implementation and maintenance of the core aggregation services is published in this repo's [wiki pages](https://github.com/exense/rtm/wiki/Developer-Docs).
