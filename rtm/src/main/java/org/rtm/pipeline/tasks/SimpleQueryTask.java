@@ -30,7 +30,7 @@ public class SimpleQueryTask implements RangeTask {
 
 	@Override
 	public LongRangeValue perform(RangeBucket<Long> bucket) {
-		long start;
+		long start=0;
 		if (logger.isTraceEnabled())
 			start = System.currentTimeMillis();
 		LongRangeValue lrv = new LongRangeValue(bucket.getLowerBound());
