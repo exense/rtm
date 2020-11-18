@@ -45,10 +45,10 @@ public class TestHistogram {
 
 		myHisto1.merge(myHisto2);
 
-		Assert.assertEquals(data1[1] + data2[0], myHisto1.getBucket(1).getSum());
+		Assert.assertEquals(data1[1] + data2[0], myHisto1.getBucket(2).getSum());
 	}
 
-	@Test
+	/*@Test
 	public void testBuildBucketMapByAverage(){
 		Histogram h1 = new Histogram(10,10);
 		Histogram h2 = new Histogram(10,10);
@@ -62,20 +62,20 @@ public class TestHistogram {
 		}
 
 		Assert.assertEquals(2, h1.buildBucketMapByAverage().get(100L).getCount());
-	}
+	}*/
 
 	@Test
 	public void testMergeSameKey(){
 		Histogram h1 = new Histogram(2,10);
 		h1.ingest(100L);
-		h1.ingest(110L);
-		Assert.assertEquals(105, h1.getHistogram()[0].getAvg());
-		h1.ingest(105L);
-		Assert.assertEquals(105, h1.getHistogram()[0].getAvg());
+		h1.ingest(109L);
+		Assert.assertEquals(104, h1.getBucket(10).getAvg());
+		h1.ingest(104L);
+		Assert.assertEquals(104, h1.getBucket(10).getAvg());
 
-		Assert.assertEquals(0, h1.getHistogram()[1].getCount());
+		Assert.assertEquals(0, h1.getBucket(11).getCount());
 		h1.ingest(116L);
-		Assert.assertEquals(116, h1.getHistogram()[1].getAvg());
+		Assert.assertEquals(116, h1.getBucket(11).getAvg());
 		System.out.println(h1);
 
 
@@ -90,9 +90,9 @@ public class TestHistogram {
 			e.printStackTrace();
 		}
 
-		TreeMap<Long, CountSumBucket> map = h1.buildBucketMapByAverage();
-		System.out.println(map);
-		Assert.assertEquals(2, map.size());
+		System.out.println(h1.getHistogram());
+		Assert.assertEquals(2, h1.getHistogram().size());
+		Assert.assertEquals(6, h1.getTotalCount());
 	}
 
 	@Test
@@ -128,8 +128,7 @@ public class TestHistogram {
 		h2.ingest(3);
 		
 		h1.merge(h2);
-		
-		h1.buildBucketMapByAverage();
+
 		
 	}
 	
@@ -156,7 +155,6 @@ public class TestHistogram {
 				//System.out.println("[h2] " + h2);
 				h1.merge(h2);
 				//System.out.println("[mrged] " + h1);
-				h1.buildBucketMapByAverage();
 			}
 		}
 	}

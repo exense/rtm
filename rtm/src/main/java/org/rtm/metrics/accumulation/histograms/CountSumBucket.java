@@ -42,6 +42,9 @@ public class CountSumBucket implements Comparable<CountSumBucket>{
 
 	public CountSumBucket diff(CountSumBucket countSumBucket2){
 		CountSumBucket res = new CountSumBucket();
+		if (countSumBucket2 == null) {
+			countSumBucket2 = new CountSumBucket();
+		}
 		res.count = countSumBucket2.count - this.count;
 		res.sum = countSumBucket2.sum - this.sum;
 		return res;

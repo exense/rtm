@@ -5,14 +5,11 @@ import java.io.FileReader;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
 import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
@@ -21,9 +18,11 @@ import org.rtm.request.ComparisonRequest;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
+import org.rtm.stream.FinalDimension;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
+import org.rtm.stream.result.FinalAggregationResult;
 import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 
@@ -31,14 +30,57 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 //TODO: mongo mock
 public class RequestHandlerTest {
-	
-	List<Long> timeToFirstByte = new ArrayList<Long>();
-	List<Long> elapse = new ArrayList<Long>();
+
+	public static void main(String[] args) throws Exception{
+
+		List<Long> timeToFirstByte = new ArrayList<Long>();
+		List<Long> elapse = new ArrayList<Long>();
+		List<Long> elapseWithResults = new ArrayList<Long>();
+
+		int iterations=1;
+		//int[] partitions = {2,4,8,16,32};
+		int[] partitions = {4};
+		//int[] histSize = {10000,1000,100};
+		int[] histSize = {5000};
+		//int[] histApp = {1,5,50};
+		int[] histApp = {1};
+		for (int p=0; p < partitions.length;p++) {
+
+			for (int h = 0; h < histApp.length; h++) {
+				for (int i = 0; i < iterations; i++) {
+					RequestHandlerTest requestHandlerTest = new RequestHandlerTest();
+					requestHandlerTest.basicTest(histApp[h], histSize[h], partitions[p], timeToFirstByte, elapse, elapseWithResults);
+				}
+				System.out.println("High level results---- for " + partitions[p] + " partitions" + ", histSize: " + histSize[h] + ", histApp: " + histApp[h]);
+				long count = 0;
+				long sum = 0;
+				for (long v : timeToFirstByte) {
+					count++;
+					sum += v;
+				}
+				System.out.println("timeToFirstByte avg: " + sum / count);
+				count = 0;
+				sum = 0;
+				for (long v : elapse) {
+					count++;
+					sum += v;
+				}
+				System.out.println("elapse stream avg: " + sum / count);
+				count = 0;
+				sum = 0;
+				for (long v : elapseWithResults) {
+					count++;
+					sum += v;
+				}
+				System.out.println("elapse total avg: " + sum / count);
+			}
+		}
+
+	}
 
 	@SuppressWarnings("rawtypes")
 	//@Test
-	public void basicTest() throws Exception{
-
+	public void basicTest(int histApp, int histSize, int partition, List<Long> timeToFirstByte, List<Long> elapse, List<Long> elapseWithResults) throws Exception{
 		Properties props = new Properties();
 		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
 		
@@ -47,21 +89,30 @@ public class RequestHandlerTest {
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5ea289e3ccdd9212862cd1dd"), props);
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5ea958fab91e616fa53bbb68"), props);
-		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5ea96b7d307e8429851849b6"), props);
-		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), props);
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5f77329117305718f0c172f2"), props);
+		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorListWithName("5f77329117305718f0c172f2","Custom_login"), props);
 
-		ar.getServiceParams().put("aggregateService.granularity", "10000");
+		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), props);
+
+		ar.getServiceParams().put("aggregateService.granularity", "auto");
 		ar.getServiceParams().put("aggregateService.timeout", "600");
-		ar.getServiceParams().put("aggregateService.partition", "8");
+		ar.getServiceParams().put("aggregateService.partition", String.valueOf(partition));
 		ar.getServiceParams().put("aggregateService.cpu", "4");
+		ar.getServiceParams().put("aggregateService.timeField", "begin");
+		ar.getServiceParams().put("aggregateService.timeFormat", "long");
+		ar.getServiceParams().put("aggregateService.valueField", "value");
+		ar.getServiceParams().put("aggregateService.groupby", "name");
+		ar.getServiceParams().put("aggregateService.histSize",String.valueOf(histSize));
+		ar.getServiceParams().put("aggregateService.histApp",String.valueOf(histApp));
+
 		//ar.getServiceParams().put("targetChartDots", "1");
 
 		StreamBroker ssm = new StreamBroker();
 		RequestHandler rh = new RequestHandler(ssm);
 
-		IntStream.rangeClosed(1, 1).forEach(i -> {
+		IntStream.rangeClosed(1, 1).forEach(it -> {
 
-			System.out.println("-- iteration " + i + "--");
+			System.out.println("-- iteration " + it + "--");
 
 			long start = System.currentTimeMillis();
 			AbstractResponse response = null;
@@ -83,7 +134,7 @@ public class RequestHandlerTest {
 				}
 			}
 			long firstByte = System.currentTimeMillis();
-			System.out.println("TimeToFirstByte=" + (firstByte - start) + " ms.");
+			System.out.println("TRACE - TimeToFirstByte=" + (firstByte - start) + " ms.");
 			timeToFirstByte.add(firstByte - start);
 
 			while(!stream.isComplete()){
@@ -96,25 +147,49 @@ public class RequestHandlerTest {
 				}
 			}
 			long end = System.currentTimeMillis();
-			System.out.println("Done. Elapse=" + (end - start) + " ms.");
+			System.out.println("TRACE - Done. Elapse=" + (end - start) + " ms.");
 			elapse.add(end - start);
 			//System.out.println("stream=" + stream);
 
 			Properties fknProps = stream.getStreamProp();
 			fknProps.putAll(props);
 			Stream result = null;
+			//print results to CSV
+			String[] metricKeys = {"cnt","avg","min","max","50th pcl","tps","tpm","80th pcl","90th pcl","99th pcl"};
+
 			try {
 				result = new MetricsManager(fknProps).handle(stream);
+				FinalAggregationResult f = (FinalAggregationResult) result.getStreamData().firstEntry().getValue();
+				System.out.println("cnt,avg,min,max,50th pcl,tps,tpm,80th pcl,90th pcl,99th pcl");
+				result.getStreamData().forEach((k,v) -> {
+					FinalAggregationResult fResult = (FinalAggregationResult) v;
+					Set<String> series = fResult.getDimensionsMap().keySet();
+					for (String serie: series) {
+						FinalDimension metrics = (FinalDimension) fResult.getDimensionsMap().get(serie);
+						StringBuffer buf = new StringBuffer();
+						buf.append(serie).append(",");
+						for ( int i=0; i < metricKeys.length; i++) {
+							buf.append(metrics.get(metricKeys[i]));
+							buf.append(",");
+						}
+						System.out.println(buf.toString());
+					}
+					//Map dimensionsMap = fResult.getDimensionsMap();
+					/*fResult.getDimensionsMap().forEach((mk,mv) -> {
+						System.out.println(mk + "," + mv.toString().replace("{", "").replace("}", ""));
+
+					});*/
+				});
+				long resultTs = System.currentTimeMillis();
+				System.out.println("TRACE - Results computed. Elapse=" + (resultTs - start) + " ms.");
+				elapseWithResults.add(resultTs - start);
 			} catch (Exception e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			System.out.println("result=" + result);
-			
-		/*	result.getStreamData().forEach((k,v) -> {
-				FinalAggregationResult fResult = (FinalAggregationResult) v;
-				fResult.getDimensionsMap().forEach((mk,mv) -> System.out.println(mk+","+mv.toString().replace("{", "").replace("}", "")));
-			});*/
+
+
+
 			
 			try {
 				System.out.println("Sending streamHandle to client: " + new JSONMapper().convertToJsonString(result));
@@ -135,10 +210,13 @@ public class RequestHandlerTest {
 
 			
 		});
+
+
+
 	}
 	
 
-	@SuppressWarnings("rawtypes")
+	/*@SuppressWarnings("rawtypes")
 	//@Test
 	public void compareTest() throws JsonProcessingException{
 
@@ -242,8 +320,8 @@ public class RequestHandlerTest {
 	
 	//@Test
 	public void benchmarkTest() throws Exception {
-		for (int i=0;i<100;i++) {
-			basicTest();
+		for (int i=0;i<1;i++) {
+			basicTest(200,100,8, timeToFirstByte, elapse, elapseWithResults);
 		}
 		long count=0;
 		long sum=0;
@@ -258,7 +336,18 @@ public class RequestHandlerTest {
 			count++; 
 			sum+=v;
 		}
-		System.out.println("elapse avg: " + sum/count);
-	}
+		System.out.println("elapse stream avg: " + sum/count);
+		count=0;
+		sum=0;
+		for (long v :elapseWithResults){
+			count++;
+			sum+=v;
+		}
+		System.out.println("elapse total avg: " + sum/count);
+
+
+
+	}*/
 
 }
+

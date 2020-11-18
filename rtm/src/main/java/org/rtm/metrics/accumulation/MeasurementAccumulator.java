@@ -28,7 +28,7 @@ public class MeasurementAccumulator {
 		this.prop = prop;
 		this.mh = new MeasurementHelper(prop);
 		this.amgr = new AccumulationManager(prop);
-		approxBySeries = Boolean.parseBoolean(prop.getProperty("aggregateService.bySeries", "true"));
+		approxBySeries = Boolean.parseBoolean(prop.getProperty("aggregateService.bySeries", "false"));
 	}
 
 	public void handle(LongRangeValue lrv, Iterable<? extends Map> iterable, List<Selector> sel) {
@@ -64,7 +64,7 @@ public class MeasurementAccumulator {
 	
 	protected synchronized void initApproxMsByDimemsion(Map m) {
 		String dimensionName = mh.getActualDimensionName(m);
-		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
+		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : false;
 		if(useHeuristic && prop.getProperty("aggregateService.histApp." + dimensionName,null) == null)
 		{
 			List<Selector> selector = mh.getDimensionSelectors(sel,m);

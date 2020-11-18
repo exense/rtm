@@ -56,7 +56,7 @@ public class RequestHandler {
 		if (logger.isTraceEnabled()){
 			logger.trace("METRIC - init DB and settings: " + (System.currentTimeMillis()-startTs));
 		}
-		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
+		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : false;
 		if(useHeuristic)
 		{
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
