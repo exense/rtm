@@ -32,10 +32,15 @@ public class MeasurementAccumulator {
 	}
 
 	public void handle(LongRangeValue lrv, Iterable<? extends Map> iterable, List<Selector> sel) {
+		long start = System.currentTimeMillis();
 		this.sel = sel;
+		int count=0;
 		for(Map m : iterable) {
 			amgr.accumulateAll(getOrInitDimension(lrv, m), m.get(prop.get("aggregateService.valueField")));
+			count++;
 		}
+		if (logger.isTraceEnabled())
+			logger.trace("accumulate all measurements in range: " + (System.currentTimeMillis()-start) + " for count of " + count);
 	}
 
 	protected WorkDimension getOrInitDimension(LongRangeValue lrv, Map m) {

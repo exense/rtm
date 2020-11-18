@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -30,6 +31,8 @@ public class MeasurementAccessor implements TransportClient{
 	private String user = null;
 	private String pwd = null;
 	private String database = null;
+
+	private int batchSize = 1000;
 
 	private MeasurementAccessor(){
 
@@ -79,6 +82,12 @@ public class MeasurementAccessor implements TransportClient{
 		db = mongo.getDatabase(database);
 		coll = db.getCollection(collName);
 
+		try {
+			batchSize = Integer.parseInt(conf.getProperty("ds.measurements.batchSize"));
+		} catch (Exception e) {
+			logger.info("Batch size not found or incorrect, using default value of " + batchSize + ". Error message: " + e.getMessage()) ;
+		}
+
 		if(mongo == null || db == null || mongo.getAddress() == null || coll == null)
 			logger.error("Mongo is down.");
 	}
@@ -126,6 +135,10 @@ public class MeasurementAccessor implements TransportClient{
 
 	public Iterable<Document> find(Bson filter){
 		return coll.find(filter);
+	}
+
+	public Iterable<Document> advancedFind(Bson filter, List<String> fields ){
+		return coll.find(filter).projection(Projections.include(fields)).batchSize(batchSize);
 	}
 
 	public Iterable<Document> find(Bson filter, Bson sortOrder){

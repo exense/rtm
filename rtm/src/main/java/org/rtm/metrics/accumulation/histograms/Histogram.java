@@ -22,7 +22,7 @@ public class Histogram {
 	public Histogram(int nbPairs, int approxMs){
 		if(nbPairs > 0){
 			this.nbPairs = nbPairs;
-			this.histogram = new CountSumBucket[nbPairs];
+			initArray();
 		}else
 			throw new RuntimeException("Illegal nbPairs: " + nbPairs);
 
@@ -30,8 +30,6 @@ public class Histogram {
 			this.approxMs = approxMs * -1;
 		else
 			this.approxMs = approxMs;
-
-		initArray();
 	}
 
 	public void initArray() {
@@ -216,7 +214,7 @@ public class Histogram {
 	public long getValueForMark(float pcl) {
 		long curDotCount = 0;
 		int bucketCount= 0;
-		long target = (long) (pcl * getTotalCount());
+		long target = (long) Math.ceil(pcl * getTotalCount());
 		TreeMap<Long, CountSumBucket> sortedMap = buildBucketMapByAverage();
 		Iterator<CountSumBucket> thisMap = sortedMap.values().iterator();
 
@@ -224,11 +222,11 @@ public class Histogram {
 			CountSumBucket curBucket = thisMap.next();
 			curDotCount += curBucket.getCount();
 			if(curDotCount >= target){
-				int dotTarget = Math.round(pcl * getTotalCount());
+				int dotTarget = (int) Math.ceil(pcl * getTotalCount());
 				long missedTarget = curDotCount - dotTarget;
 				float missedTargetRatio = ((float)missedTarget / (float)dotTarget);
-
-				//logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs);
+				if (logger.isDebugEnabled())
+					logger.debug("Ranked "+pcl+"th Pcl at bucket value " + curBucket.getAvg() + " with a dotCount of " + curDotCount + "/" + getTotalCount() + ", a bucketCount of " + bucketCount + "/" + sortedMap.size() + ", and a dot target of " +  dotTarget + ". Dot target was missed by " +  missedTarget + " dots (i.e " + (missedTargetRatio * 100) + "%). Amount of used buckets=" + sortedMap.size() + "/" + this.nbPairs);
 
 				return curBucket.getAvg();
 			}

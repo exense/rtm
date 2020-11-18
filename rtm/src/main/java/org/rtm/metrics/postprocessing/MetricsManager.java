@@ -54,6 +54,8 @@ public class MetricsManager {
 
 			Map<String, Dimension> result = new HashMap<String, Dimension>();
 			series.entrySet().stream().forEach(f -> {
+				if (logger.isDebugEnabled())
+					logger.debug("Computing post metrics for: " + f.getKey());
 				WorkDimension data = f.getValue();
 				result.put(f.getKey(), stats.computeAllRegisteredPostMetrics(data, intervalSize));
 			});

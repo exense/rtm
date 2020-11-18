@@ -6,11 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.bson.Document;
 import org.rtm.commons.MeasurementAccessor;
+import org.rtm.measurement.MeasurementHelper;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.selection.Selector;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ public class QueryClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(QueryClient.class);
 	private Properties prop;
-	private MeasurementAccessor ma = MeasurementAccessor.getInstance();
+	private MeasurementAccessor ma;
 
 	public QueryClient(Properties prop) {
 		this.ma = MeasurementAccessor.getInstance();
@@ -34,6 +33,16 @@ public class QueryClient {
 	@SuppressWarnings("rawtypes")
 	public Iterable<? extends Map> executeQuery(Document timelessQuery) {
 		return ma.find(timelessQuery);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Iterable<? extends Map> executeAdvancedQuery(Document timelessQuery) {
+		ArrayList<String> fields = new ArrayList<>();
+		fields.add((String) prop.get("aggregateService.timeField"));
+		fields.add((String) prop.get("aggregateService.valueField"));
+		MeasurementHelper mh = new MeasurementHelper(prop);
+		fields.addAll(mh.getSplitDimensions());
+		return ma.advancedFind(timelessQuery, fields);
 	}
 
 	@SuppressWarnings("rawtypes")

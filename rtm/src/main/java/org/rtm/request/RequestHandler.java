@@ -34,6 +34,10 @@ public class RequestHandler {
 	}
 
 	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
+		long startTs=0;
+		if (logger.isTraceEnabled()){
+			startTs = System.currentTimeMillis();
+		}
 		List<Selector> sel = aggReq.getSelectors1();
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		
@@ -49,6 +53,9 @@ public class RequestHandler {
 		int subPartitioning = Integer.parseInt(prop.getProperty("aggregateService.partition"));
 		int subPoolSize = Integer.parseInt(prop.getProperty("aggregateService.cpu"));
 
+		if (logger.isTraceEnabled()){
+			logger.trace("METRIC - init DB and settings: " + (System.currentTimeMillis()-startTs));
+		}
 		boolean useHeuristic = prop.getProperty("useHistHeuristic") != null? Boolean.parseBoolean(prop.getProperty("useHistHeuristic")) : true;
 		if(useHeuristic)
 		{
@@ -60,7 +67,11 @@ public class RequestHandler {
 			//prop.put("aggregateService.histSize", "40");
 			// however, the heuristic will override the user-defined parameter fow now if useHistHeuristic is set to true in central conf
 			prop.put("aggregateService.histApp", Integer.toString(optimalHistApp));
-			logger.debug("Using value " + optimalHistApp + " for histApp heuristic.");
+			if (logger.isDebugEnabled())
+				logger.debug("Using value " + optimalHistApp + " for histApp heuristic.");
+		}
+		if (logger.isTraceEnabled()){
+			logger.trace("METRIC - global heuristic calculated: " + (System.currentTimeMillis()-startTs));
 		}
 		
 		LongTimeInterval effective = db.findEffectiveBoundariesViaMongo(lti, sel);
@@ -69,7 +80,8 @@ public class RequestHandler {
 		Stream<Long> stream = initStream(timeoutSecs, optimalSize, prop);
 		ResultHandler<Long> rh = new StreamResultHandler(stream);
 
-		logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
+		if (logger.isDebugEnabled())
+			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
 		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
@@ -83,6 +95,9 @@ public class RequestHandler {
 		PipelineExecutionHelper.executeAndsetListeners(pp, stream);
 
 		sb.registerStreamSession(stream);
+		if (logger.isTraceEnabled()){
+			logger.trace("METRIC - RequestHandler aggregate call completed after: " + (System.currentTimeMillis()-startTs));
+		}
 		return stream.getId();
 	}
 

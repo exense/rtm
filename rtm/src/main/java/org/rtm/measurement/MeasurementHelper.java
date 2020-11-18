@@ -31,6 +31,7 @@ import org.rtm.request.selection.TextFilter;
 @SuppressWarnings("rawtypes")
 public class MeasurementHelper{
 	private String dimensionDirective;
+
 	private List<String> splitDimensions;
 	
 	private static Character splitChar = ';'; 
@@ -38,6 +39,10 @@ public class MeasurementHelper{
 	public MeasurementHelper(Properties p){
 		this.dimensionDirective = p.getProperty("aggregateService.groupby");
 		this.splitDimensions = Arrays.asList(this.dimensionDirective.split(splitChar.toString()));
+	}
+
+	public List<String> getSplitDimensions() {
+		return splitDimensions;
 	}
 	
 	public String getDimensionDirectiveName(){

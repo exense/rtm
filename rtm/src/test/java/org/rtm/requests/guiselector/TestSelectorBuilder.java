@@ -20,7 +20,7 @@ public class TestSelectorBuilder {
 
 		TextFilter tf = new TextFilter();
 		tf.setKey("name");
-		tf.setValue("Transaction.*");
+		tf.setValue(".*");
 		tf.setRegex(true);
 
 		
@@ -40,24 +40,28 @@ public class TestSelectorBuilder {
 		return selList;
 	}
 	
-	public static List<Selector> buildTestSelectorList(String eId) {
-		
-		List<Selector> selList = new ArrayList<>();
-		
-		
-		TextFilter regTf = new TextFilter();
-		regTf.setKey("eId");
-		//regTf.setValue("JUnit.*");
-		regTf.setValue(eId);
-		regTf.setRegex(false);
-		
-		Selector sel = new Selector();
-		sel.addTextFilter(regTf);
-		//sel.addTextFilter(new TextFilter(false,"name","MeasurementKeyword"));
+	public static List<Selector> buildTestSelectorListWithName(String eId, String name) {
 
+		List<Selector> selList = new ArrayList<>();
+
+		Selector sel = new Selector();
+		sel.addTextFilter(new TextFilter(false,"eId",eId));
+		sel.addTextFilter(new TextFilter(false,"name",name));
+		selList.add(sel);
+
+		return selList;	}
+
+	public static List<Selector> buildTestSelectorList(String eId) {
+
+		List<Selector> selList = new ArrayList<>();
+
+		Selector sel = new Selector();
+		sel.addTextFilter(new TextFilter(false,"eId",eId));
 		selList.add(sel);
 
 		return selList;
 	}
+
+
 
 }
