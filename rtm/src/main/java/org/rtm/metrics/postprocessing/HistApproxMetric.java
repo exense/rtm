@@ -20,7 +20,7 @@ public class HistApproxMetric implements SubscribedMetric<Long>{
 
 	@Override
 	public String getDisplayName() {
-		return "approx";
+		return "pcl precision";
 	}
 
 }
