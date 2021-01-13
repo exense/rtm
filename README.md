@@ -6,7 +6,7 @@ This project is currently undergoing a heavy transformation which will soon resu
 ## RTM 2.0 docs
 
 The  2.X standalone app version serving the legacy backboneJS client is covered in the following documentation pages:
-http://docs.exense.ch/wiki/rtm/view/Versions/2.0.x/
+https://github.com/exense/rtm/wiki/RTM-2.0-documentation
 
 ## RTM 3.0 docs
 
