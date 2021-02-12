@@ -134,7 +134,7 @@ public class MeasurementAccessor implements TransportClient{
 	}
 
 	public Iterable<Document> find(Bson filter){
-		return coll.find(filter);
+		return coll.find(filter).batchSize(batchSize);
 	}
 
 	public Iterable<Document> advancedFind(Bson filter, List<String> fields ){
@@ -146,7 +146,7 @@ public class MeasurementAccessor implements TransportClient{
 	}
 
 	public Iterable<Document> find(Bson filter, Bson sortOrder, int skip, int limit){
-		return coll.find(filter).sort(sortOrder).skip(skip).limit(limit);
+		return coll.find(filter).sort(sortOrder).skip(skip).limit(limit).batchSize(batchSize);
 	}
 
 	@Override

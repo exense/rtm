@@ -18,15 +18,13 @@
  *******************************************************************************/
 package org.rtm.rest.measurement;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.rtm.commons.Configuration;
-import org.rtm.commons.MeasurementConstants;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
@@ -80,6 +78,45 @@ public class MeasurementServlet {
 			return Response.status(500).entity(response).build();
 		}
 		return Response.status(200).entity(response).build();
+	}
+
+	@POST
+	@Path("/export")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response exportForm(@FormParam ("value")  String bodyJson){
+		AbstractResponse response;
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			AggregationRequest ar = objectMapper.readValue(bodyJson, AggregationRequest.class);
+			return export(ar);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
+			return Response.status(500).entity(response).build();
+		}
+	}
+
+	@POST
+	@Path("/export")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response export(final AggregationRequest body) {
+		AbstractResponse response;
+		try {
+			StreamingOutput measurementsAsOutputStream;
+			String filename = body.getServiceParams().getProperty("measurementService.filename","measurements.zip");
+			int howmany = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
+			measurementsAsOutputStream = mserv.getMeasurementsAsOutputStream(body.getSelectors1(), (String) body.getServiceParams().get("aggregateService.timeField"), -1, 0, howmany, body.getServiceParams());
+			return Response.ok(measurementsAsOutputStream)
+					.type("application/octet-stream")
+					.header("Content-Disposition","attachment; filename=\""+ filename + "\"")
+					.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = new ErrorResponse("Error = " + e.getClass().getName() + " : " + e.getMessage());
+			return Response.status(500).entity(response).build();
+		}
 	}
 
 }
