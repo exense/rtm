@@ -26,8 +26,8 @@ public class MeasurementServletTest {
 		Properties props = new Properties();
 		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
 
-		//AggregationRequest ar = new AggregationRequest(null, TestSelectorBuilder.buildTestSelectorList("5f77329117305718f0c172f2"), props);
-		AggregationRequest ar = new AggregationRequest(null, TestSelectorBuilder.buildTestSelectorList("601d1c0972709f3ca0af69a7"), props);
+		AggregationRequest ar = new AggregationRequest(null, TestSelectorBuilder.buildTestSelectorList("5f77329117305718f0c172f2"), props);
+		//AggregationRequest ar = new AggregationRequest(null, TestSelectorBuilder.buildTestSelectorList("601d1c0972709f3ca0af69a7"), props);
 		ar.getServiceParams().put("aggregateService.granularity", "auto");
 		ar.getServiceParams().put("aggregateService.timeout", "600");
 		ar.getServiceParams().put("aggregateService.partition", "8");
@@ -36,7 +36,8 @@ public class MeasurementServletTest {
 		ar.getServiceParams().put("aggregateService.timeFormat", "long");
 		ar.getServiceParams().put("aggregateService.valueField", "value");
 		ar.getServiceParams().put("aggregateService.groupby", "name");
-		ar.getServiceParams().put("measurementService.nextFactor", "0");
+		//ar.getServiceParams().put("measurementService.nextFactor", "0");
+		ar.getServiceParams().put("measurementService.nextFactor", "100000");
 		ar.getServiceParams().put("measurementService.outputFormat", "CSV");
 
 

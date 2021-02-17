@@ -43,6 +43,8 @@ import javax.ws.rs.core.StreamingOutput;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class MeasurementService{
 
+	private static int MAX_SAMPLING_CSV_FIELDS=10000;
+
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementService.class);
 
 	public MeasurementService(){}
@@ -72,17 +74,25 @@ public class MeasurementService{
 			MeasurementFormatter formatter = (isCSV) ? new MeasurementCSVFormatter() : new MeasrurementJsonFormatter();
 			ZipEntry zipEntry = new ZipEntry("measurements" + formatter.getExtension());
 			zipOut.putNextEntry(zipEntry);
-			MongoCursor it = (isCSV) ? findMeasurements(slt, orderBy, direction, skip, limit, prop) : null;
+			//Write header (for CSV need a sample to get list of fields (no exhaustive) )
+			long start = System.currentTimeMillis();
+			int sampling = (limit>0 && limit<MAX_SAMPLING_CSV_FIELDS) ? limit : MAX_SAMPLING_CSV_FIELDS;
+			MongoCursor it = (isCSV) ? findMeasurements(slt, orderBy, direction, skip, sampling, prop) : null;
 			formatter.writeHeader(zipOut,it);
 			if (it != null) { it.close();}
+			logger.trace("Elapse header " + (System.currentTimeMillis()-start));
+			//Write content
 			it = findMeasurements(slt, orderBy, direction, skip, limit, prop);
 			formatter.writeBody(zipOut, it);
 			if (it != null) { it.close();}
+			logger.trace("Elapse content " + (System.currentTimeMillis()-start));
+			//Write footer
 			formatter.writeFooter(zipOut);
 			zipOut.closeEntry();
 			zipOut.close();
 			outputStream.flush();
 			outputStream.close();
+			logger.trace("Elapse all " + (System.currentTimeMillis()-start));
 		};
 
 		return streamingOutput;
