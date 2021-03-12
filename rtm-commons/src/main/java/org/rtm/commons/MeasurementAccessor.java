@@ -149,6 +149,10 @@ public class MeasurementAccessor implements TransportClient{
 		return coll.find(filter).sort(sortOrder).skip(skip).limit(limit).batchSize(batchSize);
 	}
 
+	public Iterable<String> distinct(String distinctField, Bson filter) {
+		return coll.distinct(distinctField,filter,String.class);
+	}
+
 	@Override
 	public void close() {
 		// we actually want to keep it alive for the whole JVM lifetime 
