@@ -46,7 +46,7 @@ public class MeasurementAccessor implements TransportClient {
 	}
 
 	public long getMeasurementCount(){
-		return coll.find(Filters.empty(),null,null,null,0).count();
+		return coll.count(Filters.empty(),null);
 	}
 
 	public Stream<Document> find(Filter filter){
