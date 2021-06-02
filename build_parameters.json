@@ -19,8 +19,7 @@
 		"ORIGIN_FILE":[
 			"rtm-commons/target/rtm-commons-${VERSION}.jar",
 			"rtm/src/main/resources/rtm.properties",
-			"rtm/target/rtm-${VERSION}-jar-with-dependencies.jar",
-      "rtm/webapps/rtm.war"
+			"rtm/target/rtm-${VERSION}.jar"
 		],
 		"DESTINATION_NAME":[
 			"rtm-commons-${VERSION}.jar",
