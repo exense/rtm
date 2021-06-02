@@ -18,14 +18,15 @@ import org.rtm.commons.TransportClient;
 import org.rtm.commons.TransportException;
 import org.rtm.rest.ingestion.IngestionConstants;
 import org.rtm.rest.security.GlobalConstants;
-import org.rtm.utils.MeasurementUtils;
+import org.rtm.commons.utils.MeasurementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpClient implements TransportClient {
 	
 	private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
-	
+	private MeasurementUtils measurementUtils;
+
 	private PoolingHttpClientConnectionManager cm;
 	private CloseableHttpClient httpClient;
 	ResponseHandler<String> responseHandler;
@@ -34,15 +35,18 @@ public class HttpClient implements TransportClient {
 	private int port;
 	private int maxConnections;
 
-	public HttpClient(String hostname, int port){
-		this(hostname, port, 50);
+	//This client is never used, only found in static builder TransportClientBuilder.buildClient
+	//which is not used anywhere. Would need to be constructed with instance of measurementUtils
+	public HttpClient(String hostname, int port, MeasurementUtils measurementUtils){
+		this(hostname, port, 50, measurementUtils);
 	}
 	
-	public HttpClient(String hostname, int port, int maxConnections){
+	public HttpClient(String hostname, int port, int maxConnections, MeasurementUtils measurementUtils){
 		
 		this.hostname = hostname;
 		this.port = port;
 		this.maxConnections = maxConnections;
+		this.measurementUtils = measurementUtils;
 		
 		cm = new PoolingHttpClientConnectionManager();
 		cm.setMaxTotal(200);
@@ -72,7 +76,7 @@ public class HttpClient implements TransportClient {
 	
 	@Override
 	public void sendStructuredMeasurement(Map<String, Object> measurement) throws TransportException {
-		String url = buildRestURLBase() + MeasurementUtils.mapToURI(measurement);
+		String url = buildRestURLBase() + measurementUtils.mapToURI(measurement);
 		
 		HttpGet httpget = new HttpGet(url);
 		logger.debug("Sending measurement : " + url);

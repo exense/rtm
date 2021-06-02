@@ -3,6 +3,8 @@ package org.rtm.pipeline.tasks;
 import java.util.List;
 import java.util.Properties;
 
+import ch.exense.commons.app.Configuration;
+import org.rtm.commons.MeasurementAccessor;
 import org.rtm.metrics.accumulation.MeasurementAccumulator;
 import org.rtm.range.RangeBucket;
 import org.rtm.request.selection.Selector;
@@ -27,15 +29,15 @@ public abstract class MergingPartitionedQueryTask extends AbstractProduceMergeTa
 	protected long subsize; 
 	protected long timeoutSecs;
 
-	public MergingPartitionedQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize, long timeoutSecs){
+	public MergingPartitionedQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int poolSize, long timeoutSecs, MeasurementAccessor ma, Configuration configuration){
 		this.sel = sel;
 		this.prop = prop;
 		this.partitioningFactor = partitioningFactor;
 		this.poolSize = poolSize;
-		this.subResults = new Stream<>(prop);
+		this.subResults = new Stream<>(prop, configuration);
 		this.resultHandler = new StreamResultHandler(subResults);
 		this.timeoutSecs = timeoutSecs;
-		this.accumulator = new MeasurementAccumulator(prop);
+		this.accumulator = new MeasurementAccumulator(prop, ma, configuration);
 	}
 
 	@Override

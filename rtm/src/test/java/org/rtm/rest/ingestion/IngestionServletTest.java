@@ -18,11 +18,16 @@
  *******************************************************************************/
 package org.rtm.rest.ingestion;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import ch.exense.commons.app.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
-import org.rtm.utils.MeasurementUtils;
+import org.rtm.commons.utils.MeasurementUtils;
+import org.rtm.commons.RtmContext;
 
 public class IngestionServletTest {
 
@@ -35,14 +40,22 @@ public class IngestionServletTest {
 	String emptyOptional = null;
 
 	@Test
-	public void buildSimpleMeasurement(){
-		Map<String, Object> measurement = MeasurementUtils.structuredToMap(eId, time, name, value, null);
+	public void buildSimpleMeasurement() throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+		RtmContext context = new RtmContext(configuration);
+		MeasurementUtils measurementUtils = new MeasurementUtils(context);
+		
+		Map<String, Object> measurement = measurementUtils.structuredToMap(eId, time, name, value, null);
 		Assert.assertEquals(4, measurement.size());
 	}
 
 	@Test
-	public void buildMeasurementWithOptionalData(){
-		Map<String, Object> measurement = MeasurementUtils.structuredToMap(eId, time, name, value, optional);
+	public void buildMeasurementWithOptionalData() throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+		RtmContext context = new RtmContext(configuration);
+		MeasurementUtils measurementUtils = new MeasurementUtils(context);
+		
+		Map<String, Object> measurement = measurementUtils.structuredToMap(eId, time, name, value, optional);
 		boolean autoLongConversion = false;
 		if(measurement.get("foo") instanceof Long)
 			autoLongConversion = true;

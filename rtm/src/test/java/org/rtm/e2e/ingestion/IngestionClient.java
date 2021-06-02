@@ -1,7 +1,7 @@
 package org.rtm.e2e.ingestion;
 
 import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -11,11 +11,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.junit.After;
+import ch.exense.commons.app.Configuration;
+import step.core.collections.mongodb.MongoDBCollectionFactory;
+import step.core.collections.Document;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.rtm.commons.Configuration;
 import org.rtm.commons.MeasurementAccessor;
 import org.rtm.commons.TestMeasurementBuilder;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
@@ -26,8 +25,6 @@ import org.rtm.e2e.ingestion.load.TransactionalProfile;
 import org.rtm.e2e.ingestion.transport.TransportClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.mongodb.MongoWaitQueueFullException;
 
 //TODO: turn into real @Remote tests
 public class IngestionClient {
@@ -43,12 +40,13 @@ public class IngestionClient {
 	static boolean init = false;
 
 	//@Before
-	public synchronized void init(){
+	public synchronized void init() throws IOException {
 		if(!init){
-			Configuration.initSingleton(new File("src/main/resources/rtm.properties"));
-			ma = MeasurementAccessor.getInstance();
+			Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+			MongoDBCollectionFactory factory = new MongoDBCollectionFactory(configuration);
+			ma = new MeasurementAccessor(factory.getCollection(MeasurementAccessor.ENTITY_NAME, Document.class));
 			//tc = TransportClientBuilder.buildHttpClient(hostname, port);
-			tc = TransportClientBuilder.buildAccessorClient(hostname, port);
+			tc = ma;//This is not used and just return an accessor as of now TransportClientBuilder.buildAccessorClient(hostname, port);
 			init = true;
 		}
 
@@ -122,11 +120,7 @@ public class IngestionClient {
 		logger.debug("submitting task vector: " + tasks);
 		try {
 			for(Future<Boolean> f : executor.invokeAll(tasks, ld.getTimeOut(), TimeUnit.SECONDS)){
-				try{
-					f.get();
-				} catch (MongoWaitQueueFullException e1){
-					// continue silently;
-				}
+				f.get();
 			}
 		}
 		catch (Exception e2) {

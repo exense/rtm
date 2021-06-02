@@ -3,7 +3,7 @@
 
 	<groupId>ch.exense.rtm</groupId>
 	<artifactId>rtm-parent</artifactId>
-	<version>2.2.0</version>
+	<version>0.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>RTM</name>
@@ -41,8 +41,17 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<step-framework.version>2021.05.28-ID71abf87</step-framework.version>
 	</properties>
 
+	<repositories>
+		<!-- staging nexus -->
+		<repository>
+			<id>nexus-staging</id>
+			<url>https://nexus-enterprise.exense.ch/repository/staging-maven/</url>
+		</repository>
+	</repositories>
+	
 	<modules>
 		<module>../rtm-commons</module>
 		<module>../rtm</module>
@@ -75,8 +84,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 			<!-- Javadoc -->
@@ -85,8 +94,20 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>3.1.1</version>
 				<configuration>
+					<!-- detectLinks MUST NOT be set to true in a production context, as it derives random domain names
+					from package names, then tries to download data from those random URLs. -->
+					<detectLinks>false</detectLinks>
+
+					<!-- detectOfflineLinks SHOULD also be set to false, because:  -->
+					<!-- a) it cannot generate meaningful links to the javadoc from other projects, anyway -->
+					<!-- b) it causes unnecessarily scary ERROR messages at build time  -->
+					<detectOfflineLinks>false</detectOfflineLinks>
+
 					<quiet>true</quiet>
-			      	<source>8</source>
+					<source>11</source>
+					<additionalOptions>
+						<additionalOption>-Xdoclint:none</additionalOption>
+					</additionalOptions>
 				</configuration>
 				<executions>
 					<execution>

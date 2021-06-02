@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.function.LongBinaryOperator;
 
+import ch.exense.commons.app.Configuration;
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.Accumulator;
 
@@ -12,7 +13,7 @@ public abstract class LongBinaryAccumulator implements Accumulator<Long, Long>{
 	protected abstract String getConcreteAccumulatorKey();
 	
 	@Override
-	public void initAccumulator(Properties props) {
+	public void initAccumulator(Properties props, Configuration configuration) {
 	}
 	
 	@Override

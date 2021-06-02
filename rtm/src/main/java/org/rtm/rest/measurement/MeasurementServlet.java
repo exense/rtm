@@ -18,18 +18,20 @@
  *******************************************************************************/
 package org.rtm.rest.measurement;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.rtm.commons.Configuration;
 import org.rtm.request.AbstractResponse;
 import org.rtm.request.AggregationRequest;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.MeasurementService;
 import org.rtm.request.SuccessResponse;
+import org.rtm.rest.AbstractServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +39,17 @@ import org.slf4j.LoggerFactory;
  * @author doriancransac
  *
  */
+@Singleton
 @Path("/measurement")
-public class MeasurementServlet {
+public class MeasurementServlet extends AbstractServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementServlet.class);
-	private MeasurementService mserv = new MeasurementService();
+	private MeasurementService mserv;
+
+	@PostConstruct
+	public void init() throws Exception {
+		mserv = new MeasurementService(context.getMeasurementAccessor());
+	}
 	
 	@POST
 	@Path("/find")
@@ -51,7 +59,7 @@ public class MeasurementServlet {
 		AbstractResponse response;
 		try {
 			int pager = Integer.parseInt(body.getServiceParams().getProperty("measurementService.nextFactor"));
-			int pageSize = Configuration.getInstance().getPropertyAsInteger("client.MeasurementListView.pagingValue");
+			int pageSize = context.getConfiguration().getPropertyAsInteger("client.MeasurementListView.pagingValue");
 			
 			response = new SuccessResponse(mserv.selectMeasurements(body.getSelectors1(), (String) body.getServiceParams().get("aggregateService.timeField"), 1, pager * pageSize, pageSize, body.getServiceParams()), "ok");
 		} catch (Exception e) {

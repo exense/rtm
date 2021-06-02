@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 
+import ch.exense.commons.app.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.metrics.accumulation.base.HistogramAccumulator;
@@ -17,8 +18,9 @@ public class AccumulationManagerTest {
 		
 		Properties props = new Properties();
 		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
+		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
 		
-		AccumulationManager metricsManager = new AccumulationManager(props);
+		AccumulationManager metricsManager = new AccumulationManager(props, configuration);
 		
 		WorkDimension dimension = new WorkDimension("test");
 		

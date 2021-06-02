@@ -3,7 +3,11 @@ package org.rtm.metrics.accumulation;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
+import ch.exense.commons.app.Configuration;
+import org.rtm.commons.MeasurementAccessor;
 import org.rtm.db.QueryClient;
 import org.rtm.measurement.MeasurementHelper;
 import org.rtm.metrics.AccumulationManager;
@@ -23,24 +27,26 @@ public class MeasurementAccumulator {
 	private Properties prop;
 	private List<Selector> sel;
 	private boolean approxBySeries;
+	private MeasurementAccessor ma;
 
-	public MeasurementAccumulator(Properties prop){
+	public MeasurementAccumulator(Properties prop, MeasurementAccessor ma, Configuration configuration){
 		this.prop = prop;
 		this.mh = new MeasurementHelper(prop);
-		this.amgr = new AccumulationManager(prop);
+		this.amgr = new AccumulationManager(prop, configuration);
 		approxBySeries = Boolean.parseBoolean(prop.getProperty("aggregateService.bySeries", "false"));
+		this.ma = ma;
 	}
 
-	public void handle(LongRangeValue lrv, Iterable<? extends Map> iterable, List<Selector> sel) {
+	public void handle(LongRangeValue lrv, Stream<? extends Map> stream, List<Selector> sel) {
 		long start = System.currentTimeMillis();
 		this.sel = sel;
-		int count=0;
-		for(Map m : iterable) {
+		AtomicInteger count= new AtomicInteger();
+		stream.forEach(m -> {
 			amgr.accumulateAll(getOrInitDimension(lrv, m), m.get(prop.get("aggregateService.valueField")));
-			count++;
-		}
+			count.getAndIncrement();
+		});
 		if (logger.isTraceEnabled())
-			logger.trace("accumulate all measurements in range: " + (System.currentTimeMillis()-start) + " for count of " + count);
+			logger.trace("accumulate all measurements in range: " + (System.currentTimeMillis()-start) + " for count of " + count.get());
 	}
 
 	protected WorkDimension getOrInitDimension(LongRangeValue lrv, Map m) {
@@ -68,7 +74,7 @@ public class MeasurementAccumulator {
 		if(useHeuristic && prop.getProperty("aggregateService.histApp." + dimensionName,null) == null)
 		{
 			List<Selector> selector = mh.getDimensionSelectors(sel,m);
-			QueryClient db = new QueryClient(prop);
+			QueryClient db = new QueryClient(prop, ma);
 			int heuristicSampleSize = prop.getProperty("heuristicSampleSize") != null? Integer.parseInt(prop.getProperty("heuristicSampleSize")) : 1000;
 			float errorMarginPercentage = prop.getProperty("errorMarginPercentage") != null? Float.parseFloat(prop.getProperty("errorMarginPercentage")) : 0.01F;
 			int optimalHistApp = (int)Math.round(db.run90PclOnFirstSample(heuristicSampleSize, selector) * errorMarginPercentage + 1);

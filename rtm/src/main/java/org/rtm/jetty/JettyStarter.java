@@ -19,7 +19,9 @@
 package org.rtm.jetty;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
+import ch.exense.commons.app.Configuration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -27,9 +29,10 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.rtm.commons.Configuration;
+import org.rtm.commons.RtmContext;
 import org.rtm.rest.aggregation.AggregationServlet;
 import org.rtm.rest.conf.ConfigurationServlet;
 import org.rtm.rest.ingestion.IngestionServlet;
@@ -45,9 +48,18 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 public class JettyStarter {
 	
 	private Server server;
+	private RtmContext context;
+
+	public JettyStarter(Configuration configuration) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+		context = new RtmContext(configuration);
+	}
 	//private ContextHandlerCollection handlers;
-	
-	
+
+
+	public RtmContext getContext() {
+		return context;
+	}
+
 	public static void main(String[] args){
 		ArgumentParser arguments = new ArgumentParser(args);
 		
@@ -59,10 +71,11 @@ public class JettyStarter {
 			System.exit(0);
 		}
 		
-		Configuration.initSingleton(new File(agentConfStr));
+		
 		
 		try {
-			new JettyStarter().start();
+			Configuration configuration = new Configuration(new File(agentConfStr));
+			new JettyStarter(configuration).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -72,29 +85,14 @@ public class JettyStarter {
 	public void start() throws Exception {
 		
 		//handlers = new ContextHandlerCollection();
-		int rtmPort = Integer.parseInt(Configuration.getInstance().getProperty("rtm.port"));
+		int rtmPort = context.getConfiguration().getPropertyAsInteger("rtm.port");
 		server = new Server(rtmPort);
+
+		
 		
 		ContextHandlerCollection hcoll = new ContextHandlerCollection();
-		
-		ResourceConfig resourceConfig = new ResourceConfig();
-		resourceConfig.packages(AggregationServlet.class.getPackage().getName());
-		resourceConfig.register(JacksonJaxbJsonProvider.class);
-		resourceConfig.registerClasses(AggregationServlet.class);
-		resourceConfig.registerClasses(MeasurementServlet.class);
-		resourceConfig.registerClasses(ConfigurationServlet.class);
-		resourceConfig.registerClasses(IngestionServlet.class);
-		
-		resourceConfig.registerClasses(AuthenticationFilter.class);
 
-		ServletContainer servletContainer = new ServletContainer(resourceConfig);
-		ServletHolder sh = new ServletHolder(servletContainer);
-		sh.setInitParameter("cacheControl","max-age=0,public"); 
-
-		ServletContextHandler serviceHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		serviceHandler.setContextPath("/rtm/rest");
-		serviceHandler.addServlet(sh, "/*");
-		serviceHandler.setInitParameter("cacheControl","max-age=0,public"); 
+		ServletContextHandler serviceHandler = getServletContextHandler();
 
 		ContextHandler webAppHandler = new ContextHandler("/rtm");
 		ResourceHandler bb = new ResourceHandler();
@@ -108,6 +106,35 @@ public class JettyStarter {
 		server.start();
 		server.join();
 		
+	}
+
+	public ServletContextHandler getServletContextHandler() {
+		ResourceConfig resourceConfig = new ResourceConfig();
+		resourceConfig.packages(AggregationServlet.class.getPackage().getName());
+		resourceConfig.register(JacksonJaxbJsonProvider.class);
+		resourceConfig.registerClasses(AggregationServlet.class);
+		resourceConfig.registerClasses(MeasurementServlet.class);
+		resourceConfig.registerClasses(ConfigurationServlet.class);
+		resourceConfig.registerClasses(IngestionServlet.class);
+
+		resourceConfig.registerClasses(AuthenticationFilter.class);
+
+		resourceConfig.register(new AbstractBinder() {
+			@Override
+			protected void configure() {
+				bind(context).to(RtmContext.class);
+			}
+		});
+
+		ServletContainer servletContainer = new ServletContainer(resourceConfig);
+		ServletHolder sh = new ServletHolder(servletContainer);
+		sh.setInitParameter("cacheControl","max-age=0,public");
+
+		ServletContextHandler serviceHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		serviceHandler.setContextPath("/rtm/rest");
+		serviceHandler.addServlet(sh, "/*");
+		serviceHandler.setInitParameter("cacheControl","max-age=0,public");
+		return serviceHandler;
 	}
 
 }

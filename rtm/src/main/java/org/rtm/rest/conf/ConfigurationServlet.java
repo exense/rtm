@@ -21,6 +21,7 @@ package org.rtm.rest.conf;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,12 +32,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.rtm.commons.Configuration;
 import org.rtm.commons.Version;
+import org.rtm.rest.AbstractServlet;
 
+@Singleton
 @Path("/configuration")
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class ConfigurationServlet {
+public class ConfigurationServlet extends AbstractServlet {
 	
 	@POST
 	@Path("/getConfiguration")
@@ -54,7 +56,7 @@ public class ConfigurationServlet {
 		try{
 			response = new ConfigurationOutput();
 
-			Map p = (Map)Configuration.getInstance().getUnderlyingPropertyObject();
+			Map p = (Map) context.getConfiguration().getUnderlyingPropertyObject();
 			p.put("rtmVersion", Version.getVersion());
 			response.setConfig(p);
 
@@ -87,7 +89,7 @@ public class ConfigurationServlet {
 			response = new ConfigurationOutput();
 
 			Map<String,String> p = new TreeMap<String,String>();
-			p.put(propertyName, Configuration.getInstance().getProperty(propertyName));
+			p.put(propertyName, context.getConfiguration().getProperty(propertyName));
 			response.setConfig(p);
 
 			return Response.ok(response).build();

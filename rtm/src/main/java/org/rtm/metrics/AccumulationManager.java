@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.exense.commons.app.Configuration;
 import org.rtm.metrics.accumulation.Accumulator;
 import org.rtm.stream.WorkDimension;
 
@@ -15,9 +16,9 @@ public class AccumulationManager {
 	private Map<String,Accumulator> accumulators;
 	
 	@SuppressWarnings("unused")
-	private AccumulationManager() {}
+	private AccumulationManager(Properties prop) {}
 
-	public AccumulationManager(Properties rtmProps){
+	public AccumulationManager(Properties rtmProps, Configuration configuration){
 		accumulatorRegistry = rtmProps.getProperty("aggregateService.registeredAccumulators").split(",");
 		accumulators = new HashMap<String,Accumulator>();
 
@@ -26,7 +27,7 @@ public class AccumulationManager {
 			try {
 				clazz = Class.forName(entry);
 				Accumulator accumulator = (Accumulator)clazz.getConstructor().newInstance();
-				accumulator.initAccumulator(rtmProps);
+				accumulator.initAccumulator(rtmProps, configuration);
 				accumulators.put(entry, accumulator);
 			} catch (Exception e) {
 				e.printStackTrace();

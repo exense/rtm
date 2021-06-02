@@ -1,14 +1,18 @@
 package org.rtm.commons;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 
+import ch.exense.commons.app.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rtm.commons.TestMeasurementBuilder.TestMeasurementType;
-import org.rtm.utils.MeasurementUtils;
+import org.rtm.commons.utils.MeasurementUtils;
 
 public class MeasurementUtilsTest {
 
@@ -16,10 +20,12 @@ public class MeasurementUtilsTest {
 	Map<String, Object> optionalMeasurement = TestMeasurementBuilder.buildStatic(TestMeasurementType.WITH_OPTIONAL);
 
 	@Test
-	public void measurementURIConversionOracle(){
-		
+	public void measurementURIConversionOracle() throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+		RtmContext context = new RtmContext(configuration);
+		MeasurementUtils measurementUtils = new MeasurementUtils(context);
 		System.out.println(simpleMeasurement);
-		Assert.assertEquals(true, mapEquals(simpleMeasurement, MeasurementUtils.uriToMap(MeasurementUtils.mapToURI(simpleMeasurement))));
+		Assert.assertEquals(true, mapEquals(simpleMeasurement, measurementUtils.uriToMap(measurementUtils.mapToURI(simpleMeasurement))));
 	}
 	
 	@Test

@@ -20,6 +20,7 @@ package org.rtm.rest.ingestion;
 
 import java.util.Map;
 
+import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,12 +31,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.rtm.commons.MeasurementAccessor;
+import org.rtm.rest.AbstractServlet;
 import org.rtm.rest.ingestion.SimpleResponse.STATUS;
-import org.rtm.utils.MeasurementUtils;
 
+@Singleton
 @Path(IngestionConstants.servletPrefix)
-public class IngestionServlet {
+public class IngestionServlet extends AbstractServlet {
 
 	@GET
 	@Path(IngestionConstants.genericPrefix)
@@ -61,7 +62,7 @@ public class IngestionServlet {
 												  @FormParam(IngestionConstants.VALUE_KEY) String value,
 												  @FormParam(IngestionConstants.OPTIONALDATA_KEY) String optionalData) {
 		
-		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value, optionalData));
+		return saveMeasurement(context.getMeasurementUtils().structuredToMap(eId, time, name, value, optionalData));
 	}
 	
 	@GET
@@ -72,7 +73,7 @@ public class IngestionServlet {
 												 @PathParam(IngestionConstants.NAME_KEY) String name,
 												 @PathParam(IngestionConstants.VALUE_KEY) String value) {
 		
-		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value));
+		return saveMeasurement(context.getMeasurementUtils().structuredToMap(eId, time, name, value));
 	}
 	
 	@GET
@@ -84,7 +85,7 @@ public class IngestionServlet {
 												  @PathParam(IngestionConstants.VALUE_KEY) String value,
 												  @PathParam(IngestionConstants.OPTIONALDATA_KEY) String optionalData) {
 		
-		return saveMeasurement(MeasurementUtils.structuredToMap(eId, time, name, value, optionalData));
+		return saveMeasurement(context.getMeasurementUtils().structuredToMap(eId, time, name, value, optionalData));
 	}
 	
 	private Response saveMeasurement(String json) {
@@ -92,7 +93,7 @@ public class IngestionServlet {
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			MeasurementAccessor.getInstance().sendStructuredMeasurement(json);			
+			context.getMeasurementAccessor().sendStructuredMeasurement(json);			
 			resp.setStatus(STATUS.SUCCESS);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -108,7 +109,7 @@ public class IngestionServlet {
 		SimpleResponse resp = new SimpleResponse();
 
 		try{
-			MeasurementAccessor.getInstance().sendStructuredMeasurement(measurement);			
+			context.getMeasurementAccessor().sendStructuredMeasurement(measurement);			
 			resp.setStatus(STATUS.SUCCESS);
 		}catch(Exception e){
 			e.printStackTrace();

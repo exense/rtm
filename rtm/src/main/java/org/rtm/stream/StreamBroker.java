@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 
-import org.rtm.commons.Configuration;
+import ch.exense.commons.app.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +25,11 @@ public class StreamBroker {
 	
 	private ConcurrentMap<String, Stream> streamRegistry;
 	
-	public StreamBroker(){
+	public StreamBroker(Configuration configuration){
 		streamRegistry = new ConcurrentHashMap<>();
 		long defaultTimeout = 600;
 		try {
-			defaultTimeout = Configuration.getInstance().getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs");
+			defaultTimeout = configuration.getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs");
 		} catch (Exception e) {
 			logger.error("Couldn't load timeout value from conf.", e);
 		}

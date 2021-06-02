@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import ch.exense.commons.app.Configuration;
 import org.rtm.measurement.MeasurementStatistics;
 import org.rtm.stream.Dimension;
 import org.rtm.stream.Stream;
@@ -18,11 +19,13 @@ import org.slf4j.LoggerFactory;
 public class MetricsManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetricsManager.class);
+	private final Configuration configuration;
 
 	private Properties props;
 
-	public MetricsManager(Properties props) {
+	public MetricsManager(Properties props, Configuration configuration) {
 		this.props = props;
+		this.configuration = configuration;
 	}
 
 	public Stream handle(Stream stream) throws Exception {
@@ -30,7 +33,7 @@ public class MetricsManager {
 	}
 
 	private Stream computePostMetrics(Stream stream) throws Exception {
-		Stream resStream = new Stream(props);
+		Stream resStream = new Stream(props, configuration);
 		
 		ConcurrentSkipListMap<Long, AggregationResult> originMap = stream.getStreamData();
 		ConcurrentSkipListMap<Long, AggregationResult> resultMap = new ConcurrentSkipListMap<Long, AggregationResult>();

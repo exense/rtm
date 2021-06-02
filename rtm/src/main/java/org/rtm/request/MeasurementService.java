@@ -22,14 +22,16 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.rtm.db.BsonQuery;
+import org.rtm.commons.MeasurementAccessor;
+import org.rtm.db.FilterQuery;
 import org.rtm.db.QueryClient;
 import org.rtm.request.selection.Selector;
 
-import com.mongodb.client.MongoCursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,23 +48,23 @@ public class MeasurementService{
 	private static int MAX_SAMPLING_CSV_FIELDS=10000;
 
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementService.class);
+	
+	private MeasurementAccessor measurementAccessor;
 
-	public MeasurementService(){}
+	public MeasurementService(MeasurementAccessor measurementAccessor){
+		this.measurementAccessor = measurementAccessor;
+	}
 
 	public List<Map<String, Object>> selectMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit, Properties prop) throws Exception{
 		List<Map<String, Object>> res = new ArrayList<Map<String, Object>>();
 		String timeField = (String) prop.get("aggregateService.timeField");
 		String timeFormat = (String) prop.get("aggregateService.timeFormat");
-		Iterable it = new QueryClient(prop).executeQuery(new BsonQuery(slt, timeField, timeFormat).getQuery(), orderBy, direction, skip, limit);
-		MongoCursor cursor = (MongoCursor) it.iterator();
-
-		for(Object o : it){
+		Stream<? extends Map> stream = new QueryClient(prop, measurementAccessor).executeQuery(new FilterQuery(slt, timeField, timeFormat).getQuery(), orderBy, direction, skip, limit);
+		
+		stream.forEach(o-> {
 			Map<String, Object> m = (Map) o;
 			res.add(m);
-		}
-		
-		cursor.close();
-
+		});
 		return res;
 	}
 
@@ -77,14 +79,14 @@ public class MeasurementService{
 			//Write header (for CSV need a sample to get list of fields (no exhaustive) )
 			long start = System.currentTimeMillis();
 			int sampling = (limit>0 && limit<MAX_SAMPLING_CSV_FIELDS) ? limit : MAX_SAMPLING_CSV_FIELDS;
-			MongoCursor it = (isCSV) ? findMeasurements(slt, orderBy, direction, skip, sampling, prop) : null;
-			formatter.writeHeader(zipOut,it);
-			if (it != null) { it.close();}
+			Stream<? extends Map> measurements = (isCSV) ? findMeasurements(slt, orderBy, direction, skip, sampling, prop) : null;
+			formatter.writeHeader(zipOut,measurements);
+			if (measurements != null) { measurements.close();}
 			logger.trace("Elapse header " + (System.currentTimeMillis()-start));
 			//Write content
-			it = findMeasurements(slt, orderBy, direction, skip, limit, prop);
-			formatter.writeBody(zipOut, it);
-			if (it != null) { it.close();}
+			measurements = findMeasurements(slt, orderBy, direction, skip, limit, prop);
+			formatter.writeBody(zipOut, measurements);
+			if (measurements != null) { measurements.close();}
 			logger.trace("Elapse content " + (System.currentTimeMillis()-start));
 			//Write footer
 			formatter.writeFooter(zipOut);
@@ -100,8 +102,8 @@ public class MeasurementService{
 
 	protected interface MeasurementFormatter {
 		String getExtension();
-		void writeHeader(ZipOutputStream zipOut,MongoCursor it) throws IOException;
-		void writeBody(ZipOutputStream zipOut,MongoCursor it) throws IOException;
+		void writeHeader(ZipOutputStream zipOut,Stream<? extends Map> measurements) throws IOException;
+		void writeBody(ZipOutputStream zipOut,Stream<? extends Map> measurements) throws IOException;
 		void writeFooter(ZipOutputStream zipOut) throws IOException;
 	}
 
@@ -114,12 +116,11 @@ public class MeasurementService{
 		}
 
 		@Override
-		public void writeHeader(ZipOutputStream zipOut, MongoCursor it) throws IOException {
+		public void writeHeader(ZipOutputStream zipOut, Stream<? extends Map> measurements) throws IOException {
 			//Round 1 get unique fields list and write header
 			fields = new HashSet();
-			while (it.hasNext()) {
-				fields.addAll(((Map) it.next()).keySet());
-			}
+			measurements.forEach(m -> fields.addAll(m.keySet()));
+			
 			StringBuffer stringBuffer = new StringBuffer();
 			fields.forEach(k-> {
 				if (stringBuffer.length() > 0) {
@@ -132,9 +133,8 @@ public class MeasurementService{
 		}
 
 		@Override
-		public void writeBody(ZipOutputStream zipOut, MongoCursor it) throws IOException {
-			while(it.hasNext()) {
-				Map<String,Object> m = (Map) it.next();
+		public void writeBody(ZipOutputStream zipOut, Stream<? extends Map> measurements) throws IOException {
+			measurements.forEach(m-> {
 				StringBuffer stringBuffer = new StringBuffer();
 				for (String key: fields) {
 					if (stringBuffer.length()>1) stringBuffer.append(",");
@@ -142,8 +142,13 @@ public class MeasurementService{
 					stringBuffer.append(v);
 				}
 				stringBuffer.append('\n');
-				zipOut.write(stringBuffer.toString().getBytes(StandardCharsets.UTF_8));
-			}
+				try {
+					zipOut.write(stringBuffer.toString().getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					throw new RuntimeException("Unable to write to body",e);
+				}
+			});
+
 		}
 
 		@Override
@@ -159,28 +164,34 @@ public class MeasurementService{
 		}
 
 		@Override
-		public void writeHeader(ZipOutputStream zipOut, MongoCursor it) throws IOException {
+		public void writeHeader(ZipOutputStream zipOut, Stream<? extends Map> measurements) throws IOException {
 			zipOut.write('[');
 		}
 
 		@Override
-		public void writeBody(ZipOutputStream zipOut, MongoCursor it) throws IOException {
-			while(it.hasNext()){
-				Map<String,Object> m = (Map) it.next();
+		public void writeBody(ZipOutputStream zipOut, Stream<? extends Map> measurements) throws IOException {
+			AtomicInteger count= new AtomicInteger();
+			measurements.forEach(mo -> {
+				Map<String,Object> m = (Map) mo;
 				StringBuffer stringBuffer = new StringBuffer();
+				if (count.get() > 0) {
+					stringBuffer.append(',');
+				}
 				stringBuffer.append("{");
 				for (String key: m.keySet()) {
 					if (stringBuffer.length()>1) stringBuffer.append(",");
 					stringBuffer.append("\"").append(key).append("\":\"").append(m.get(key).toString().replace("\"","\\\"")).append("\"");
 				}
 				stringBuffer.append("}");
-				if (it.hasNext()) {
-					stringBuffer.append(',');
-				}
 				//only for readiness
 				stringBuffer.append('\n');
-				zipOut.write(stringBuffer.toString().getBytes(StandardCharsets.UTF_8));
-			}
+				try {
+					zipOut.write(stringBuffer.toString().getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					throw new RuntimeException("Unable to write to body",e);
+				}
+				count.getAndIncrement();
+			});
 		}
 
 		@Override
@@ -189,11 +200,10 @@ public class MeasurementService{
 		}
 	}
 
-	private MongoCursor findMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit, Properties prop) {
+	private Stream<? extends Map> findMeasurements(List<Selector> slt, String orderBy, int direction, int skip, int limit, Properties prop) {
 		String timeField = (String) prop.get("aggregateService.timeField");
 		String timeFormat = (String) prop.get("aggregateService.timeFormat");
-		Iterable it = new QueryClient(prop).executeQuery(new BsonQuery(slt, timeField, timeFormat).getQuery(), orderBy, direction, skip, limit);
-		return (MongoCursor) it.iterator();
+		return new QueryClient(prop, measurementAccessor).executeQuery(new FilterQuery(slt, timeField, timeFormat).getQuery(), orderBy, direction, skip, limit);
 	}
 
 

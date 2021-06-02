@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.Document;
 
 import com.mongodb.BasicDBObject;
+import step.core.collections.Document;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class MeasurementDBConverter {
 
 	public static Document convertToMongo(String m){
-		return new Document((BasicDBObject)com.mongodb.util.JSON.parse(m));
+		return new Document(BasicDBObject.parse(m));
 	}
 	
 	public static List<Document> convertManyToMongo(List<Object> lm){

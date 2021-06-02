@@ -1,5 +1,10 @@
 package org.rtm.commons;
 
+import ch.exense.commons.app.Configuration;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,26 +40,45 @@ public class TestMeasurementBuilder {
 	}
 	
 	public static Map<String, Object> build(TestMeasurementType type, String eId, String name, Long time, Long value, Map<String, Object> optionals){
-		Map<String, Object> map = new HashMap<>();
-		map.put(MeasurementConstants.EID_KEY, eId);
-		map.put(MeasurementConstants.NAME_KEY, name);
-		map.put(MeasurementConstants.BEGIN_KEY, time);
-		map.put(MeasurementConstants.VALUE_KEY, value);
-		
-		switch (type){
-
-		case SIMPLE:
-			// do nothing
-			break;
-		case WITH_OPTIONAL:
-			map.putAll(optionals);
-			break;
-		default:
-			//do nothing;
-			break;
+		Configuration configuration = null;
+		try {
+			configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+			RtmContext context = new RtmContext(configuration);
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put(context.getEidKey(), eId);
+			map.put(context.getNameKey(), name);
+			map.put(context.getBeginKey(), time);
+			map.put(context.getValueKey(), value);
+			
+			switch (type){
+	
+			case SIMPLE:
+				// do nothing
+				break;
+			case WITH_OPTIONAL:
+				map.putAll(optionals);
+				break;
+			default:
+				//do nothing;
+				break;
+			}
+			
+			return map;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
 		}
-		
-		return map;
+		return null;
 	}
 
 }

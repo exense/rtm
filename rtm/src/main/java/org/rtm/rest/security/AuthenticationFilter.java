@@ -2,8 +2,10 @@ package org.rtm.rest.security;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientResponseContext;
@@ -14,21 +16,24 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import org.glassfish.jersey.server.ExtendedUriInfo;
-import org.rtm.commons.Configuration;
+import org.rtm.rest.AbstractServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 @Provider
 @Priority(Priorities.AUTHENTICATION)
-public class AuthenticationFilter implements ContainerRequestFilter, ClientResponseFilter {
+public class AuthenticationFilter extends AbstractServlet implements ContainerRequestFilter, ClientResponseFilter {
 	
 	private static Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);
-	UnsecureAbstractClient client = new UnsecureAbstractClient(Configuration.getInstance().getPropertyWithDefault("sso.server.url", "http://localhost:8080"));
-	boolean useSSO = Boolean.parseBoolean(Configuration.getInstance().getPropertyWithDefault("sso.active", "false"));
+	UnsecureAbstractClient client;
+	boolean useSSO;
 	
-	@Inject
-	private ExtendedUriInfo extendendUriInfo;
+	@PostConstruct
+	public void init() throws Exception {
+		client = new UnsecureAbstractClient(context.getConfiguration().getProperty("sso.server.url", "http://localhost:8080"));
+		useSSO = Boolean.parseBoolean(context.getConfiguration().getProperty("sso.active", "false"));
+	}
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -55,8 +60,7 @@ public class AuthenticationFilter implements ContainerRequestFilter, ClientRespo
 
 	private void validateToken(String token) throws TokenValidationException {
 		if(!client.requestBuilder(
-							Configuration.getInstance()
-							.getPropertyWithDefault(
+							context.getConfiguration().getProperty(
 								"step.server.tokenContext",
 								"/rest/access/checkToken?token=")
 							+token)

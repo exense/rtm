@@ -20,6 +20,8 @@ package org.rtm.rest.aggregation;
 
 import java.util.NoSuchElementException;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -35,6 +37,7 @@ import org.rtm.request.ComparisonRequest;
 import org.rtm.request.ErrorResponse;
 import org.rtm.request.RequestHandler;
 import org.rtm.request.SuccessResponse;
+import org.rtm.rest.AbstractServlet;
 import org.rtm.stream.Stream;
 import org.rtm.stream.StreamBroker;
 import org.rtm.stream.StreamId;
@@ -46,12 +49,19 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Path(AggregationConstants.servletPrefix)
-public class AggregationServlet {
+@Singleton
+public class AggregationServlet extends AbstractServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
 
-	private static StreamBroker ssm = new StreamBroker();
-	RequestHandler rh = new RequestHandler(ssm);
+	private StreamBroker ssm;
+	RequestHandler rh;
+
+	@PostConstruct
+	public void init() throws Exception {
+		ssm = new StreamBroker(context.getConfiguration());
+		rh = new RequestHandler(ssm, context.getConfiguration(), context.getMeasurementAccessor());
+	}
 	
 	@POST
 	@Path(AggregationConstants.getpath)
@@ -105,7 +115,7 @@ public class AggregationServlet {
 			if(s.isCompositeStream())
 				result = s;
 			else{
-				result = new MetricsManager(s.getStreamProp()).handle(s);
+				result = new MetricsManager(s.getStreamProp(),context.getConfiguration()).handle(s);
 				result.setComplete(s.isComplete());
 				}
 			WrappedResult wr = new WrappedResult(result, new MeasurementStatistics(s.getStreamProp()).getMetricList());

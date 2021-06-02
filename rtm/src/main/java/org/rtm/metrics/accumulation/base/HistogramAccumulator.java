@@ -2,6 +2,7 @@ package org.rtm.metrics.accumulation.base;
 
 import java.util.Properties;
 
+import ch.exense.commons.app.Configuration;
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.Accumulator;
 import org.rtm.metrics.accumulation.histograms.Histogram;
@@ -11,17 +12,19 @@ public class HistogramAccumulator implements Accumulator<Long, Histogram>{
 
 	private int nbPairs;
 	private Properties props;
-	
+	private ServiceUtils serviceUtils;
+
 	@Override
-	public void initAccumulator(Properties props) {
+	public void initAccumulator(Properties props, Configuration configuration) {
 		this.props = props;
-		nbPairs = Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histSize", 40));
+		this.serviceUtils = new ServiceUtils(configuration);
+		nbPairs = Integer.parseInt((String)serviceUtils.decideServiceProperty(props, "aggregateService.histSize", 40));
 	}
 
 	@Override
 	public WorkObject buildStateObject(String dimensionName) {
-		String value = (String) ServiceUtils.decideServiceProperty(props, "aggregateService.histApp"+"."+dimensionName, null);
-		int dimensionApproxMs = (value == null) ? Integer.parseInt((String)ServiceUtils.decideServiceProperty(props, "aggregateService.histApp", 200)) : Integer.parseInt(value);
+		String value = (String) serviceUtils.decideServiceProperty(props, "aggregateService.histApp"+"."+dimensionName, null);
+		int dimensionApproxMs = (value == null) ? Integer.parseInt((String)serviceUtils.decideServiceProperty(props, "aggregateService.histApp", 200)) : Integer.parseInt(value);
 		return new HistogramAccumulatorState(nbPairs, dimensionApproxMs);
 	}
 

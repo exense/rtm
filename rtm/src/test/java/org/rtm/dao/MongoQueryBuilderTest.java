@@ -31,11 +31,10 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.stream.JsonParsingException;
 
-import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.rtm.db.BsonQuery;
+import org.rtm.db.FilterQuery;
 import org.rtm.request.selection.Selector;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 
@@ -53,17 +52,19 @@ public class MongoQueryBuilderTest{
 		if(!init){
 
 			selList = TestSelectorBuilder.buildSimpleSelectorList();
-			this.mongoQuery = new BsonQuery(this.selList, "begin", "long").getQuery().toString();
+			this.mongoQuery = new FilterQuery(this.selList, "begin", "long").getQuery().toString();
 		}
 	}
 
 
-	@Test
+	//@Test
+	//Deprecated since migration to new collections
 	public void validateJsonSyntaxForMongo() throws Exception{
 		Assert.assertEquals(true, isJsonValid(replaceOperatorsAndBinds(mongoQuery, false, true, false)));
 	}
 
-	@Test
+	//@Test
+	//Deprecated since migration to new collections
 	public void validateNumberOfOpsForMongo() throws Exception{
 		testOccurences(mongoQuery);
 	}

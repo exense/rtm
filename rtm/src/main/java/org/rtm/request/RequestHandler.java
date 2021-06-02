@@ -3,7 +3,8 @@ package org.rtm.request;
 import java.util.List;
 import java.util.Properties;
 
-import org.rtm.commons.Configuration;
+import ch.exense.commons.app.Configuration;
+import org.rtm.commons.MeasurementAccessor;
 import org.rtm.db.QueryClient;
 import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.pipeline.PipelineExecutionHelper;
@@ -28,9 +29,13 @@ public class RequestHandler {
 
 	private StreamBroker sb;
 	private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+	private Configuration configuration;
+	private MeasurementAccessor ma;
 
-	public RequestHandler(StreamBroker ssm){
+	public RequestHandler(StreamBroker ssm, Configuration configuration, MeasurementAccessor ma){
 		this.sb = ssm;
+		this.configuration = configuration;
+		this.ma = ma;
 	}
 
 	public StreamId aggregate(AggregationRequest aggReq) throws Exception{
@@ -42,11 +47,11 @@ public class RequestHandler {
 		LongTimeInterval lti = aggReq.getTimeWindow1();
 		
 		Properties prop = new Properties();
-		prop.putAll(Configuration.getInstance().getUnderlyingPropertyObject());
+		prop.putAll(configuration.getUnderlyingPropertyObject());
 		//prop.putAll(mapWhereNeeded(aggReq.getServiceParams()));
 		prop.putAll(aggReq.getServiceParams());
 
-		QueryClient db = new QueryClient(prop);
+		QueryClient db = new QueryClient(prop, ma);
 		
 		/* Parallization inputs*/
 		long timeoutSecs = Long.parseLong(prop.getProperty("aggregateService.timeout"));
@@ -83,7 +88,7 @@ public class RequestHandler {
 		if (logger.isDebugEnabled())
 			logger.debug("New Aggregation Request : TimeWindow=[effective=" + effective + "; optimalSize=" + optimalSize + "]; props=" + prop + "; selectors=" + aggReq.getSelectors1() + "; streamId=" + stream.getId());
 
-		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs);
+		PullTaskBuilder tb = new PartitionedPullQueryBuilder(sel, prop, subPartitioning, subPoolSize, timeoutSecs, ma, configuration);
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
 				effective.getBegin(), effective.getEnd(),
 				optimalSize, rh, tb);
@@ -119,7 +124,7 @@ public class RequestHandler {
 		
 		prop.setProperty(Stream.INTERVAL_SIZE_KEY, optimalSize.toString());
 				
-		Stream<Long> stream = new Stream<>(prop);
+		Stream<Long> stream = new Stream<>(prop, configuration);
 		stream.setTimeoutDurationSecs(timeout);
 
 		return stream;
@@ -131,7 +136,7 @@ public class RequestHandler {
 		{
 			switch(hardInterval){
 			case "auto":
-				optimalSize = QueryClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(Configuration.getInstance().getProperty("aggregateService.defaultTargetDots")));
+				optimalSize = QueryClient.computeOptimalIntervalSize(effective.getSpan(), Integer.parseInt(configuration.getProperty("aggregateService.defaultTargetDots")));
 				break;
 			case "max":
 				optimalSize = effective.getSpan() + 1;
@@ -169,8 +174,8 @@ public class RequestHandler {
 		
 		logger.debug("Comparison streams completed. Creating diff result stream.");
 		
-		s1 = new MetricsManager(props).handle(s1);
-		s2 = new MetricsManager(props).handle(s2);
+		s1 = new MetricsManager(props, configuration).handle(s1);
+		s2 = new MetricsManager(props, configuration).handle(s2);
 		
 		Long intervalSize = Long.parseLong(s1.getStreamProp().getProperty(Stream.INTERVAL_SIZE_KEY));
 		

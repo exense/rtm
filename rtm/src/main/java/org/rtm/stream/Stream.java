@@ -3,7 +3,7 @@ package org.rtm.stream;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import org.rtm.commons.Configuration;
+import ch.exense.commons.app.Configuration;
 import org.rtm.stream.result.AggregationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public class Stream<T> {
 	@JsonIgnore
 	private Properties streamProp; // pass stream-specific concrete information? currently unused
 	
-	public Stream(Properties prop){
+	public Stream(Properties prop, Configuration configuration){
 		this.streamProp = prop;
 		this.setStreamData(new ConcurrentSkipListMap<Long, AggregationResult<T>>());
 		try {
-			this.setTimeoutDurationSecs(Configuration.getInstance().getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs"));
+			this.setTimeoutDurationSecs(configuration.getPropertyAsInteger("aggregateService.defaultStreamTimeoutSecs"));
 		} catch (Exception e) {
 			logger.error("Could not access default timeout value.", e);
 			this.setTimeoutDurationSecs(600);

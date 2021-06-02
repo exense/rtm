@@ -18,30 +18,35 @@
  *******************************************************************************/
 package org.rtm.utils;
 
-import java.util.Properties;
+import ch.exense.commons.app.Configuration;
 
-import org.rtm.commons.Configuration;
+import java.util.Properties;
 
 /**
  * @author doriancransac
  *
  */
 public class ServiceUtils {
+	
+	Configuration configuration;
 
-	public static Object decideServiceProperty(Properties props, String key, Object defaultValue){
+	public ServiceUtils(Configuration configuration) {
+		this.configuration = configuration;
+	}
+
+	public Object decideServiceProperty(Properties props, String key, Object defaultValue){
 		Object value = props.getProperty(key);
 		
 		if(value != null){
 			return value;
 		}
 		else{
-			Configuration inst = Configuration.getInstance();
 			
-			if(inst.hasProperty(key)){
+			if(configuration.hasProperty(key)){
 				if(defaultValue != null)
-					return inst.getProperty(key, defaultValue.toString());
+					return configuration.getProperty(key, defaultValue.toString());
 				else
-					return inst.getProperty(key, null);
+					return configuration.getProperty(key, null);
 			}
 			else{
 				return defaultValue;

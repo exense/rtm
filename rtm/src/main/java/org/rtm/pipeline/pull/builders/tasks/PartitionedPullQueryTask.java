@@ -3,6 +3,8 @@ package org.rtm.pipeline.pull.builders.tasks;
 import java.util.List;
 import java.util.Properties;
 
+import ch.exense.commons.app.Configuration;
+import org.rtm.commons.MeasurementAccessor;
 import org.rtm.pipeline.commons.BlockingMode;
 import org.rtm.pipeline.pull.PullPipeline;
 import org.rtm.pipeline.pull.builders.PullPipelineBuilder;
@@ -13,18 +15,20 @@ import org.rtm.request.selection.Selector;
 
 public class PartitionedPullQueryTask extends MergingPartitionedQueryTask{
 
+	private final MeasurementAccessor ma;
 	//private static final Logger logger = LoggerFactory.getLogger(PartitionedPullQueryTask.class);
 	private Properties prop;
 	
-	public PartitionedPullQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int subPoolSize, long timeoutSecs) {
-		super(sel, prop, partitioningFactor, subPoolSize, timeoutSecs);
+	public PartitionedPullQueryTask(List<Selector> sel, Properties prop, long partitioningFactor, int subPoolSize, long timeoutSecs, MeasurementAccessor ma, Configuration configuration) {
+		super(sel, prop, partitioningFactor, subPoolSize, timeoutSecs, ma, configuration);
 		this.prop = prop;
+		this.ma = ma;
 	}
 
 	@Override
 	protected void executeParallel(RangeBucket<Long> bucket) throws Exception {
 
-		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator, prop);
+		PullTaskBuilder tb = new PullQueryBuilder(super.sel, super.accumulator, prop, ma);
 
 		PullPipelineBuilder ppb = new SimplePipelineBuilder(
 				bucket.getLowerBound(),
