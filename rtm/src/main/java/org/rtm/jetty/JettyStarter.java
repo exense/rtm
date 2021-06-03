@@ -96,7 +96,7 @@ public class JettyStarter {
 
 		ContextHandler webAppHandler = new ContextHandler("/rtm");
 		ResourceHandler bb = new ResourceHandler();
-		bb.setResourceBase(Resource.newClassPathResource("webapp").getURI().toString());
+		bb.setResourceBase(Resource.newClassPathResource("webappRtm").getURI().toString());
 		webAppHandler.setHandler(bb);
 		
 		hcoll.addHandler(serviceHandler);
