@@ -92,7 +92,7 @@ public class JettyStarter {
 		
 		ContextHandlerCollection hcoll = new ContextHandlerCollection();
 
-		ServletContextHandler serviceHandler = getServletContextHandler();
+		ServletContextHandler serviceHandler = getServletContextHandler(context);
 
 		ContextHandler webAppHandler = new ContextHandler("/rtm");
 		ResourceHandler bb = new ResourceHandler();
@@ -108,7 +108,7 @@ public class JettyStarter {
 		
 	}
 
-	public ServletContextHandler getServletContextHandler() {
+	public static ServletContextHandler getServletContextHandler(RtmContext context) {
 		ResourceConfig resourceConfig = new ResourceConfig();
 		resourceConfig.packages(AggregationServlet.class.getPackage().getName());
 		resourceConfig.register(JacksonJaxbJsonProvider.class);

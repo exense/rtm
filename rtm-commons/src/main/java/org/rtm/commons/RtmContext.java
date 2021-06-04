@@ -26,15 +26,22 @@ public class RtmContext {
     public static String END_KEY = "model.key.end";
 
     public RtmContext(Configuration configuration) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        this.configuration = configuration;
-        String collectionClassname = this.getConfiguration().getProperty("db.type", FilesystemCollectionFactory.class.getName());
-        CollectionFactory collectionFactory = (CollectionFactory) Class.forName(collectionClassname)
-                .getConstructor(Properties.class).newInstance(this.getConfiguration().getUnderlyingPropertyObject());
-        this.setCollectionFactory(collectionFactory);
-        Collection<Document> collection = collectionFactory.getCollection(MeasurementAccessor.ENTITY_NAME, Document.class);
-        this.setMeasurementAccessor(new MeasurementAccessor(collection));
+        this(configuration,null);
+    }
 
-        this.setMeasurementUtils(new MeasurementUtils(this));
+    public RtmContext(Configuration configuration, CollectionFactory collectionFactory) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        this.configuration = configuration;
+        if (collectionFactory != null) {
+            this.collectionFactory = collectionFactory;    
+        } else {
+            String collectionClassname = this.getConfiguration().getProperty("db.type", FilesystemCollectionFactory.class.getName());
+            this.collectionFactory = (CollectionFactory) Class.forName(collectionClassname)
+                    .getConstructor(Properties.class).newInstance(this.getConfiguration().getUnderlyingPropertyObject());
+        }
+        
+        Collection<Document> collection = this.collectionFactory.getCollection(MeasurementAccessor.ENTITY_NAME, Document.class);
+        measurementAccessor = new MeasurementAccessor(collection);
+        measurementUtils = new MeasurementUtils(this);
     }
 
     public Configuration getConfiguration() {
