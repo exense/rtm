@@ -85,7 +85,7 @@ public class RequestHandlerTest {
 		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
 
 		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
-		MeasurementAccessor ma = new MeasurementAccessor(new MongoDBCollectionFactory(configuration).getCollection(MeasurementAccessor.ENTITY_NAME, Document.class));
+		MeasurementAccessor ma = new MeasurementAccessor(new MongoDBCollectionFactory(configuration.getUnderlyingPropertyObject()).getCollection(MeasurementAccessor.ENTITY_NAME, Document.class));
 		
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);

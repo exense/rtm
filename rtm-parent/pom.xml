@@ -41,7 +41,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<step-framework.version>2021.06.02-IDe8c0099</step-framework.version>
+		<step-framework.version>2021.06.04-ID5ea663b</step-framework.version>
 	</properties>
 
 	<repositories>

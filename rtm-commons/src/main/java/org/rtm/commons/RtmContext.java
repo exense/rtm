@@ -8,6 +8,7 @@ import step.core.collections.Document;
 import org.rtm.commons.utils.MeasurementUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Properties;
 
 public class RtmContext {
 
@@ -28,7 +29,7 @@ public class RtmContext {
         this.configuration = configuration;
         String collectionClassname = this.getConfiguration().getProperty("db.type", FilesystemCollectionFactory.class.getName());
         CollectionFactory collectionFactory = (CollectionFactory) Class.forName(collectionClassname)
-                .getConstructor(Configuration.class).newInstance(this.getConfiguration());
+                .getConstructor(Properties.class).newInstance(this.getConfiguration().getUnderlyingPropertyObject());
         this.setCollectionFactory(collectionFactory);
         Collection<Document> collection = collectionFactory.getCollection(MeasurementAccessor.ENTITY_NAME, Document.class);
         this.setMeasurementAccessor(new MeasurementAccessor(collection));

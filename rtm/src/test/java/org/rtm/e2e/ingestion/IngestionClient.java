@@ -43,7 +43,7 @@ public class IngestionClient {
 	public synchronized void init() throws IOException {
 		if(!init){
 			Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
-			MongoDBCollectionFactory factory = new MongoDBCollectionFactory(configuration);
+			MongoDBCollectionFactory factory = new MongoDBCollectionFactory(configuration.getUnderlyingPropertyObject());
 			ma = new MeasurementAccessor(factory.getCollection(MeasurementAccessor.ENTITY_NAME, Document.class));
 			//tc = TransportClientBuilder.buildHttpClient(hostname, port);
 			tc = ma;//This is not used and just return an accessor as of now TransportClientBuilder.buildAccessorClient(hostname, port);
