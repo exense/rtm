@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.1</version>
+			<version>4.5.13</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.exense.rtm</groupId>
@@ -48,13 +48,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.13.1</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.glassfish/javax.json -->
 		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>javax.json</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -66,16 +64,12 @@
 			<version>1.7.5</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.5</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.json/json <dependency> <groupId>org.json</groupId>
-			<artifactId>json</artifactId> <version>20160810</version> </dependency> -->
-		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
