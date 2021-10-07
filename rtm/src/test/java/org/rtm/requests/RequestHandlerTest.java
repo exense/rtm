@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
+import org.junit.Test;
 import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
@@ -89,7 +90,7 @@ public class RequestHandlerTest {
 		LongTimeInterval lti = new LongTimeInterval(DateUtils.asDate(twoWeeksAgo).getTime(), DateUtils.asDate(today).getTime());
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5ea289e3ccdd9212862cd1dd"), props);
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5ea958fab91e616fa53bbb68"), props);
-		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("5f77329117305718f0c172f2"), props);
+		AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorList("6101584495282662cf517130"), props);
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildTestSelectorListWithName("5f77329117305718f0c172f2","Custom_login"), props);
 
 		//AggregationRequest ar = new AggregationRequest(lti, TestSelectorBuilder.buildSimpleSelectorList(), props);
