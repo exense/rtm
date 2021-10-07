@@ -6,8 +6,14 @@ import java.util.Map;
 import org.rtm.metrics.WorkObject;
 import org.rtm.metrics.accumulation.histograms.Histogram;
 
-public abstract class HistPercentileMetric implements SubscribedMetric<Long>{
+public class HistPercentileMetric implements SubscribedMetric<Long>{
 	
+	Float percentileMark;
+
+	public HistPercentileMetric(Float percentileMark) {
+		this.percentileMark = percentileMark/100;
+	}
+
 	@Override
 	public String[] getSubscribedAccumulatorsList() {
 		return new String[] {"org.rtm.metrics.accumulation.base.HistogramAccumulator"};
@@ -22,10 +28,12 @@ public abstract class HistPercentileMetric implements SubscribedMetric<Long>{
 	@Override
 	public String getDisplayName() {
 		DecimalFormat df = new DecimalFormat();
-		df.setMaximumFractionDigits(0);
+		df.setMaximumFractionDigits(1);
 		return df.format((getPercentileMark() * 100F))+ "th pcl";
 	}
 
-	protected abstract Float getPercentileMark();
+	protected Float getPercentileMark() {
+		return percentileMark;
+	}
 
 }
