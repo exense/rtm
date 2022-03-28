@@ -10,7 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import ch.exense.commons.app.Configuration;
+import step.core.collections.mongodb.MongoDBCollectionFactory;
+import step.core.collections.Document;
+import org.rtm.commons.MeasurementAccessor;
 import org.rtm.metrics.postprocessing.MetricsManager;
 import org.rtm.range.time.LongTimeInterval;
 import org.rtm.request.AbstractResponse;
@@ -28,6 +31,7 @@ import org.rtm.utils.DateUtils;
 import org.rtm.utils.JSONMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import step.core.collections.mongodb.MongoDBCollectionFactory;
 
 //TODO: mongo mock
 public class RequestHandlerTest {
@@ -84,6 +88,9 @@ public class RequestHandlerTest {
 	public void basicTest(int histApp, int histSize, int partition, List<Long> timeToFirstByte, List<Long> elapse, List<Long> elapseWithResults) throws Exception{
 		Properties props = new Properties();
 		props.load(new FileReader(new File("src/main/resources/rtm.properties")));
+
+		Configuration configuration = new Configuration(new File("src/main/resources/rtm.properties"));
+		MeasurementAccessor ma = new MeasurementAccessor(new MongoDBCollectionFactory(configuration.getUnderlyingPropertyObject()).getCollection(MeasurementAccessor.ENTITY_NAME, Document.class));
 		
 		LocalDateTime today = LocalDateTime.now();
 		LocalDateTime twoWeeksAgo = today.minus(10, ChronoUnit.WEEKS);
@@ -108,8 +115,8 @@ public class RequestHandlerTest {
 
 		//ar.getServiceParams().put("targetChartDots", "1");
 
-		StreamBroker ssm = new StreamBroker();
-		RequestHandler rh = new RequestHandler(ssm);
+		StreamBroker ssm = new StreamBroker(configuration);
+		RequestHandler rh = new RequestHandler(ssm, configuration, ma);
 
 		IntStream.rangeClosed(1, 1).forEach(it -> {
 
@@ -159,7 +166,7 @@ public class RequestHandlerTest {
 			String[] metricKeys = {"cnt","avg","min","max","50th pcl","tps","tpm","80th pcl","90th pcl","99th pcl"};
 
 			try {
-				result = new MetricsManager(fknProps).handle(stream);
+				result = new MetricsManager(fknProps, configuration).handle(stream);
 				FinalAggregationResult f = (FinalAggregationResult) result.getStreamData().firstEntry().getValue();
 				System.out.println("cnt,avg,min,max,50th pcl,tps,tpm,80th pcl,90th pcl,99th pcl");
 				result.getStreamData().forEach((k,v) -> {
