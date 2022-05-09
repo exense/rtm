@@ -1,31 +1,42 @@
 {
 	"NAME": "RTM",
 	"OS": "WINDOWS",
-	
-	"SUBPROJECTS":
-	{
-		"TYPE":		["POM"],
-		"FOLDER":	["rtm-parent/"],
-		
-		"URL_STAGING":	["nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"],
-		"URL_PROD":		  ["sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"],
-		
-		"CONFIG_STAGING": [ "DefaultBuild"],
-		"CONFIG_PROD":    [ "DefaultBuild"]
-	},
-	"DISTRIBUTIONS": { 
-		"TYPE":["GITHUB", "GITHUB", "GITHUB", "GITHUB"],
-		
-		"ORIGIN_FILE":[
-			"rtm-commons/target/rtm-commons-${VERSION}.jar",
-			"rtm/src/main/resources/rtm.properties",
-			"rtm/target/rtm-${VERSION}.jar"
-		],
-		"DESTINATION_NAME":[
-			"rtm-commons-${VERSION}.jar",
-			"rtm.properties",
-      "rtm-${VERSION}-jar-with-dependencies.jar",
-      "rtm.war"
-		]
-	}
+
+	"ACTIONS": [
+		{
+			"ACTION": "COMPILE",
+			"TYPE": "POM",
+			"FOLDER": "rtm-parent/",
+			"PARAMETERS": [
+				{
+					"NAME": "DEVELOPMENT",
+					"URL": "nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
+					"CONFIG": "DefaultBuild"
+				},
+				{
+					"NAME": "PRODUCTION",
+					"URL": "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
+					"CONFIG": "DefaultBuild"
+				}
+			]
+		},
+		{
+			"ACTION": "PUSH",
+			"TYPE": "GITHUB",
+			"ACTIONS": [
+				{
+					"ORIGIN": "rtm-commons/target/rtm-commons-${VERSION}.jar",
+					"DESTINATION": "rtm-commons-${VERSION}.jar"
+				},
+				{
+					"ORIGIN": "rtm/src/main/resources/rtm.properties",
+					"DESTINATION": "rtm.properties"
+				},
+				{
+					"ORIGIN": "rtm/target/rtm-${VERSION}.jar",
+					"DESTINATION": "rtm-${VERSION}-jar-with-dependencies.jar"
+				}
+			]
+		}
+	]
 }
