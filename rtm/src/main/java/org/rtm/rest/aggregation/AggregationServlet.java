@@ -61,6 +61,7 @@ public class AggregationServlet extends AbstractServlet {
 	public void init() throws Exception {
 		ssm = new StreamBroker(context.getConfiguration());
 		rh = new RequestHandler(ssm, context.getConfiguration(), context.getMeasurementAccessor());
+		this.context.setCleanupExecutorService(ssm.getExecutorService());
 	}
 	
 	@POST

@@ -3,6 +3,7 @@ package org.rtm.stream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ch.exense.commons.app.Configuration;
@@ -24,6 +25,8 @@ public class StreamBroker {
 	private static final Logger logger = LoggerFactory.getLogger(StreamBroker.class);
 	
 	private ConcurrentMap<String, Stream> streamRegistry;
+
+	private ExecutorService executorService;
 	
 	public StreamBroker(Configuration configuration){
 		streamRegistry = new ConcurrentHashMap<>();
@@ -33,8 +36,8 @@ public class StreamBroker {
 		} catch (Exception e) {
 			logger.error("Couldn't load timeout value from conf.", e);
 		}
-		
-		Executors.newSingleThreadExecutor().submit(new StreamCleaner(this, defaultTimeout, 5));
+		executorService = Executors.newSingleThreadExecutor();
+		executorService.submit(new StreamCleaner(this, defaultTimeout, 5));
 	}
 	
 	public void registerStreamSession(Stream streamHandle) {
@@ -59,5 +62,9 @@ public class StreamBroker {
 
 	public Map<String, Stream> getStreamRegistry(){
 		return this.streamRegistry;
+	}
+
+	public ExecutorService getExecutorService() {
+		return executorService;
 	}
 }

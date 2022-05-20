@@ -9,6 +9,7 @@ import org.rtm.commons.utils.MeasurementUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 
 public class RtmContext {
 
@@ -16,6 +17,7 @@ public class RtmContext {
     private CollectionFactory collectionFactory;
     private MeasurementAccessor measurementAccessor;
     private MeasurementUtils measurementUtils;
+    private ExecutorService cleanupExecutorService;
     
     public static String EID_KEY = "model.key.eId";
     public static String BEGIN_KEY = "model.key.begin";
@@ -98,5 +100,13 @@ public class RtmContext {
 
     public String getEndKey() {
         return configuration.getProperty(END_KEY);
+    }
+
+    public ExecutorService getCleanupExecutorService() {
+        return cleanupExecutorService;
+    }
+
+    public void setCleanupExecutorService(ExecutorService cleanupExecutorService) {
+        this.cleanupExecutorService = cleanupExecutorService;
     }
 }
