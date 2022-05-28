@@ -2,7 +2,7 @@ package org.rtm.rest;
 
 import org.rtm.commons.RtmContext;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class AbstractServlet {
 

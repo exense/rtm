@@ -39,7 +39,7 @@ import org.rtm.rest.ingestion.IngestionServlet;
 import org.rtm.rest.measurement.MeasurementServlet;
 import org.rtm.rest.security.AuthenticationFilter;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 /**
  * @author dcransac

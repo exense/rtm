@@ -7,8 +7,8 @@ import org.rtm.request.AggregationRequest;
 import org.rtm.requests.guiselector.TestSelectorBuilder;
 import org.rtm.utils.DateUtils;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

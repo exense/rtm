@@ -20,7 +20,8 @@ package org.rtm.rest.security;
 
 import java.io.IOException;
 
-import javax.ws.rs.ext.ContextResolver;
+import com.fasterxml.jackson.datatype.jsonp.JSONPModule;
+import jakarta.ws.rs.ext.ContextResolver;
 
 import org.bson.types.ObjectId;
 
@@ -35,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsonorg.JsonOrgModule;
-import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
+
 
 public class JacksonMapperProvider implements ContextResolver<ObjectMapper> {
 	 
@@ -60,7 +61,7 @@ public class JacksonMapperProvider implements ContextResolver<ObjectMapper> {
         mapper.registerModule(new SimpleModule("jersey", new Version(1, 0, 0, null,null,null)) //
                         .addSerializer(_id, _idSerializer()) //
                         .addDeserializer(_id, _idDeserializer()));
-        mapper.registerModule(new JSR353Module());
+        mapper.registerModule(new JSONPModule());
         mapper.registerModule(new JsonOrgModule());
         
         return mapper;
