@@ -21,6 +21,8 @@ package org.rtm.rest.conf;
 import java.util.Map;
 import java.util.TreeMap;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Singleton;
 import jakarta.servlet.ServletContext;
 import jakarta.ws.rs.GET;
@@ -37,6 +39,8 @@ import org.rtm.rest.AbstractServlet;
 
 @Singleton
 @Path("/configuration")
+@Tag(name = "RTM Configuration")
+@Hidden
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationServlet extends AbstractServlet {
 	

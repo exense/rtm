@@ -20,6 +20,8 @@ package org.rtm.rest.ingestion;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -36,6 +38,8 @@ import org.rtm.rest.ingestion.SimpleResponse.STATUS;
 
 @Singleton
 @Path(IngestionConstants.servletPrefix)
+@Tag(name = "RTM Ingestion")
+@Hidden
 public class IngestionServlet extends AbstractServlet {
 
 	@GET

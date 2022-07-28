@@ -2,6 +2,8 @@ package org.rtm.rest.security;
 
 import java.io.IOException;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
@@ -23,6 +25,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Provider
 @Priority(Priorities.AUTHENTICATION)
+@Tag(name = "RTM Authentication")
+@Hidden
 public class AuthenticationFilter extends AbstractServlet implements ContainerRequestFilter, ClientResponseFilter {
 	
 	private static Logger logger = LoggerFactory.getLogger(AuthenticationFilter.class);

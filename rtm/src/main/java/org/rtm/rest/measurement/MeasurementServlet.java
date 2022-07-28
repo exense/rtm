@@ -18,6 +18,8 @@
  *******************************************************************************/
 package org.rtm.rest.measurement;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.*;
@@ -41,6 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Path("/measurement")
+@Tag(name = "RTM Measurement")
+@Hidden
 public class MeasurementServlet extends AbstractServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MeasurementServlet.class);

@@ -20,6 +20,8 @@ package org.rtm.rest.aggregation;
 
 import java.util.NoSuchElementException;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Consumes;
@@ -50,6 +52,8 @@ import org.slf4j.LoggerFactory;
  */
 @Path(AggregationConstants.servletPrefix)
 @Singleton
+@Tag(name = "RTM Aggregation")
+@Hidden
 public class AggregationServlet extends AbstractServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AggregationServlet.class);
