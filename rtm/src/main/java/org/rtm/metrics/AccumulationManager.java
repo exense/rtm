@@ -43,7 +43,7 @@ public class AccumulationManager {
 			if(dimension.get(accumulatorName) == null)
 				initWorkObject(accumulator, dimension);
 			
-			accumulator.accumulate(dimension.get(accumulatorName), value);
+			accumulator.accumulate(dimension.get(accumulatorName), (value instanceof Integer) ? ((Integer) value).longValue() : value);
 		}
 
 	}
