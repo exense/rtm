@@ -46,11 +46,6 @@ public class QueryClient {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public Stream<? extends Map> executeQuery(Filter timelessQuery, String sortKey, Integer sortDirection) {
-		return ma.find(timelessQuery, new SearchOrder(sortKey, sortDirection));
-	}
-
-	@SuppressWarnings("rawtypes")
 	public Stream<? extends Map> executeQuery(Filter timelessQuery, String sortKey, Integer sortDirection, int skip,
 			int limit) {
 		return ma.find(timelessQuery, new SearchOrder(sortKey, sortDirection), skip, limit);
@@ -96,8 +91,8 @@ public class QueryClient {
 		Map min = null;
 		Map max = null;
 		try {
-			min = executeQuery(query.getQuery(), timeField, 1).findFirst().get();
-			max = executeQuery(query.getQuery(), timeField, -1).findFirst().get();
+			min = executeQuery(query.getQuery(), timeField, 1,0,1).findFirst().get();
+			max = executeQuery(query.getQuery(), timeField, -1,0,1).findFirst().get();
 		} catch (NoSuchElementException e) {
 			return new LongTimeInterval(0L, 1L);
 		}
