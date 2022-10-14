@@ -42,7 +42,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- internal dependencies -->
-		<step-framework.version>2022.9.6-63170b20fd5f6139bca5f361</step-framework.version>
+		<step-framework.version>2.0.3</step-framework.version>
 		<!-- external dependencies -->
 		<jackson.version>2.13.3</jackson.version>
 		<jetty.version>11.0.9</jetty.version>
